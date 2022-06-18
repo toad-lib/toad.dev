@@ -1,22 +1,19 @@
 module Utils where
 
 import Prelude
-import Data.Array (snoc)
+import Data.Array (fromFoldable)
+import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..))
 import Halogen.HTML.Properties as Props
 import Halogen.HTML.Core (ClassName(..))
 
-classes :: forall r i. Array String -> Props.IProp (class :: String | r) i
-classes strs = Props.classes $ strs <#> ClassName
+classes :: ∀ r i. Array String -> Props.IProp ( class :: String | r ) i
+classes = map ClassName >>> Props.classes
 
-maybeArray :: forall a. Maybe a -> Array a
-maybeArray (Just a) = [a]
-maybeArray Nothing  = []
+appendFoldable :: ∀ f a. Foldable f => Array a -> f a -> Array a
+appendFoldable = flip $ fromFoldable >>> append
 
-snocMaybe :: forall a. Array a -> Maybe a -> Array a
-snocMaybe arr (Just a) = snoc arr a
-snocMaybe arr Nothing  = arr
+test :: ∀ a. Boolean -> a -> Maybe a
+test true a = Just a
 
-test :: forall a. Boolean -> a -> Maybe a
-test bool a | bool == true = Just a
-            | otherwise    = Nothing
+test false a = Nothing
