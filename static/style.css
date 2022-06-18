@@ -1,0 +1,452 @@
+/*
+ * ========
+ * Contents
+ * ========
+ *
+ * - Variables
+ *   css variables / custom props for reusable values
+ *
+ * - Type
+ *   global type rules
+ *
+ * - Layout
+ *   styles for grid & layout items
+ *
+ * - Appearance
+ *   colors, borders, etc.
+ *
+ * - App Elements
+ *   navbar, title, content
+ */
+
+/* Variables */
+:root {
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --hue-bg: 60deg;
+  --sat-bg: 33%;
+  --lum-bg: 90%;
+  --lum-bg-lt: 96%;
+
+  --hue-fg: 203deg;
+  --sat-fg: 13%;
+  --lum-fg: 16%;
+
+  --hue-acc-blue: 159deg;
+  --sat-acc-blue: 50%;
+  --lum-acc-blue: 82%;
+
+  --hue-acc-green: 107deg;
+  --sat-acc-green: 41%;
+  --lum-acc-green: 78%;
+
+  --hue-acc-yellow: 35deg;
+  --sat-acc-yellow: 90%;
+  --lum-acc-yellow: 80%;
+
+  --color-bg: hsl( var( --hue-bg )
+                 , var( --sat-bg )
+                 , var( --lum-bg )
+                 );
+
+  --color-bg-lt: hsl( var( --hue-bg )
+                    , var( --sat-bg )
+                    , var( --lum-bg-lt )
+                    );
+
+  --color-fg: hsl( var( --hue-fg )
+                 , var( --sat-fg )
+                 , var( --lum-fg )
+                 );
+
+  --color-accent-blue: hsl( var( --hue-acc-blue )
+                          , var( --sat-acc-blue )
+                          , var( --lum-acc-blue )
+                          );
+
+  --color-accent-green: hsl( var( --hue-acc-green )
+                           , var( --sat-acc-green )
+                           , var( --lum-acc-green )
+                           );
+
+  --color-accent-yellow: hsl( var( --hue-acc-yellow )
+                            , var( --sat-acc-yellow )
+                            , var( --lum-acc-yellow )
+                            );
+}
+
+@media only screen and (min-width: 1200px) {
+  .app-root {
+    --font-basis: 8pt;
+    --sizing-basis: 24px;
+    grid: " title navbar navbar " 64px
+          " lg-1  lg-1   .      " auto
+          " lg-1  lg-1   .      " auto
+          / 1fr   1fr    1fr
+          ;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .app-root {
+    --font-basis: 6pt;
+    --sizing-basis: 16px;
+    grid: " title  " 48px
+          " navbar " 48px
+          " lg-1   " auto
+          " lg-1   " auto
+          / 1fr
+          ;
+  }
+}
+
+/* Type */
+h1 {
+  font-family: 'GlamourExtended';
+  font-size: calc( var( --font-basis ) * 5 );
+  font-variant-ligatures: discretionary-ligatures;
+}
+
+h1.huge {
+  font-size: calc( var( --font-basis ) * 6 );
+}
+
+h2, h3, h4, h5, p, span, body, button {
+  font-family: 'Inter';
+}
+
+body {
+  font-synthesis: none !important;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+}
+
+button {
+  font-weight: 500;
+}
+
+/* Layout */
+h1, h2, h3, h4, h5, p, body {
+  margin: 0;
+}
+
+.app-root {
+  display: grid;
+
+  grid-gap: calc( var( --sizing-basis ) * 1.5 );
+}
+
+.grid-name {
+  grid-area: name;
+}
+
+.grid-content-lg, .lg {
+  grid-area: lg-1;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex.inline {
+  display: inline-flex;
+}
+
+.flex.stretch-children-main-axis {
+  align-content: stretch;
+}
+
+.flex.center-children-sec-axis {
+  align-items: center;
+}
+
+.flex.center-children-main-axis {
+  justify-content: center;
+}
+
+.flex.vert {
+  flex-direction: column;
+}
+
+/* Appearance */
+body {
+  background: var( --color-bg );
+}
+
+.title-width-hack {
+  position: fixed;
+  top: -50%;
+  left: 0;
+}
+
+.fade-out {
+  animation: fadeout 0.25s var( --ease ) forwards;
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-in {
+  animation: fadein 0.25s var( --ease ) forwards;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+img.plant {
+  width: 100%;
+  opacity: 0.5;
+  position: fixed;
+  z-index: -1;
+  bottom: -20%;
+}
+
+button {
+  --hover-lum-diff: -5%;
+  --active-lum-diff: -10%;
+  cursor: pointer;
+  transition: background 0.1s var( --ease );
+}
+
+.bg-green {
+  background: var( --color-accent-green );
+}
+
+.bg-yellow {
+  background: var( --color-accent-yellow );
+}
+
+.bg-blue {
+  background: var( --color-accent-blue );
+}
+
+button.bg-green:hover {
+  background: hsl( var( --hue-acc-green )
+                 , var( --sat-acc-green )
+                 , calc( var( --lum-acc-green ) + var( --hover-lum-diff ) )
+                 );
+}
+
+button.bg-green:active {
+  background: hsl( var( --hue-acc-green )
+                 , var( --sat-acc-green )
+                 , calc( var( --lum-acc-green ) + var( --active-lum-diff ) )
+                 );
+}
+
+button.bg-yellow:hover {
+  background: hsl( var( --hue-acc-yellow )
+                 , var( --sat-acc-yellow )
+                 , calc( var( --lum-acc-yellow ) + var( --hover-lum-diff ) )
+                 );
+}
+
+button.bg-yellow:active {
+  background: hsl( var( --hue-acc-yellow )
+                 , var( --sat-acc-yellow )
+                 , calc( var( --lum-acc-yellow ) + var( --active-lum-diff ) )
+                 );
+}
+
+button.bg-blue:hover {
+  background: hsl( var( --hue-acc-blue )
+                 , var( --sat-acc-blue )
+                 , calc( var( --lum-acc-blue ) + var( --hover-lum-diff ) )
+                 );
+}
+
+button.bg-blue:active {
+  background: hsl( var( --hue-acc-blue )
+                 , var( --sat-acc-blue )
+                 , calc( var( --lum-acc-blue ) + var( --active-lum-diff ) )
+                 );
+}
+
+/* App Elements */
+.app-root {
+  padding: calc( var( --sizing-basis ) * 1.5 );
+}
+
+.app-root * {
+  box-sizing: border-box;
+}
+
+.app-title {
+  width: 100%; /* fill grid cell */
+  white-space: nowrap;
+  grid-area: title;
+  justify-self: start;
+}
+
+.app-title h1 {
+  margin-left: calc( var( --sizing-basis ) * 0.75 );
+}
+
+.app-navbar {
+  grid-area: navbar;
+}
+
+.app-navbar > * {
+  margin-left: calc( var( --sizing-basis ) * 1.5 );
+}
+
+.app-navbar :first-child {
+  margin-left: 0;
+}
+
+.app-navbar button {
+  display: inline-block;
+  padding: calc( var( --sizing-basis ) * 0.5 );
+  flex-grow: 1;
+  border: none;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: calc( var( --font-basis ) * 2 );
+  transition: background 0.1s var( --ease )
+            , flex-grow  0.5s var( --ease )
+            ;
+}
+
+.app-navbar button.selected {
+  /* Selected title item is 3 times width of non-selected */
+  flex-grow: 3;
+}
+
+@media only screen and (min-width: 1200px) {
+  .app-navbar button.after-selected span,
+  .app-navbar button.before-selected span {
+    position: relative;
+  }
+
+  .app-navbar button.after-selected span::before,
+  .app-navbar button.before-selected span::before {
+    --width: calc( var( --sizing-basis ) * 1.5 );
+    width: var( --width );
+    position: absolute;
+    transition: left 0.2s var( --ease )
+              , right 0.2s var( --ease )
+              ;
+  }
+
+  .app-navbar button.after-selected span::before {
+    content: "-->";
+    right: calc( -1.5 * var( --width ) );
+  }
+
+  .app-navbar button.after-selected:hover span::before {
+    content: "-->";
+    right: calc( -1.75 * var( --width ) );
+  }
+
+  .app-navbar button.before-selected span::before {
+    content: "<--";
+    left: calc( -1.5 * var( --width ) );
+  }
+
+  .app-navbar button.before-selected:hover span::before {
+    content: "<--";
+    left: calc( -1.75 * var( --width ) );
+  }
+}
+
+.app-navbar h1 {
+  /* Don't grow or shrink navbar title */
+  flex-basis: content;
+}
+
+h1, h2, h3, h4, h5, h6, div, span, button {
+  color: var( --color-fg );
+}
+
+.relative {
+  position: relative;
+}
+
+.ribbon {
+  z-index: -1;
+  position: absolute;
+  border-radius: 1000px;
+  height: 40%;
+  left: calc( var( --sizing-basis ) * 0.2 );
+  bottom: calc( var( --sizing-basis ) * 0.2 );
+  transition: background 0.5s  var( --ease )
+            , width      0.25s var( --ease )
+            ;
+}
+
+.card.lg {
+  --card-basis: calc( var( --sizing-basis ) * 1.5 );
+}
+
+.card:not( .lg ) {
+  --card-basis: var( --sizing-basis );
+}
+
+.card {
+  padding: var( --card-basis );
+  align-self: start;
+  border-radius: var( --sizing-basis );
+}
+
+.card.yellow:not( .lg ) {
+  border-color: var( --color-accent-yellow );
+}
+
+.card.blue:not( .lg ) {
+  border-color: var( --color-accent-blue );
+}
+
+.card.green:not( .lg ) {
+  border-color: var( --color-accent-green );
+}
+
+.card h1 {
+  align-self: center;
+}
+
+.card code {
+  font-size: calc( var( --font-basis ) * 2 );
+}
+
+.card.lg h1 {
+  font-size: calc( var( --font-basis ) * 6 );
+  margin: calc( var( --sizing-basis ) * 0.6 );
+}
+
+.card.lg h2 {
+  font-size: calc( var( --font-basis ) * 3 );
+}
+
+.card.lg p {
+  font-size: calc( var( --font-basis ) * 2 );
+}
+
+.card .card-content {
+  padding: var( --card-basis );
+  border-radius: calc( var( --card-basis ) / 2 );
+  background: var( --color-bg-lt );
+}
+
+.card .card-content {
+  margin-top: calc( var( --card-basis ) );
+}
+
+.card .card-content div > *:not(div) {
+  margin-top: calc( var( --card-basis ) * 0.25 );
+}
+
+.card .card-content div {
+  margin-top: calc( var( --card-basis ) * 0.5 );
+}
+
+.card .card-content > * {
+  margin-top: inherit;
+}
+
+.card .card-content :first-child {
+  margin-top: 0;
+}
