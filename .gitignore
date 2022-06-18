@@ -5,6 +5,7 @@ output
 dist
 prod
 .cache
+.parcel-cache
 .spago
 .psc-ide*
 
