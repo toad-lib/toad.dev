@@ -145,18 +145,24 @@ tokenText (TextToken t) = Just t
 
 tokenText _ = Nothing
 
+--| A boundary parser that should be respected as "this phrase has ended"
 stop :: Stop -> Parser String String
 stop (Stop p) = p
 
+--| Universal markdown boundaries (eof / \n\n)
 tokenStop :: Stop
 tokenStop = Stop (choice [ eof <#> const "", string "\n\n" ])
 
+--| Consume the input string until either the input stop or tokenStop is encountered
 untilTokenStopOr :: Array Stop -> Parser String String
 untilTokenStopOr others =
   choice (([ tokenStop ] <> others) <#> stop)
     # many1Till_ anyChar
     <#> (fst >>> NEA.fromFoldable1 >>> fromNonEmptyCharArray >>> NES.toString)
 
+--| Unstyled text straight from textP will contain single characters
+--|
+--| this collapses them into an Unstyled string.
 combineUnstyled :: ∀ a. (a -> Maybe Text) -> (Text -> a) -> NEA.NonEmptyArray a -> NEA.NonEmptyArray a
 combineUnstyled text ofText tokens =
   let
