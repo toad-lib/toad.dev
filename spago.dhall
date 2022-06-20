@@ -10,6 +10,7 @@
   , "exceptions"
   , "foldable-traversable"
   , "halogen"
+  , "lists"
   , "maybe"
   , "newtype"
   , "parsing"
