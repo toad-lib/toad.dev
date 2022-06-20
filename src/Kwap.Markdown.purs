@@ -34,6 +34,8 @@ import Parsing.String.Basic (space)
 import Effect.Console (log)
 import Effect.Unsafe (unsafePerformEffect)
 
+-- >>> instances
+
 derive instance eqCodeFenceFileType :: Eq CodeFenceFileType
 
 derive instance eqCodeFence :: Eq CodeFence
@@ -98,15 +100,14 @@ instance showToken :: Show Token where
   show (AnchorToken an) = "AnchorToken (" <> show an <> ")"
   show (TextToken text) = "TextToken (" <> show text <> ")"
 
+-- <<< instances
+
 data Text
   = Unstyled String
   | Bold String
   | Italic String
   | BoldItalic String
   | InlineCode String
-
-data Span
-  = Span (NEA.NonEmptyArray Token)
 
 data Anchor
   = Anchor (NEA.NonEmptyArray Text) String
@@ -115,11 +116,12 @@ data Token
   = AnchorToken Anchor
   | TextToken Text
 
-data CodeFenceFileType
-  = CodeFenceFileType NES.NonEmptyString
+tokenText :: Token -> Maybe Text
+tokenText (TextToken t) = Just t
 
-data CodeFence
-  = CodeFence (Maybe CodeFenceFileType) String
+tokenText _ = Nothing
+data Span
+  = Span (NEA.NonEmptyArray Token)
 
 data Heading
   = H1 Span
@@ -128,6 +130,12 @@ data Heading
   | H4 Span
   | H5 Span
   | H6 Span
+
+data CodeFenceFileType
+  = CodeFenceFileType NES.NonEmptyString
+
+data CodeFence
+  = CodeFence (Maybe CodeFenceFileType) String
 
 data Element
   = ElementHeading Heading
@@ -139,11 +147,6 @@ data Document
 
 newtype Stop
   = Stop (Parser String String)
-
-tokenText :: Token -> Maybe Text
-tokenText (TextToken t) = Just t
-
-tokenText _ = Nothing
 
 --| A boundary parser that should be respected as "this phrase has ended"
 stop :: Stop -> Parser String String
