@@ -2,13 +2,16 @@
   "private": true,
   "devDependencies": {
     "esbuild": "^0.14.45",
+    "mocha": "^8.3.0",
+    "mocha-headless-chrome": "^3.1.0",
     "parcel": "^2.6",
+    "pulp": "^16.0.2",
     "purescript": "^0.15.2",
     "purty": "^7.0.0",
     "spago": "^0.20.9"
   },
   "scripts": {
-    "fmt": "purty src --write",
+    "fmt": "purty src --write && purty test --write",
     "build": "spago build",
     "serve": "parcel static/index.html --open",
     "build-prod": "mkdir -p prod && cp -r static/** prod/ && rm -rf dist && spago bundle-app --to prod/index.js && parcel build prod/index.html"
