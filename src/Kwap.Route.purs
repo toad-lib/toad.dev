@@ -1,34 +1,35 @@
 module Kwap.Route where
 
 import Prelude
+
 import Kwap.Expand (Expand(..))
 
-newtype RouteId
-  = RouteId Int
+newtype RouteId = RouteId Int
 
-newtype RouteTitle
-  = RouteTitle String
+newtype RouteTitle = RouteTitle String
 
-newtype RoutePathSegment
-  = RoutePathSegment String
+newtype RoutePathSegment = RoutePathSegment String
 
-newtype RouteConfig
-  = RouteConfig { id :: RouteId, path :: RoutePathSegment, title :: RouteTitle, children :: Array RouteConfig }
+newtype RouteConfig = RouteConfig
+  { id :: RouteId
+  , path :: RoutePathSegment
+  , title :: RouteTitle
+  , children :: Array RouteConfig
+  }
 
-data RouteAttrs
-  = RouteAttrs RouteId RoutePathSegment RouteTitle
+data RouteAttrs = RouteAttrs RouteId RoutePathSegment RouteTitle
 
-data RouteState
-  = RouteState Expand
+data RouteState = RouteState Expand
 
-data Route
-  = Route RouteState RouteAttrs (Array Route)
+data Route = Route RouteState RouteAttrs (Array Route)
 
 defaultState :: RouteState
 defaultState = RouteState Collapsed
 
 route :: RouteConfig -> Route
-route (RouteConfig { id, path, title, children }) = Route defaultState (RouteAttrs id path title) (route <$> children)
+route (RouteConfig { id, path, title, children }) = Route defaultState
+  (RouteAttrs id path title)
+  (route <$> children)
 
 routeAttrs :: Route -> RouteAttrs
 routeAttrs (Route _ a _) = a

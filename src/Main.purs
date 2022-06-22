@@ -1,24 +1,31 @@
 module Main where
 
-import Prelude
 import Kwap.Action
+import Kwap.App.Css
+import Prelude hiding (top)
+
 import Anim (Fade(..), fadeClass)
-import Utils (test, appendFoldable, classes)
-import Effect (Effect)
-import Effect.Class (class MonadEffect)
-import Effect.Aff as Aff
-import Effect.Aff.Class (class MonadAff)
-import Effect.Console (error)
-import Type.Proxy (Proxy(..))
+import CSS.Size as Css.Size
+import Control.Monad.Rec.Class (forever)
+import Data.Array (head, snoc, (:))
 import Data.Maybe (Maybe(..), isJust)
-import Data.Array (snoc, (:))
+import Data.Time.Duration (Milliseconds(..))
+import Effect (Effect)
+import Effect.Aff (delay)
+import Effect.Aff as Aff
+import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect.Class (class MonadEffect, liftEffect)
+import Effect.Console (log)
 import Halogen as H
-import Halogen.HTML as HH
+import Halogen.Aff as HA
 import Halogen.HTML.Core as HC
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Halogen.Aff as HA
+import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
+import Kwap.App.Html as HH
+import Type.Proxy (Proxy(..))
+import Utils (appendFoldable, classes, test)
 
 main :: Effect Unit
 main =
@@ -26,34 +33,68 @@ main =
     body <- HA.awaitBody
     runUI component unit body
 
-type State
-  = {}
-
-type Slots
-  = ( title :: ∀ query. H.Slot query Void Int )
-
-maybeAction (Just a) = a
-
-maybeAction (Nothing) = Nop
-
-_title = Proxy :: Proxy "title"
+type State = { kwapGradient :: KwapGradient }
 
 component :: ∀ q i o m. MonadAff m => H.Component q i o m
 component =
   H.mkComponent
     { initialState
     , render
-    , eval: H.mkEval H.defaultEval { handleAction = handleAction }
+    , eval: H.mkEval H.defaultEval
+        { handleAction = handleAction, initialize = Just Init }
     }
   where
-  initialState _ = {}
+  initialState _ = { kwapGradient: kwapGradientInit }
 
-  render :: State -> H.ComponentHTML Action Slots m
-  render {} =
-    HH.div
-      [ classes [ "app-root" ] ]
-      []
+  render :: State -> H.ComponentHTML Action _ m
+  render { kwapGradient: grabent } =
+    let
+      background =
+        HH.div
+          [ style do
+              width $ vw 100.0
+              height $ vh 100.0
+              position absolute
+              top $ Css.Size.unitless 0.0
+              left $ Css.Size.unitless 0.0
+              zIndex (-1000)
+              kwapGradient grabent
+          ]
+          []
+    in
+      HH.div_
+        [ background
+        , HH.div_
+            [ HH.h1 `HH.withText` "universal"
+            , HH.h2 `HH.withText` "lipsum lipsum ipso facto poopy stinky"
+            , HH.h3 `HH.withText` "test test test test"
+            , HH.h5 `HH.withText` "fart fart fart fart"
+            , HH.p `HH.withText`
+                "kwap is a universal implementation of CoAP - the fast, safe, and low-latency HTTP clone."
+            ]
+        ]
 
-handleAction :: ∀ o m. MonadEffect m => MonadAff m => Action -> H.HalogenM State Action Slots o m Unit
+timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
+timer val = do
+  { emitter, listener } <- H.liftEffect HS.create
+  _ <- H.liftAff $ Aff.forkAff $ forever do
+    Aff.delay $ Milliseconds 50.0
+    H.liftEffect $ HS.notify listener val
+  pure emitter
+
+handleAction
+  :: ∀ s o m
+   . MonadEffect m
+  => MonadAff m
+  => Action
+  -> H.HalogenM State Action s o m Unit
 handleAction = case _ of
+  Init -> do
+    _ <- H.subscribe =<< timer Tick
+    mempty
+  Tick -> do
+    { kwapGradient } <- H.get
+    let kwapGradient' = tick kwapGradient
+    -- liftEffect $ log $ show $ head $ kwapGradient'
+    H.put { kwapGradient: kwapGradient' }
   Nop -> mempty
