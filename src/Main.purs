@@ -49,7 +49,7 @@ component =
   render :: State -> H.ComponentHTML Action _ m
   render { kwapGradient: grabent } =
     let
-      background =
+      backgroundLayer0 =
         HH.div
           [ style do
               width $ vw 100.0
@@ -61,16 +61,29 @@ component =
               kwapGradient grabent
           ]
           []
+      backgroundLayer1 =
+        HH.div
+          [ style do
+              position absolute
+              width $ pct 100.0 @-@ rem 4.0
+              height $ pct 80.0 @-@ rem 4.0
+              top $ rem 1.0
+              left $ rem 1.0
+              zIndex (-999)
+              padding (rem 1.0) (rem 1.0) (rem 1.0) (rem 1.0)
+              borderRadius (rem 2.0) (rem 2.0) (rem 2.0) (rem 2.0)
+              backgroundColor $ Yellow Lightest
+          ]
     in
       HH.div_
-        [ background
-        , HH.div_
-            [ HH.h1 `HH.withText` "universal"
-            , HH.h2 `HH.withText` "lipsum lipsum ipso facto poopy stinky"
-            , HH.h3 `HH.withText` "test test test test"
-            , HH.h5 `HH.withText` "fart fart fart fart"
+        [ backgroundLayer0
+        , backgroundLayer1
+            [ HH.h1 `HH.withText` "kwap is the stuff"
+            , HH.h2 `HH.withText` "the guy to know, the place to be"
+            , HH.h3 `HH.withText` "i love you, you love me, tony hawk's pro skater 3"
+            , HH.h5 `HH.withText` "and a knick knack paddywhack give the kick a flip"
             , HH.p `HH.withText`
-                "kwap is a universal implementation of CoAP - the fast, safe, and low-latency HTTP clone."
+                "kwap is a universal implementation of CoAP - the fast, safe, and low-latency HTTP alternative."
             ]
         ]
 
@@ -78,7 +91,7 @@ timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
 timer val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
-    Aff.delay $ Milliseconds 50.0
+    Aff.delay $ Milliseconds 100.0
     H.liftEffect $ HS.notify listener val
   pure emitter
 
@@ -93,8 +106,6 @@ handleAction = case _ of
     _ <- H.subscribe =<< timer Tick
     mempty
   Tick -> do
-    { kwapGradient } <- H.get
-    let kwapGradient' = tick kwapGradient
-    -- liftEffect $ log $ show $ head $ kwapGradient'
-    H.put { kwapGradient: kwapGradient' }
+    { kwapGradient: kwapGradient' } <- H.get
+    H.put { kwapGradient: tick kwapGradient' }
   Nop -> mempty

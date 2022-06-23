@@ -4,7 +4,6 @@ module Kwap.App.Css.Color
   , KwapGradient
   , Position2D(..)
   , Shade(..)
-  , TwoDim(..)
   , Velocity2D(..)
   , backgroundColor
   , color
@@ -20,12 +19,14 @@ import CSS.Color as Css.Color
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size
 import Data.Array (snoc)
+import Data.Bifunctor (bimap)
 import Data.Foldable (for_)
 import Data.Generic.Rep (class Generic)
 import Data.Number (max, min)
+import Data.Range (clamp, (..=))
 import Data.Show.Generic (genericShow)
 import Data.String as String
-import Data.Tuple (fst)
+import Data.Tuple (Tuple(..), fst)
 import Data.Tuple.Nested ((/\))
 
 data Shade
@@ -80,10 +81,9 @@ color = cssColor >>> Css.color
 backgroundColor :: Color -> Css.CSS
 backgroundColor = cssColor >>> Css.backgroundColor
 
-data TwoDim a = TwoDim a a
-newtype Position2D = Position2D (TwoDim Number)
-newtype Velocity2D = Velocity2D (TwoDim Number)
-newtype Accel2D = Accel2D (TwoDim Number)
+newtype Position2D = Position2D (Tuple Number Number)
+newtype Velocity2D = Velocity2D (Tuple Number Number)
+newtype Accel2D = Accel2D (Tuple Number Number)
 
 type KwapGradient = Array
   { color :: Color
@@ -95,42 +95,65 @@ type KwapGradient = Array
 kwapGradientInit :: KwapGradient
 kwapGradientInit =
   [ { color: Pink Medium
-    , pos: Position2D $ TwoDim 0.0 100.0
-    , vel: Velocity2D $ TwoDim 0.0 0.0
-    , acc: Accel2D $ TwoDim 0.0 0.0
+    , pos: Position2D $ Tuple 0.0 100.0
+    , vel: Velocity2D $ Tuple 0.0 0.0
+    , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Yellow Medium
-    , pos: Position2D $ TwoDim 0.0 0.0
-    , vel: Velocity2D $ TwoDim 0.0 0.0
-    , acc: Accel2D $ TwoDim 0.0 0.0
+    , pos: Position2D $ Tuple 0.0 0.0
+    , vel: Velocity2D $ Tuple 0.0 0.0
+    , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Purple Medium
-    , pos: Position2D $ TwoDim 100.0 0.0
-    , vel: Velocity2D $ TwoDim 0.0 0.0
-    , acc: Accel2D $ TwoDim 0.0 0.0
+    , pos: Position2D $ Tuple 100.0 0.0
+    , vel: Velocity2D $ Tuple 0.0 0.0
+    , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Red Light
-    , pos: Position2D $ TwoDim 50.0 50.0
-    , vel: Velocity2D $ TwoDim 0.0 0.0
-    , acc: Accel2D $ TwoDim 0.0 0.0
+    , pos: Position2D $ Tuple 50.0 50.0
+    , vel: Velocity2D $ Tuple 0.0 0.0
+    , acc: Accel2D $ Tuple 0.0 0.0
     }
   ]
 
-accelField :: Position2D -> Accel2D
-accelField (Position2D (TwoDim x y)) =
+class Cartesian x where
+  coords :: x -> Tuple Number Number
+  fromCoords :: Tuple Number Number -> x
+
+-- clampPos (Position2D (Tuple x y)) = Position2D
+--   (Tuple (clamp x) (clamp y))
+
+instance cartesianAccel2D :: Cartesian Accel2D where
+  coords (Accel2D t) = t
+  fromCoords t = Accel2D t
+
+instance cartesianVelocity2D :: Cartesian Velocity2D where
+  coords (Velocity2D t) = t
+  fromCoords t = Velocity2D t
+
+instance cartesianPosition2D :: Cartesian Position2D where
+  coords (Position2D t) = t
+  fromCoords t = Position2D t
+
+integral :: ∀ df f. Cartesian df => Cartesian f => df -> f -> f
+integral df f =
   let
+    df' = coords df
+    f' = coords f
+    go (Tuple dx dy) (Tuple x y) = fromCoords $ (dx + x) /\ (dy + y)
+  in
+    go df' f'
+
+--| acceleration vector field
+accelField :: Position2D -> Accel2D
+accelField (Position2D (Tuple x y)) =
+  let
+    -- move the origin to the middle (50%, 50%)
     x' = (x - 50.0)
     y' = (y - 50.0)
+    slowDownFactor = 500.0
   in
-    Accel2D $ TwoDim ((y' - x') / 2000.0) ((-x' - y') / 2000.0)
-
-velocity :: Accel2D -> Velocity2D -> Velocity2D
-velocity (Accel2D (TwoDim ax ay)) (Velocity2D (TwoDim vx vy)) = Velocity2D
-  (TwoDim (vx + ax) (vy + ay))
-
-position :: Velocity2D -> Position2D -> Position2D
-position (Velocity2D (TwoDim vx vy)) (Position2D (TwoDim x y)) = Position2D
-  (TwoDim (x + vx) (y + vy))
+    Accel2D $ ((y' - x') / slowDownFactor) /\ ((-x' - y') / slowDownFactor)
 
 tick :: KwapGradient -> KwapGradient
 tick =
@@ -138,13 +161,13 @@ tick =
     tickOne { color: color', pos, vel } =
       let
         acc' = accelField pos
-        vel' = velocity acc' vel
-        clamp = max 0.0 >>> min 100.0
-        clampPos (Position2D (TwoDim x y)) = Position2D
-          (TwoDim (clamp x) (clamp y))
+        vel' = integral acc' vel
       in
         { color: color'
-        , pos: clampPos $ position vel' pos
+        , pos: fromCoords
+            $ bimap (clamp $ 0.0 ..= 100.0) (clamp $ 0.0 ..= 100.0)
+            $ coords
+            $ integral vel' pos
         , vel: vel'
         , acc: acc'
         }
@@ -184,7 +207,7 @@ kwapGradient gradients =
         alpha a = Css.Color.toHSLA >>>
           (\({ h, s, l }) -> Css.Color.hsla h s l a)
 
-        render { color: color', pos: Position2D (TwoDim left bottom) } =
+        render { color: color', pos: Position2D (Tuple left bottom) } =
           radialGradient
             (sideLeft_ (Css.pct left) /\ sideBottom_ (Css.pct bottom))
             circle
@@ -193,7 +216,7 @@ kwapGradient gradients =
             ]
 
         circle :: Css.Radial
-        circle = Css.Common.other $ Css.fromString "150% 150%"
+        circle = Css.Common.other $ Css.fromString "100% 100%"
 
         solidBackground =
           radialGradient
@@ -217,7 +240,6 @@ kwapGradient gradients =
 
 derive instance genericColor :: Generic Color _
 derive instance genericShade :: Generic Shade _
-derive instance genericTwoDim :: Generic (TwoDim a) _
 derive instance genericAccel2D :: Generic Accel2D _
 derive instance genericVelocity2D :: Generic Velocity2D _
 derive instance genericPosition2D :: Generic Position2D _
@@ -226,9 +248,6 @@ instance showColor :: Show Color where
   show = genericShow
 
 instance showShade :: Show Shade where
-  show = genericShow
-
-instance showTwoDim :: Show a => Show (TwoDim a) where
   show = genericShow
 
 instance showAccel2D :: Show Accel2D where
