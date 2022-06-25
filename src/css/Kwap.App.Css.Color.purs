@@ -18,12 +18,14 @@ import Prelude
 import CSS as Css
 import CSS.Color as Css.Color
 import CSS.Common as Css.Common
+import CSS.Gradient as Css.Gradient
 import CSS.Size as Css.Size
 import Data.Array (snoc)
 import Data.Bifunctor (bimap)
 import Data.Foldable (for_)
 import Data.Generic.Rep (class Generic)
 import Data.Number (max, min)
+import Data.Profunctor.Strong (first, second)
 import Data.Range (clamp, (..=))
 import Data.Show.Generic (genericShow)
 import Data.String as String
@@ -147,6 +149,32 @@ integral df f =
   in
     go df' f'
 
+alpha :: Number -> Css.Color -> Css.Color
+alpha a = Css.Color.toHSLA >>>
+  (\({ h, s, l }) -> Css.Color.hsla h s l a)
+
+transparent :: Css.Color
+transparent = Css.Color.hsla 0.0 0.0 0.0 0.0
+
+circle :: Css.Radial
+circle = Css.Common.other $ Css.fromString "100% 100%"
+
+center :: Css.Side
+center = Css.Common.other $ (Css.fromString "center")
+
+side_ :: String -> Css.Size Css.Percentage -> Css.Side
+side_ side =
+  Css.Size.sizeToString
+    >>> ((side <> " ") <> _)
+    >>> Css.fromString
+    >>> Css.Common.other
+
+sideBottom_ :: Css.Size Css.Percentage -> Css.Side
+sideBottom_ = side_ "bottom"
+
+sideLeft_ :: Css.Size Css.Percentage -> Css.Side
+sideLeft_ = side_ "left"
+
 --| acceleration vector field
 accelField :: Position2D -> Accel2D
 accelField (Position2D (Tuple x y)) =
@@ -177,49 +205,35 @@ tick =
   in
     map tickOne
 
+tupleValue :: ∀ a b. Css.Val a => Css.Val b => Tuple a b -> Css.Value
+tupleValue = first Css.value >>> second Css.value >>> Css.value
+
 kwapGradient :: KwapGradient -> Css.CSS
 kwapGradient gradients =
   let
-    transparent = Css.Color.hsla 0.0 0.0 0.0 0.0
-
-    prefixed = Css.value >>> (\(Css.Value p) -> p)
-
-    center :: Css.Side
-    center = Css.Common.other $ (Css.fromString "center")
-
-    side_ :: String -> Css.Size Css.Percentage -> Css.Side
-    side_ side =
-      Css.Size.sizeToString
-        >>> ((side <> " ") <> _)
-        >>> Css.fromString
-        >>> Css.Common.other
-
-    sideBottom_ = side_ "bottom"
-    sideLeft_ = side_ "left"
-
-    background prefix =
+    kwapGradientWithPrefix prefix =
       let
         radialGradient
-          :: ∀ a. Css.Loc a => a -> Css.Radial -> Css.Ramp -> String
-        radialGradient l rd =
-          Css.radialGradient l rd
-            >>> prefixed
-            >>> Css.plain
-            >>> (prefix <> _)
+          :: ∀ a. Css.Loc a => a -> Css.Radial -> Css.Ramp -> Css.Value
+        radialGradient l rd ramp' =
+          [ Css.fromString (prefix <> "radial-gradient(")
+          , Css.noCommas
+              [ Css.value rd
+              , Css.fromString "at"
+              , Css.value l
+              , Css.fromString ","
+              , ramp' <#> tupleValue # Css.value
+              ]
+          , Css.fromString ")"
+          ] # Css.noCommas
 
-        alpha a = Css.Color.toHSLA >>>
-          (\({ h, s, l }) -> Css.Color.hsla h s l a)
-
-        render { color: color', pos: Position2D (Tuple left bottom) } =
+        gradientCss { color: color', pos: Position2D (Tuple left bottom) } =
           radialGradient
             (sideLeft_ (Css.pct left) /\ sideBottom_ (Css.pct bottom))
             circle
             [ (alpha 0.8 $ cssColor color') /\ Css.pct 0.0
             , transparent /\ Css.pct 100.0
             ]
-
-        circle :: Css.Radial
-        circle = Css.Common.other $ Css.fromString "100% 100%"
 
         solidBackground =
           radialGradient
@@ -228,18 +242,19 @@ kwapGradient gradients =
             [ cssColor (Pink Medium) /\ Css.pct 0.0
             , cssColor (Pink Medium) /\ Css.pct 100.0
             ]
+
+        atEnd = flip snoc
       in
         Css.key
           (Css.fromString "background-image")
-          $ ((flip snoc) solidBackground >>> String.joinWith ", ")
-              (render <$> gradients)
+          (gradients <#> gradientCss # atEnd solidBackground # Css.value)
 
     vendorPrefixes = case Css.Common.browsers of
       Css.Prefixed arr -> fst <$> arr
       _ -> []
   in
     for_ vendorPrefixes $ \vendorPrefix -> do
-      background vendorPrefix
+      kwapGradientWithPrefix vendorPrefix
 
 derive instance genericColor :: Generic Color _
 derive instance genericShade :: Generic Shade _

@@ -9,6 +9,7 @@ module Kwap.App.Css
 import Prelude
 
 import CSS as Css
+import CSS.Common as Css.Common
 import CSS hiding
   ( Color(..)
   , FontStyle(..)
@@ -71,6 +72,13 @@ instance valueMaskComposite :: Css.Val MaskComposite where
     MaskIntersect -> Css.fromString "intersect"
     MaskExclude -> Css.fromString "exclude"
 
+webkitMaskComposite :: MaskComposite -> Css.Value
+webkitMaskComposite = Css.fromString <<< case _ of
+    MaskAdd -> Css.fromString "source-over"
+    MaskSubtract -> Css.fromString "source-out"
+    MaskIntersect -> Css.fromString "source-in"
+    MaskExclude -> Css.fromString "xor"
+
 data MaskMode = MaskAlpha | MaskLuminance
 
 instance valueMaskMode :: Css.Val MaskMode where
@@ -89,14 +97,14 @@ mask
   -> Css.CSS
 mask images composite mode loc size =
   let
-    key :: String -> Css.Value -> Css.CSS
-    key = Css.fromString >>> Css.key
-    value = Css.value
+    key :: ∀ a. Css.Val a => String -> a -> Css.CSS
+    key k = Css.prefixed (Css.Common.browsers <> Css.Plain k)
   in
     do
-      key "mask-image" $ value images
-      key "mask-mode" $ value mode
-      key "mask-position" $ value loc
-      key "mask-size" $ value size
-      key "mask-repeat" $ Css.fromString "no-repeat"
-      key "mask-composite" $ value composite
+      key "mask-image" images
+      key "mask-mode" mode
+      key "mask-position" loc
+      key "mask-size" size
+      key "mask-repeat" "no-repeat"
+      Css.key (Css.fromString "mask-composite") $ Css.value composite
+      Css.key (Css.fromString "-webkit-mask-composite") $ webkitMaskComposite composite

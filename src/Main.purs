@@ -115,7 +115,7 @@ timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
 timer val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
-    Aff.delay $ Milliseconds 200.0
+    Aff.delay $ Milliseconds 10000.0
     H.liftEffect $ HS.notify listener val
   pure emitter
 
