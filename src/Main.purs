@@ -2,14 +2,17 @@ module Main where
 
 import Kwap.Action
 import Kwap.App.Css
-import Prelude hiding (top)
+import Prelude hiding (bottom, top)
 
 import Anim (Fade(..), fadeClass)
+import CSS.Color as Css.Color
+import CSS.Common as Css.Common
 import CSS.Size as Css.Size
 import Control.Monad.Rec.Class (forever)
 import Data.Array (head, snoc, (:))
 import Data.Maybe (Maybe(..), isJust)
 import Data.Time.Duration (Milliseconds(..))
+import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import Effect.Aff (delay)
 import Effect.Aff as Aff
@@ -23,7 +26,9 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
+import Kwap.App.Css.Grid as Kwap.App.Css.Grid
 import Kwap.App.Html as HH
+import Kwap.App.Logo as Kwap.App.Logo
 import Type.Proxy (Proxy(..))
 import Utils (appendFoldable, classes, test)
 
@@ -49,41 +54,60 @@ component =
   render :: State -> H.ComponentHTML Action _ m
   render { kwapGradient: grabent } =
     let
-      backgroundLayer0 =
+      appBackground =
         HH.div
           [ style do
-              width $ vw 100.0
-              height $ vh 100.0
-              position absolute
-              top $ Css.Size.unitless 0.0
-              left $ Css.Size.unitless 0.0
-              zIndex (-1000)
+              width $ pct 100.0
+              height $ pct 100.0
+              position fixed
+              top $ px 0.0
+              left $ px 0.0
+              zIndex $ -1000
               kwapGradient grabent
           ]
           []
-      backgroundLayer1 =
+      appContainer =
         HH.div
           [ style do
-              position absolute
-              width $ pct 100.0 @-@ rem 4.0
-              height $ pct 80.0 @-@ rem 4.0
-              top $ rem 1.0
-              left $ rem 1.0
-              zIndex (-999)
-              padding (rem 1.0) (rem 1.0) (rem 1.0) (rem 1.0)
-              borderRadius (rem 2.0) (rem 2.0) (rem 2.0) (rem 2.0)
+              position fixed
+              width $ pct 100.0
+              height $ pct 100.0
+              top $ px 0.0
+              left $ px 0.0
+              Kwap.App.Css.Grid.container
+          ]
+      appContent =
+        HH.div
+          [ style do
+              Kwap.App.Css.Grid.occupyContent
               backgroundColor $ Yellow Lightest
+          ]
+      appNavbar =
+        HH.div
+          [ style do
+              display flex
+              alignItems Css.Common.center
+              sym padding $ rem 1.0
+              Kwap.App.Css.Grid.occupyNavbar
           ]
     in
       HH.div_
-        [ backgroundLayer0
-        , backgroundLayer1
-            [ HH.h1 `HH.withText` "kwap is the stuff"
-            , HH.h2 `HH.withText` "the guy to know, the place to be"
-            , HH.h3 `HH.withText` "i love you, you love me, tony hawk's pro skater 3"
-            , HH.h5 `HH.withText` "and a knick knack paddywhack give the kick a flip"
-            , HH.p `HH.withText`
-                "kwap is a universal implementation of CoAP - the fast, safe, and low-latency HTTP alternative."
+        [ appBackground
+        , appContainer
+            [ appNavbar [ Kwap.App.Logo.render ]
+            , appContent
+                [ HH.h1 `HH.withText` "kwap is the stuff"
+                , HH.h2 `HH.withText` "the guy to know, the place to be"
+                , HH.h3 `HH.withText`
+                    "i love you, you love me, tony hawk's pro skater 3"
+                , HH.h5 `HH.withText`
+                    "and a knick knack paddywhack give the kick a flip"
+                , HH.p `HH.withText`
+                    "kwap is a universal implementation of CoAP - the fast, safe, and low-latency HTTP alternative."
+                , HH.div
+                    []
+                    []
+                ]
             ]
         ]
 
@@ -91,7 +115,7 @@ timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
 timer val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
-    Aff.delay $ Milliseconds 100.0
+    Aff.delay $ Milliseconds 200.0
     H.liftEffect $ HS.notify listener val
   pure emitter
 

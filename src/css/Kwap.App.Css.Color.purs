@@ -7,6 +7,7 @@ module Kwap.App.Css.Color
   , Velocity2D(..)
   , backgroundColor
   , color
+  , cssColor
   , kwapGradient
   , kwapGradientInit
   , tick
@@ -95,22 +96,27 @@ type KwapGradient = Array
 kwapGradientInit :: KwapGradient
 kwapGradientInit =
   [ { color: Pink Medium
-    , pos: Position2D $ Tuple 0.0 100.0
+    , pos: Position2D $ Tuple 10.0 100.0
     , vel: Velocity2D $ Tuple 0.0 0.0
     , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Yellow Medium
-    , pos: Position2D $ Tuple 0.0 0.0
+    , pos: Position2D $ Tuple 10.0 10.0
     , vel: Velocity2D $ Tuple 0.0 0.0
     , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Purple Medium
-    , pos: Position2D $ Tuple 100.0 0.0
+    , pos: Position2D $ Tuple 100.0 15.0
+    , vel: Velocity2D $ Tuple 0.0 0.0
+    , acc: Accel2D $ Tuple 0.0 0.0
+    }
+  , { color: Purple Medium
+    , pos: Position2D $ Tuple 100.0 90.0
     , vel: Velocity2D $ Tuple 0.0 0.0
     , acc: Accel2D $ Tuple 0.0 0.0
     }
   , { color: Red Light
-    , pos: Position2D $ Tuple 50.0 50.0
+    , pos: Position2D $ Tuple 45.0 55.0
     , vel: Velocity2D $ Tuple 0.0 0.0
     , acc: Accel2D $ Tuple 0.0 0.0
     }
@@ -119,9 +125,6 @@ kwapGradientInit =
 class Cartesian x where
   coords :: x -> Tuple Number Number
   fromCoords :: Tuple Number Number -> x
-
--- clampPos (Position2D (Tuple x y)) = Position2D
---   (Tuple (clamp x) (clamp y))
 
 instance cartesianAccel2D :: Cartesian Accel2D where
   coords (Accel2D t) = t
@@ -151,7 +154,7 @@ accelField (Position2D (Tuple x y)) =
     -- move the origin to the middle (50%, 50%)
     x' = (x - 50.0)
     y' = (y - 50.0)
-    slowDownFactor = 500.0
+    slowDownFactor = 150.0
   in
     Accel2D $ ((y' - x') / slowDownFactor) /\ ((-x' - y') / slowDownFactor)
 
@@ -165,7 +168,7 @@ tick =
       in
         { color: color'
         , pos: fromCoords
-            $ bimap (clamp $ 0.0 ..= 100.0) (clamp $ 0.0 ..= 100.0)
+            $ bimap (clamp $ (0.0) ..= 100.0) (clamp $ (0.0) ..= 100.0)
             $ coords
             $ integral vel' pos
         , vel: vel'
@@ -222,8 +225,8 @@ kwapGradient gradients =
           radialGradient
             center
             circle
-            [ cssColor (Purple Light) /\ Css.pct 0.0
-            , cssColor (Purple Light) /\ Css.pct 100.0
+            [ cssColor (Pink Medium) /\ Css.pct 0.0
+            , cssColor (Pink Medium) /\ Css.pct 100.0
             ]
       in
         Css.key

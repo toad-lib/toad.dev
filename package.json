@@ -1,6 +1,8 @@
 {
   "private": true,
   "devDependencies": {
+    "@parcel/optimizer-data-url": "^2.6.1",
+    "@parcel/transformer-inline-string": "^2.6.1",
     "esbuild": "^0.14.45",
     "mocha": "^8.3.0",
     "mocha-headless-chrome": "^3.1.0",
