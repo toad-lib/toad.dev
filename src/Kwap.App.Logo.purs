@@ -12,13 +12,13 @@ maskImageRatio :: Number
 maskImageRatio = 5.0 / 12.0
 
 maskWidthRem :: Number
-maskWidthRem = 8.0
+maskWidthRem = 12.0
 
 maskHeightRem :: Number
-maskHeightRem = maskWidthRem * maskImageRatio
+maskHeightRem = maskWidthRem * (maskImageRatio)
 
 paddingRem :: Number
-paddingRem = 1.0
+paddingRem = 2.0
 
 overlap :: Number
 overlap = 0.3
@@ -48,7 +48,7 @@ render = HH.div
           top $ rem (overlap / 2.0)
           left $ rem (overlap / 2.0)
           border solid (rem paddingRem) (cssColor $ Yellow Lightest)
-          sym borderRadius $ rem 0.5
+          sym borderRadius $ rem 3.0
       ]
       []
   , HH.div

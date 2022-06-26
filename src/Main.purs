@@ -74,7 +74,7 @@ component =
               height $ pct 100.0
               top $ px 0.0
               left $ px 0.0
-              Kwap.App.Css.Grid.container
+              Kwap.App.Css.Grid.container Kwap.App.Css.Grid.AppLayoutHorizontal
           ]
       appContent =
         HH.div
@@ -87,7 +87,7 @@ component =
           [ style do
               display flex
               alignItems Css.Common.center
-              sym padding $ rem 1.0
+              sym padding $ rem 2.0
               Kwap.App.Css.Grid.occupyNavbar
           ]
     in
@@ -115,7 +115,7 @@ timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
 timer val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
-    Aff.delay $ Milliseconds 10000.0
+    Aff.delay $ Milliseconds 200.0
     H.liftEffect $ HS.notify listener val
   pure emitter
 
