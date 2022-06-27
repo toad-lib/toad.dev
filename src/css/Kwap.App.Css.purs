@@ -1,9 +1,10 @@
 module Kwap.App.Css
   ( MaskComposite(..)
   , MaskMode(..)
+  , anySize
   , mask
-  , module X
   , style
+  , module X
   ) where
 
 import Prelude
@@ -37,6 +38,9 @@ import Halogen.HTML.Elements as HE
 import Halogen.HTML.Properties as HP
 import Kwap.App.Css.Color as X
 import Kwap.App.Css.Font as X
+
+anySize :: ∀ s o. Css.Size.Size s -> Css.Size.Size o
+anySize = Css.Size.sizeToString >>> Css.value >>> Css.Size.BasicSize
 
 --| copied from purescript-halogen-css, but modified to
 --| preserve duplicate rules for vendoring

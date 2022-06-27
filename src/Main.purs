@@ -1,6 +1,7 @@
 module Main where
 
 import Kwap.Action
+import Kwap.App.Layout (AppLayout(..))
 import Kwap.App.Css
 import Prelude hiding (bottom, top)
 
@@ -74,12 +75,12 @@ component =
               height $ pct 100.0
               top $ px 0.0
               left $ px 0.0
-              Kwap.App.Css.Grid.container Kwap.App.Css.Grid.AppLayoutHorizontal
+              Kwap.App.Css.Grid.appGrid AppLayoutDesktop
           ]
       appContent =
         HH.div
           [ style do
-              Kwap.App.Css.Grid.occupyContent
+              Kwap.App.Css.Grid.inAppContent
               backgroundColor $ Yellow Lightest
           ]
       appNavbar =
@@ -88,7 +89,7 @@ component =
               display flex
               alignItems Css.Common.center
               sym padding $ rem 2.0
-              Kwap.App.Css.Grid.occupyNavbar
+              Kwap.App.Css.Grid.inAppNavbar
           ]
     in
       HH.div_
@@ -111,7 +112,7 @@ component =
             ]
         ]
 
-timer :: forall m a. MonadAff m => a -> m (HS.Emitter a)
+timer :: ∀ m a. MonadAff m => a -> m (HS.Emitter a)
 timer val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
