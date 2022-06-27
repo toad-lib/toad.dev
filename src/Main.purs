@@ -1,11 +1,14 @@
 module Main where
 
-import Kwap.Action
+import Kwap.App.Action
 import Kwap.App.Layout (AppLayout(..))
 import Kwap.App.Css
+import Kwap.App.Css.Grid as Kwap.App.Css.Grid
+import Kwap.App.Html as HH
+import Kwap.App.Atom.Logo as Atom.Logo
+
 import Prelude hiding (bottom, top)
 
-import Anim (Fade(..), fadeClass)
 import CSS.Color as Css.Color
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size
@@ -19,7 +22,6 @@ import Effect.Aff (delay)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect, liftEffect)
-import Effect.Console (log)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML.Core as HC
@@ -27,11 +29,6 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
-import Kwap.App.Css.Grid as Kwap.App.Css.Grid
-import Kwap.App.Html as HH
-import Kwap.App.Logo as Kwap.App.Logo
-import Type.Proxy (Proxy(..))
-import Utils (appendFoldable, classes, test)
 
 main :: Effect Unit
 main =
@@ -95,7 +92,7 @@ component =
       HH.div_
         [ appBackground
         , appContainer
-            [ appNavbar [ Kwap.App.Logo.render ]
+            [ appNavbar [ Atom.Logo.render ]
             , appContent
                 [ HH.h1 `HH.withText` "kwap is the stuff"
                 , HH.h2 `HH.withText` "the guy to know, the place to be"

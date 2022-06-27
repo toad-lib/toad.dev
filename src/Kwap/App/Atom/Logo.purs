@@ -1,4 +1,4 @@
-module Kwap.App.Logo (render) where
+module Kwap.App.Atom.Logo (render) where
 
 import Kwap.App.Css
 import Prelude hiding (bottom, top)

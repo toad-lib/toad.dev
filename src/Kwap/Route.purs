@@ -2,7 +2,7 @@ module Kwap.Route where
 
 import Prelude
 
-import Kwap.Expand (Expand(..))
+data Expand = Expanded | Collapsed
 
 newtype RouteId = RouteId Int
 

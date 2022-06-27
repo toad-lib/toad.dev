@@ -1,4 +1,4 @@
-module Kwap.Action where
+module Kwap.App.Action where
 
 import Prelude
 
