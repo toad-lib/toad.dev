@@ -6,7 +6,6 @@ import Prelude
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size
 import Data.Maybe (Maybe(..))
-
 import Kwap.App.Atom.Logo as Atom.Logo
 import Kwap.App.Css as Css
 import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
@@ -58,8 +57,9 @@ navbarGridDesktop =
 render :: ∀ a w. (Section -> a) -> AppLayout -> Section -> HH.HTML w a
 render picked layout section =
   let
-    isSelected test | test == section = Button.Selected
-                    | otherwise = Button.NotSelected
+    isSelected test
+      | test == section = Button.Selected
+      | otherwise = Button.NotSelected
     select sec = picked sec
     inArea = gridArea navbarGridRegionLabel
     solidBg area' = HH.div
@@ -76,9 +76,12 @@ render picked layout section =
           Css.height $ Css.pct 100.0
       ]
       [ Atom.Logo.render (Just $ inArea GridLogo)
-      , Button.render (select Home) (isSelected Home) "home" (inArea GridButtonA)
-      , Button.render (select GetStarted) (isSelected GetStarted) "quickstart" (inArea GridButtonB)
-      , Button.render (select Docs) (isSelected Docs) "docs" (inArea GridButtonC)
+      , Button.render (select Home) (isSelected Home) "home"
+          (inArea GridButtonA)
+      , Button.render (select GetStarted) (isSelected GetStarted) "quickstart"
+          (inArea GridButtonB)
+      , Button.render (select Docs) (isSelected Docs) "docs"
+          (inArea GridButtonC)
       , solidBg GridGapA
       , solidBg GridRemainder
       ]

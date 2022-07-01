@@ -1,18 +1,35 @@
-module Kwap.App.Style (global) where
-
-import Prelude
+module Kwap.App.Style (appBackground, appWrap, contentWrap, navbarWrap) where
 
 import Kwap.App.Css
-import Halogen.HTML (HTML)
-import Halogen.HTML.CSS (stylesheet)
-import Kwap.App.Navbar.Button.Style as Navbar.Button.Style
+import Prelude hiding (top)
 
--- Here lie global styles applied to a <style> element
--- This is where all selectors /other than/ inline styles live, i.e. :hover selectors.
---
--- Nothing should be defined directly in this module and should
--- instead aggregate the styles from local style modules.
+import Kwap.App.Css.Grid as Grid
+import Kwap.App.Layout (AppLayout(..))
 
-global :: forall w i. HTML w i
-global = stylesheet do
-  Navbar.Button.Style.global
+appBackground :: KwapGradient -> CSS
+appBackground grabent = do
+  width $ pct 100.0
+  height $ pct 100.0
+  position fixed
+  top $ px 0.0
+  left $ px 0.0
+  zIndex $ -1000
+  kwapGradient grabent
+
+appWrap :: CSS
+appWrap = do
+  position fixed
+  width $ pct 100.0
+  height $ pct 100.0
+  top $ px 0.0
+  left $ px 0.0
+  Grid.appGrid AppLayoutDesktop
+
+contentWrap :: CSS
+contentWrap = do
+  Grid.inAppContent
+
+navbarWrap :: CSS
+navbarWrap = do
+  border solid (rem 2.0) (cssColor $ Yellow Lightest)
+  Grid.inAppNavbar

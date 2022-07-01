@@ -113,8 +113,9 @@ font (Font family size) = do
   cssFontWeight $ weight family
 
 instance fontSizeSemigroup :: Semigroup FontSize where
-  append a b | b == mempty = a
-             | otherwise = b
+  append a b
+    | b == mempty = a
+    | otherwise = b
 
 instance fontSizeMonoid :: Monoid FontSize where
   mempty = FontSizeDefault
@@ -125,8 +126,9 @@ instance fontSizeEq :: Eq FontSize where
   eq = genericEq
 
 instance fontFamilySemigroup :: Semigroup FontFamily where
-  append a b | b == mempty = a
-             | otherwise = b
+  append a b
+    | b == mempty = a
+    | otherwise = b
 
 instance fontFamilyMonoid :: Monoid FontFamily where
   mempty = FontFamilyDefault

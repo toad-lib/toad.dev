@@ -88,41 +88,44 @@ newtype Position2D = Position2D (Tuple Number Number)
 newtype Velocity2D = Velocity2D (Tuple Number Number)
 newtype Accel2D = Accel2D (Tuple Number Number)
 
-type KwapGradient = Array
-  { color :: Color
-  , pos :: Position2D
-  , vel :: Velocity2D
-  , acc :: Accel2D
-  }
+newtype KwapGradient = KwapGradient
+  ( Array
+      { color :: Color
+      , pos :: Position2D
+      , vel :: Velocity2D
+      , acc :: Accel2D
+      }
+  )
 
 kwapGradientInit :: KwapGradient
 kwapGradientInit =
-  [ { color: Pink Medium
-    , pos: Position2D $ Tuple 10.0 100.0
-    , vel: Velocity2D $ Tuple 0.0 0.0
-    , acc: Accel2D $ Tuple 0.0 0.0
-    }
-  , { color: Yellow Medium
-    , pos: Position2D $ Tuple 10.0 10.0
-    , vel: Velocity2D $ Tuple 0.0 0.0
-    , acc: Accel2D $ Tuple 0.0 0.0
-    }
-  , { color: Purple Medium
-    , pos: Position2D $ Tuple 100.0 15.0
-    , vel: Velocity2D $ Tuple 0.0 0.0
-    , acc: Accel2D $ Tuple 0.0 0.0
-    }
-  , { color: Purple Medium
-    , pos: Position2D $ Tuple 100.0 90.0
-    , vel: Velocity2D $ Tuple 0.0 0.0
-    , acc: Accel2D $ Tuple 0.0 0.0
-    }
-  , { color: Red Light
-    , pos: Position2D $ Tuple 45.0 55.0
-    , vel: Velocity2D $ Tuple 0.0 0.0
-    , acc: Accel2D $ Tuple 0.0 0.0
-    }
-  ]
+  KwapGradient $
+    [ { color: Pink Medium
+      , pos: Position2D $ Tuple 10.0 100.0
+      , vel: Velocity2D $ Tuple 0.0 0.0
+      , acc: Accel2D $ Tuple 0.0 0.0
+      }
+    , { color: Yellow Medium
+      , pos: Position2D $ Tuple 10.0 10.0
+      , vel: Velocity2D $ Tuple 0.0 0.0
+      , acc: Accel2D $ Tuple 0.0 0.0
+      }
+    , { color: Purple Medium
+      , pos: Position2D $ Tuple 100.0 15.0
+      , vel: Velocity2D $ Tuple 0.0 0.0
+      , acc: Accel2D $ Tuple 0.0 0.0
+      }
+    , { color: Purple Medium
+      , pos: Position2D $ Tuple 100.0 90.0
+      , vel: Velocity2D $ Tuple 0.0 0.0
+      , acc: Accel2D $ Tuple 0.0 0.0
+      }
+    , { color: Red Light
+      , pos: Position2D $ Tuple 45.0 55.0
+      , vel: Velocity2D $ Tuple 0.0 0.0
+      , acc: Accel2D $ Tuple 0.0 0.0
+      }
+    ]
 
 class Cartesian x where
   coords :: x -> Tuple Number Number
@@ -187,7 +190,7 @@ accelField (Position2D (Tuple x y)) =
     Accel2D $ ((y' - x') / slowDownFactor) /\ ((-x' - y') / slowDownFactor)
 
 tick :: KwapGradient -> KwapGradient
-tick =
+tick (KwapGradient grads) =
   let
     tickOne { color: color', pos, vel } =
       let
@@ -203,13 +206,13 @@ tick =
         , acc: acc'
         }
   in
-    map tickOne
+    KwapGradient $ tickOne <$> grads
 
 tupleValue :: ∀ a b. Css.Val a => Css.Val b => Tuple a b -> Css.Value
 tupleValue = first Css.value >>> second Css.value >>> Css.value
 
 kwapGradient :: KwapGradient -> Css.CSS
-kwapGradient gradients =
+kwapGradient (KwapGradient gradients) =
   let
     kwapGradientWithPrefix prefix =
       let

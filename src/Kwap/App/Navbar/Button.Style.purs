@@ -1,4 +1,9 @@
-module Kwap.App.Navbar.Button.Style (selectedClass, containerClass, textClass, global) where
+module Kwap.App.Navbar.Button.Style
+  ( selectedClass
+  , containerClass
+  , textClass
+  , global
+  ) where
 
 import Kwap.App.Css
 import Prelude hiding (top)
@@ -9,7 +14,7 @@ import CSS.Selector as Sel
 import CSS.Size as Css.Size
 import CSS.Time as Time
 import CSS.Transform as Css.Transform
-import Kwap.App.Html (classNames, ClassProp, headingStyle)
+import Kwap.App.Html (ClassProp, classNames, headingStyle)
 
 -- See Kwap.App.Style
 global :: CSS
@@ -37,20 +42,26 @@ selectContainer =
 selectContainerSelected :: CSS -> CSS
 selectContainerSelected =
   select
-    (Sel.star `Sel.with` (Sel.byClass selectedClass)
+    ( Sel.star `Sel.with` (Sel.byClass selectedClass)
     )
 
 selectContainerClick :: CSS -> CSS
 selectContainerClick =
   select
-    (Sel.star `Sel.with` (refinements [ Sel.byClass containerClass, Sel.pseudo $ "not(."<>selectedClass<>")", Sel.pseudo "active" ])
+    ( Sel.star `Sel.with`
+        ( refinements
+            [ Sel.byClass containerClass
+            , Sel.pseudo $ "not(." <> selectedClass <> ")"
+            , Sel.pseudo "active"
+            ]
+        )
     )
 
 selectContainerHover :: CSS -> CSS
 selectContainerHover =
-    select
-      (Sel.star `Sel.with` (refinements [ Sel.byClass containerClass, hover ])
-      )
+  select
+    ( Sel.star `Sel.with` (refinements [ Sel.byClass containerClass, hover ])
+    )
 
 selectedRules :: CSS
 selectedRules = do

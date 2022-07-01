@@ -24,9 +24,9 @@ import CSS hiding
   ) as X
 import CSS.Common as Css.Common
 import CSS.Render as Css.Render
-import CSS.Transition as Css.Transition
 import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
+import CSS.Transition as Css.Transition
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldMap, foldl)
