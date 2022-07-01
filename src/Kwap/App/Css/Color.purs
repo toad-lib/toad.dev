@@ -54,7 +54,7 @@ shade = case _ of
 
 shadify :: Shade -> Css.Color -> Css.Color
 shadify = case _ of
-  Lightest -> Css.Color.lighten 0.45 >>> Css.Color.saturate (-0.35)
+  Lightest -> Css.Color.lighten 0.45 >>> Css.Color.saturate (-0.2)
   Light -> Css.Color.lighten 0.25 >>> Css.Color.saturate (-0.2)
   Medium -> Css.Color.lighten 0.0
   Dark -> Css.Color.darken 0.2 >>> Css.Color.saturate 0.2

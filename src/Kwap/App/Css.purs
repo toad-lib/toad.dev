@@ -4,13 +4,14 @@ module Kwap.App.Css
   , anySize
   , mask
   , style
+  , refinements
+  , kwapEasing
   , module X
   ) where
 
 import Prelude
 
 import CSS as Css
-import CSS.Common as Css.Common
 import CSS hiding
   ( Color(..)
   , FontStyle(..)
@@ -21,7 +22,10 @@ import CSS hiding
   , fontSize
   , fontWeight
   ) as X
+import CSS.Common as Css.Common
 import CSS.Render as Css.Render
+import CSS.Transition as Css.Transition
+import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -38,6 +42,14 @@ import Halogen.HTML.Elements as HE
 import Halogen.HTML.Properties as HP
 import Kwap.App.Css.Color as X
 import Kwap.App.Css.Font as X
+
+kwapEasing :: Css.Transition.TimingFunction
+kwapEasing = Css.Transition.cubicBezier 0.25 1.0 0.5 1.0
+
+refinements :: Array Css.Selector.Refinement -> Css.Selector.Refinement
+refinements =
+  foldl (\preds (Css.Selector.Refinement preds') -> preds <> preds') [] >>>
+    Css.Selector.Refinement
 
 anySize :: ∀ s o. Css.Size.Size s -> Css.Size.Size o
 anySize = Css.Size.sizeToString >>> Css.value >>> Css.Size.BasicSize
@@ -78,10 +90,10 @@ instance valueMaskComposite :: Css.Val MaskComposite where
 
 webkitMaskComposite :: MaskComposite -> Css.Value
 webkitMaskComposite = Css.fromString <<< case _ of
-    MaskAdd -> Css.fromString "source-over"
-    MaskSubtract -> Css.fromString "source-out"
-    MaskIntersect -> Css.fromString "source-in"
-    MaskExclude -> Css.fromString "xor"
+  MaskAdd -> Css.fromString "source-over"
+  MaskSubtract -> Css.fromString "source-out"
+  MaskIntersect -> Css.fromString "source-in"
+  MaskExclude -> Css.fromString "xor"
 
 data MaskMode = MaskAlpha | MaskLuminance
 
@@ -111,4 +123,5 @@ mask images composite mode loc size =
       key "mask-size" size
       key "mask-repeat" "no-repeat"
       Css.key (Css.fromString "mask-composite") $ Css.value composite
-      Css.key (Css.fromString "-webkit-mask-composite") $ webkitMaskComposite composite
+      Css.key (Css.fromString "-webkit-mask-composite") $ webkitMaskComposite
+        composite

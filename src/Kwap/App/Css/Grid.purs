@@ -1,65 +1,72 @@
 module Kwap.App.Css.Grid
-  ( Col(..)
-  , Row(..)
+  ( GridCol(..)
+  , GridRow(..)
   , AppGridArea(..)
   , grid
   , gridArea
   , appGrid
   , inAppContent
   , inAppNavbar
-  )
-  where
+  ) where
 
+import Data.Fist
 import Prelude
 
-import Kwap.App.Css as Css
 import CSS.Common as Css.Common
 import Data.Array as Array
-import Data.Fist
+import Data.Foldable (class Foldable, foldl, intercalate)
 import Data.Functor (class Functor)
-import Data.Foldable (class Foldable, intercalate, foldl)
 import Data.String as String
+import Kwap.App.Css as Css
 import Kwap.App.Layout (AppLayout(..))
 
-newtype Col s = Col (Css.Size s)
+newtype GridCol s = GridCol (Css.Size s)
 
-columnSize :: forall s. Col s -> Css.Size s
-columnSize (Col s) = s
+columnSize :: forall s. GridCol s -> Css.Size s
+columnSize (GridCol s) = s
 
-data Row :: (Type -> Type) -> Type -> Type -> Type
-data Row t a s = Row (Css.Size s) (t a)
+data GridRow :: (Type -> Type) -> Type -> Type -> Type
+data GridRow t a s = GridRow (Css.Size s) (t a)
 
-rowMembers :: ∀ t a s. Fist t => Row t a s -> t a
-rowMembers (Row _ t) = t
+rowMembers :: ∀ t a s. Fist t => GridRow t a s -> t a
+rowMembers (GridRow _ t) = t
 
-rowSize :: ∀ t a s. Fist t => Row t a s -> Css.Size s
-rowSize (Row s _) = s
+rowSize :: ∀ t a s. Fist t => GridRow t a s -> Css.Size s
+rowSize (GridRow s _) = s
 
 gridArea :: ∀ a. (a -> String) -> a -> Css.CSS
 gridArea f = f >>> Css.key (Css.fromString "grid-area")
 
-grid :: ∀ t f a s. Fist t => Functor f => Foldable f => t (Col s) -> f (Row t a s) -> (a -> String) -> Css.CSS
+grid
+  :: ∀ t f a s
+   . Fist t
+  => Functor f
+  => Foldable f
+  => t (GridCol s)
+  -> f (GridRow t a s)
+  -> (a -> String)
+  -> Css.CSS
 grid columns rows label =
   let
     templateRows = rows
-               <#> rowSize
-                 # Array.fromFoldable
-                 # Css.noCommas
+      <#> rowSize
+      # Array.fromFoldable
+      # Css.noCommas
 
     templateColumns = columns
-                    # arrayOf
-                  <#> columnSize
-                    # Css.noCommas
+      # arrayOf
+      <#> columnSize
+      # Css.noCommas
     template = rows
-           <#> rowMembers
-               >>> arrayOf
-               >>> map label
-               >>> intercalate " "
-               >>> append "\""
-               >>> flip append "\""
-               >>> Css.value
-             # Array.fromFoldable
-             # Css.noCommas
+      <#> rowMembers
+        >>> arrayOf
+        >>> map label
+        >>> intercalate " "
+        >>> append "\""
+        >>> flip append "\""
+        >>> Css.value
+      # Array.fromFoldable
+      # Css.noCommas
   in
     do
       Css.display Css.grid
@@ -90,9 +97,31 @@ inAppContent :: Css.CSS
 inAppContent = gridArea appGridLabel AppGridContent
 
 appGrid :: AppLayout -> Css.CSS
-appGrid _ = grid
-            (fist1 $ Col (Css.pct >>> Css.anySize $ 100.0))
-            [ Row (Css.rem >>> Css.anySize $ 20.0) $ fist1 AppGridNavbar
-            , Row Css.Common.auto $ fist1 AppGridContent
-            ]
-            appGridLabel
+appGrid = case _ of
+  AppLayoutDesktop -> appGridDesktop
+  AppLayoutMobile -> appGridMobile
+
+appGridMobile :: Css.CSS
+appGridMobile =
+  let
+    rem = Css.rem >>> Css.anySize
+    pct = Css.pct >>> Css.anySize
+  in
+    grid
+      (fist1 $ GridCol (pct 100.0))
+      [ GridRow (rem 20.0) $ fist1 AppGridNavbar
+      , GridRow Css.Common.auto $ fist1 AppGridContent
+      ]
+      appGridLabel
+
+appGridDesktop :: Css.CSS
+appGridDesktop =
+  let
+    rem = Css.rem >>> Css.anySize
+    pct = Css.pct >>> Css.anySize
+  in
+    grid
+      (fist2 (GridCol (rem 20.0)) (GridCol Css.Common.auto))
+      [ GridRow (pct 100.0) (fist2 AppGridNavbar AppGridContent)
+      ]
+      appGridLabel

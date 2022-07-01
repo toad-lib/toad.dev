@@ -1,13 +1,33 @@
-module Kwap.App.Html (module X, withText, h1, h2, h3, h4, h5, h6, p) where
+module Kwap.App.Html
+  ( module X
+  , headingStyle
+  , withText
+  , classNames
+  , ClassProp
+  , h1_
+  , h2_
+  , h3_
+  , h4_
+  , h5_
+  , h6_
+  , p_
+  ) where
 
-import Kwap.App.Css
+import Kwap.App.Css hiding (map)
 import Prelude
 
 import Data.Array as Array
+import Halogen (ClassName(..))
 import Halogen.HTML (HTML, IProp)
 import Halogen.HTML as HH
-import Halogen.HTML hiding (h1, h2, h3, h4, h5, h6, p) as X
+import Halogen.HTML hiding (h1_, h2_, h3_, h4_, h5_, h6_, map, p_) as X
 import Halogen.HTML.CSS (style)
+import Halogen.HTML.Properties as HP
+
+type ClassProp i r = HP.IProp (class :: String | r) i
+
+classNames :: forall i r. Array String -> ClassProp i r
+classNames = (map ClassName) >>> HP.classes
 
 withText :: ∀ a w i. (Array (HTML w i) -> a) -> String -> a
 withText ctor =
@@ -16,35 +36,37 @@ withText ctor =
     >>> ctor
 
 textStyle :: CSS
-textStyle = color (Purple Darkest)
+textStyle = color (Purple Dark)
 
-headingStyle :: forall i r. Font -> IProp (style :: String | r) i
-headingStyle font' =
-  style do
-    textStyle
-    font font'
-    margin nil nil nil nil
+headingStyleProp :: forall i r. Font -> IProp (style :: String | r) i
+headingStyleProp = headingStyle >>> style
 
-h1 :: ∀ w i. Array (HTML w i) -> HTML w i
-h1 = HH.h1 [ headingStyle $ fontSize FontSizeH1 <> fontFamily StokeBold ]
+headingStyle :: forall i r. Font -> CSS
+headingStyle font' = do
+  textStyle
+  font font'
+  margin nil nil nil nil
 
-h2 :: ∀ w i. Array (HTML w i) -> HTML w i
-h2 = HH.h2 [ headingStyle $ fontSize FontSizeH2 <> fontFamily StokeBold ]
+h1_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h1_ = HH.h1 [ headingStyleProp $ fontSize FontSizeH1 <> fontFamily StokeBold ]
 
-h3 :: ∀ w i. Array (HTML w i) -> HTML w i
-h3 = HH.h3 [ headingStyle $ fontSize FontSizeH3 <> fontFamily StokeBold ]
+h2_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h2_ = HH.h2 [ headingStyleProp $ fontSize FontSizeH2 <> fontFamily StokeBold ]
 
-h4 :: ∀ w i. Array (HTML w i) -> HTML w i
-h4 = HH.h4 [ headingStyle $ fontSize FontSizeH4 <> fontFamily InterBold ]
+h3_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h3_ = HH.h3 [ headingStyleProp $ fontSize FontSizeH3 <> fontFamily StokeBold ]
 
-h5 :: ∀ w i. Array (HTML w i) -> HTML w i
-h5 = HH.h5 [ headingStyle $ fontSize FontSizeH5 <> fontFamily InterBold ]
+h4_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h4_ = HH.h4 [ headingStyleProp $ fontSize FontSizeH4 <> fontFamily InterBold ]
 
-h6 :: ∀ w i. Array (HTML w i) -> HTML w i
-h6 = HH.h6 [ headingStyle $ fontSize FontSizeH6 <> fontFamily InterBold ]
+h5_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h5_ = HH.h5 [ headingStyleProp $ fontSize FontSizeH5 <> fontFamily InterBold ]
 
-p :: ∀ w i. Array (HTML w i) -> HTML w i
-p =
+h6_ :: ∀ w i. Array (HTML w i) -> HTML w i
+h6_ = HH.h6 [ headingStyleProp $ fontSize FontSizeH6 <> fontFamily InterBold ]
+
+p_ :: ∀ w i. Array (HTML w i) -> HTML w i
+p_ =
   HH.p
     [ style do
         textStyle

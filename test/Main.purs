@@ -32,19 +32,14 @@ import Kwap.Markdown
   , tokenP
   )
 import Parsing (Parser, runParser)
-import Parsing.Combinators (many)
 import Test.Spec (describe, it)
-import Test.Spec.Assertions (fail, shouldEqual, shouldSatisfy)
+import Test.Spec.Assertions (fail, shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
 import Test.Spec.Runner (runSpec)
 
 main :: Effect Unit
 main =
   let
-    isOne 1 = true
-
-    isOne _ = false
-
     testParser
       :: ∀ m a
        . MonadThrow Error m

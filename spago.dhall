@@ -11,6 +11,7 @@
   , "effect"
   , "either"
   , "exceptions"
+  , "filterable"
   , "foldable-traversable"
   , "halogen"
   , "halogen-css"

@@ -24,7 +24,8 @@ data FontWeight
   | ExtraBold
 
 data FontSize
-  = FontSizeSmall
+  = FontSizeDefault
+  | FontSizeSmall
   | FontSizeBody
   | FontSizeH1
   | FontSizeH2
@@ -34,7 +35,8 @@ data FontSize
   | FontSizeH6
 
 data FontFamily
-  = StokeMedium
+  = FontFamilyDefault
+  | StokeMedium
   | StokeBold
   | InterMedium
   | InterLight
@@ -46,6 +48,7 @@ data Font = Font FontFamily FontSize
 
 weight :: FontFamily -> FontWeight
 weight = case _ of
+  FontFamilyDefault -> Medium
   InterLight -> Light
   InterMedium -> Medium
   InterSemibold -> Semibold
@@ -64,6 +67,7 @@ cssFontFamily =
     stoke = Css.fontFamily (pure "Stoke") (fallback Css.Font.serif)
   in
     case _ of
+      FontFamilyDefault -> cssFontFamily InterMedium
       InterLight -> inter
       InterMedium -> inter
       InterSemibold -> inter
@@ -84,6 +88,7 @@ cssFontSize :: FontSize -> Css.CSS
 cssFontSize =
   let
     pt = case _ of
+      FontSizeDefault -> pt FontSizeBody
       FontSizeSmall -> 8.0
       FontSizeH6 -> 10.0
       FontSizeBody -> 14.0
@@ -108,12 +113,11 @@ font (Font family size) = do
   cssFontWeight $ weight family
 
 instance fontSizeSemigroup :: Semigroup FontSize where
-  append a b
-    | a == mempty = b
-  append a _ = a
+  append a b | b == mempty = a
+             | otherwise = b
 
 instance fontSizeMonoid :: Monoid FontSize where
-  mempty = FontSizeBody
+  mempty = FontSizeDefault
 
 derive instance fontSizeGeneric :: Generic FontSize _
 
@@ -121,12 +125,11 @@ instance fontSizeEq :: Eq FontSize where
   eq = genericEq
 
 instance fontFamilySemigroup :: Semigroup FontFamily where
-  append a b
-    | a == mempty = b
-  append a _ = a
+  append a b | b == mempty = a
+             | otherwise = b
 
 instance fontFamilyMonoid :: Monoid FontFamily where
-  mempty = InterMedium
+  mempty = FontFamilyDefault
 
 derive instance fontFamilyGeneric :: Generic FontFamily _
 
