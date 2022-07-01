@@ -16,7 +16,7 @@ jobs:
       with:
         path: ~/.npm
         key: ${{runner.os}}-node-${{hashFiles('**/package-lock.json')}}
-        restore-keys: ${{runner.os}}-node-
+        restore-keys: ${{runner.os}}-node-14
     - run: "npm ci"
     - run: "npm run build:prod"
     - run: "git fetch --all"
