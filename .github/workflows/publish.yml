@@ -19,7 +19,6 @@ jobs:
         restore-keys: ${{runner.os}}-node-14
     - run: "npm ci"
     - run: "npm run build:prod"
-    - run: "git fetch --all"
     - run: "git switch hostme"
     - run: |
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
@@ -29,4 +28,4 @@ jobs:
     - run: "rm -r dist"
     - run: "git add -A"
     - run: "git commit -m 'publish'"
-    - run: "git push"
+    - run: "git push -f"
