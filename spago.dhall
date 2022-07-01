@@ -22,17 +22,21 @@
   , "numbers"
   , "ordered-collections"
   , "parsing"
+  , "partial"
   , "prelude"
   , "profunctor"
   , "psci-support"
   , "random"
+  , "record"
   , "spec"
   , "strings"
   , "tailrec"
   , "transformers"
   , "tuples"
+  , "typelevel-prelude"
   , "web-dom"
   , "web-html"
+  , "yoga-fetch"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
