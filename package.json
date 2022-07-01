@@ -25,8 +25,5 @@
   },
   "browserslist": [
     "defaults"
-  ],
-  "dependencies": {
-    "purescript-milkis": "^1.0.0"
-  }
+  ]
 }
