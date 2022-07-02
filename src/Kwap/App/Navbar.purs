@@ -13,7 +13,7 @@ import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
 import Kwap.App.Navbar.Button as Button
 
-data Section = Home | GetStarted | Docs
+data Section = Home | Book | Concepts
 
 derive instance eqSection :: Eq Section
 
@@ -78,9 +78,9 @@ render picked layout section =
       [ Atom.Logo.render (Just $ inArea GridLogo)
       , Button.render (select Home) (isSelected Home) "home"
           (inArea GridButtonA)
-      , Button.render (select GetStarted) (isSelected GetStarted) "quickstart"
+      , Button.render (select Book) (isSelected Book) "book"
           (inArea GridButtonB)
-      , Button.render (select Docs) (isSelected Docs) "docs"
+      , Button.render (select Concepts) (isSelected Concepts) "concepts"
           (inArea GridButtonC)
       , solidBg GridGapA
       , solidBg GridRemainder
