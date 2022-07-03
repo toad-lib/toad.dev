@@ -28,6 +28,7 @@ appWrap = do
 contentWrap :: CSS
 contentWrap = do
   Grid.inAppContent
+  sym margin $ rem 2.0
 
 navbarWrap :: CSS
 navbarWrap = do

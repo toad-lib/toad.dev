@@ -164,16 +164,59 @@ anchorP = do
   href <- untilTokenStopOr [ Stop $ string ")" ]
   pure $ Anchor (combineUnstyled Just identity label) href
 
+data TextWrap
+  = WrapStar1 -- *text*
+  | WrapStar2 -- **text**
+  | WrapStar3 -- ***text***
+  | WrapStar2Under1 -- **_text_**
+  | WrapUnder1Star2 -- _**text**_
+  | WrapUnder1 -- _text_
+  | WrapBacktick -- `text`
+
+textWrapOpen_ :: TextWrap -> String
+textWrapOpen_ = case _ of
+  WrapStar1 -> "*"
+  WrapStar2 -> "**"
+  WrapStar3 -> "***"
+  WrapStar2Under1 -> "**_"
+  WrapUnder1Star2 -> "_**"
+  WrapUnder1 -> "_"
+  WrapBacktick -> "`"
+
+textWrapClose_ :: TextWrap -> String
+textWrapClose_ = case _ of
+  WrapStar1 -> "*"
+  WrapStar2 -> "**"
+  WrapStar3 -> "***"
+  WrapStar2Under1 -> "_**"
+  WrapUnder1Star2 -> "**_"
+  WrapUnder1 -> "_"
+  WrapBacktick -> "`"
+
+textWrapOpen :: TextWrap -> Parser String TextWrap
+textWrapOpen WrapStar1 =
+  do
+    _ <- string "*"
+    _ <- notFollowedBy $ string "*"
+    pure WrapStar1
+textWrapOpen WrapStar2 =
+  do
+    _ <- string "**"
+    _ <- notFollowedBy $ string "*"
+    pure WrapStar2
+textWrapOpen w = const w <$> (string $ textWrapOpen_ w)
+
+textWrapClose :: TextWrap -> Parser String TextWrap
+textWrapClose w = const w <$> (string $ textWrapClose_ w)
+
 textP :: Array Stop -> Parser String Text
 textP stops =
   choice
-    [ try $ notStartWithStop $ parseWith InlineCode $ string "`"
-    , try $ notStartWithStop $ parseWith BoldItalic
-        (choice $ [ "***", "**_", "_**" ] <#> string)
-    , try $ notStartWithStop $ parseWith Italic
-        (choice $ [ singleAsterisk, string "_" ])
-    , try $ notStartWithStop $ parseWith Bold $ string "**"
-    , notStartWithStop
+    [ try $ textP' InlineCode [ WrapBacktick ]
+    , try $ textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
+    , try $ textP' Italic [ WrapStar1, WrapUnder1 ]
+    , try $ textP' Bold [ WrapStar2 ]
+    , greenLight
         $ anyChar
             <#> NEA.singleton
             <#> fromNonEmptyCharArray
@@ -181,33 +224,13 @@ textP stops =
             <#> Unstyled
     ]
   where
-  notStartWithStop p = (notFollowedBy $ choice $ stops <#> stop) >>= const p
+  greenLight p = (notFollowedBy $ choice $ stops <#> stop) >>= const p
 
-  singleAsterisk =
-    string "*"
-      <#> (pure >>> const)
-      >>= discard (notFollowedBy $ string "*")
-
-  closingDelim "`" = string "`"
-
-  closingDelim "_" = string "_"
-
-  closingDelim "*" = string "*"
-
-  closingDelim "**" = string "**"
-
-  closingDelim "***" = string "***"
-
-  closingDelim "**_" = string "_**"
-
-  closingDelim "_**" = string "**_"
-
-  closingDelim _ = fail "unreachable"
-
-  parseWith ctor delim = do
-    openDelim <- delim
-    text <- untilTokenStopOr $ stops <> [ Stop $ closingDelim openDelim ]
-    pure $ ctor text
+  textP' t ds = greenLight do
+    wrap <- choice $ ds <#> textWrapOpen
+    s <- untilTokenStopOr $ stops <>
+      [ Stop $ map (const "") (textWrapClose wrap) ]
+    pure $ t s
 
 derive instance eqCodeFenceFileType :: Eq CodeFenceFileType
 

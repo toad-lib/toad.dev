@@ -3,6 +3,7 @@ module Kwap.App where
 import Prelude
 
 import Kwap.App.Action (Action(..))
+import Kwap.App.Content as App.Content
 import Kwap.App.Css as Css
 import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
@@ -31,6 +32,7 @@ render state =
         , HH.div
             [ Css.style App.Style.contentWrap
             ]
-            []
+            [ App.Content.render
+            ]
         ]
     ]
