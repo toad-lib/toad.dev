@@ -3,7 +3,6 @@ module Kwap.Markdown where
 import Prelude
 
 import Control.Alternative ((<|>))
-import Data.Array as Array
 import Data.Array.NonEmpty as NEA
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
@@ -11,29 +10,20 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Show.Generic (genericShow)
 import Data.String.NonEmpty as NES
 import Data.String.NonEmpty.CodeUnits (fromNonEmptyCharArray)
-import Data.Tuple (fst, snd)
-import Effect.Console (log)
-import Effect.Unsafe (unsafePerformEffect)
-import Parsing (Parser, fail)
+import Data.Tuple (fst)
+import Parsing (Parser)
 import Parsing.Combinators
   ( advance
-  , between
   , choice
-  , endBy1
   , lookAhead
   , many
-  , many1
   , many1Till_
-  , manyTill
-  , manyTill_
   , notFollowedBy
   , optional
-  , skipMany
   , try
   )
 import Parsing.Combinators.Array as CombinatorArray
-import Parsing.String (anyChar, anyTill, char, eof, match, rest, string)
-import Parsing.String.Basic (space)
+import Parsing.String (anyChar, anyTill, char, eof, string)
 
 data Text
   = Unstyled String
@@ -164,7 +154,7 @@ anchorP = do
   href <- untilTokenStopOr [ Stop $ string ")" ]
   pure $ Anchor (combineUnstyled Just identity label) href
 
-data TextWrap
+data Wrap
   = WrapStar1 -- *text*
   | WrapStar2 -- **text**
   | WrapStar3 -- ***text***
@@ -173,8 +163,8 @@ data TextWrap
   | WrapUnder1 -- _text_
   | WrapBacktick -- `text`
 
-textWrapOpen_ :: TextWrap -> String
-textWrapOpen_ = case _ of
+wrapOpen_ :: Wrap -> String
+wrapOpen_ = case _ of
   WrapStar1 -> "*"
   WrapStar2 -> "**"
   WrapStar3 -> "***"
@@ -183,89 +173,69 @@ textWrapOpen_ = case _ of
   WrapUnder1 -> "_"
   WrapBacktick -> "`"
 
-textWrapClose_ :: TextWrap -> String
-textWrapClose_ = case _ of
-  WrapStar1 -> "*"
-  WrapStar2 -> "**"
-  WrapStar3 -> "***"
-  WrapStar2Under1 -> "_**"
-  WrapUnder1Star2 -> "**_"
-  WrapUnder1 -> "_"
-  WrapBacktick -> "`"
+wrapClose_ :: Wrap -> String
+wrapClose_ WrapStar2Under1 = "_**"
+wrapClose_ WrapUnder1Star2 = "**_"
+wrapClose_ w = wrapOpen_ w
 
-textWrapOpen :: TextWrap -> Parser String TextWrap
-textWrapOpen WrapStar1 =
-  do
-    _ <- string "*"
-    _ <- notFollowedBy $ string "*"
-    pure WrapStar1
-textWrapOpen WrapStar2 =
-  do
-    _ <- string "**"
-    _ <- notFollowedBy $ string "*"
-    pure WrapStar2
-textWrapOpen w = const w <$> (string $ textWrapOpen_ w)
+wrapNotFollowedByStar :: Wrap -> Boolean
+wrapNotFollowedByStar WrapStar1 = true
+wrapNotFollowedByStar WrapStar2 = true
+wrapNotFollowedByStar _ = false
 
-textWrapClose :: TextWrap -> Parser String TextWrap
-textWrapClose w = const w <$> (string $ textWrapClose_ w)
+wrapOpen :: Wrap -> Parser String Wrap
+wrapOpen w
+  | wrapNotFollowedByStar w =
+      do
+        _ <- string $ wrapOpen_ w
+        _ <- notFollowedBy $ string "*"
+        pure w
+  | otherwise = const w <$> (string $ wrapOpen_ w)
+
+wrapClose :: Wrap -> Parser String Wrap
+wrapClose w = const w <$> (string $ wrapClose_ w)
 
 textP :: Array Stop -> Parser String Text
 textP stops =
-  choice
-    [ try $ textP' InlineCode [ WrapBacktick ]
-    , try $ textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
-    , try $ textP' Italic [ WrapStar1, WrapUnder1 ]
-    , try $ textP' Bold [ WrapStar2 ]
-    , greenLight
-        $ anyChar
-            <#> NEA.singleton
-            <#> fromNonEmptyCharArray
-            <#> NES.toString
-            <#> Unstyled
-    ]
-  where
-  greenLight p = (notFollowedBy $ choice $ stops <#> stop) >>= const p
+  let
+    greenLight p = (notFollowedBy $ choice $ stops <#> stop) >>= const p
 
-  textP' t ds = greenLight do
-    wrap <- choice $ ds <#> textWrapOpen
-    s <- untilTokenStopOr $ stops <>
-      [ Stop $ map (const "") (textWrapClose wrap) ]
-    pure $ t s
+    textP' t ds = greenLight do
+      wrap <- choice $ ds <#> wrapOpen
+      s <- untilTokenStopOr $ stops <>
+        [ Stop $ map (const "") (wrapClose wrap) ]
+      pure $ t s
+  in
+    choice
+      [ try $ textP' InlineCode [ WrapBacktick ]
+      , try $ textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
+      , try $ textP' Italic [ WrapStar1, WrapUnder1 ]
+      , try $ textP' Bold [ WrapStar2 ]
+      , greenLight
+          $ anyChar
+              <#> NEA.singleton
+              <#> fromNonEmptyCharArray
+              <#> NES.toString
+              <#> Unstyled
+      ]
 
 derive instance eqCodeFenceFileType :: Eq CodeFenceFileType
-
 derive instance eqCodeFence :: Eq CodeFence
-
 derive instance eqSpan :: Eq Span
-
 derive instance eqToken :: Eq Token
-
 derive instance eqText :: Eq Text
-
 derive instance eqHeading :: Eq Heading
-
 derive instance eqElement :: Eq Element
-
 derive instance eqDocument :: Eq Document
-
 derive instance eqAnchor :: Eq Anchor
-
 derive instance genericCodeFenceFileType :: Generic CodeFenceFileType _
-
 derive instance genericCodeFence :: Generic CodeFence _
-
 derive instance genericSpan :: Generic Span _
-
 derive instance genericToken :: Generic Token _
-
 derive instance genericText :: Generic Text _
-
 derive instance genericHeading :: Generic Heading _
-
 derive instance genericElement :: Generic Element _
-
 derive instance genericDocument :: Generic Document _
-
 derive instance genericAnchor :: Generic Anchor _
 
 instance showCodeFenceFileType :: Show CodeFenceFileType where
