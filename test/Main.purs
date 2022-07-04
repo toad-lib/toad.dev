@@ -255,6 +255,87 @@ main =
                           ]
                       )
                   )
+              it "should parse ol" do
+                testParser
+                  listP
+                  ( String.joinWith
+                      "\n"
+                      [ " 1. foo"
+                      , " 3241421. *bar*"
+                      , "  2314. **_baz_**"
+                      ]
+                  )
+                  ( OrderedList
+                      ( NonEmptyArray
+                          [ ListTokenSpan
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Unstyled "foo") ])
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Italic "bar") ])
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  ( NonEmptyArray
+                                      [ TextToken (BoldItalic "baz") ]
+                                  )
+                              )
+                          ]
+                      )
+                  )
+              it "should parse nested ol" do
+                testParser
+                  listP
+                  ( String.joinWith
+                      "\n"
+                      [ " 1. foo"
+                      , "    a. *bar*"
+                      , "       1. **_baz_**"
+                      , " 2. bingus"
+                      ]
+                  )
+                  ( OrderedList
+                      ( NonEmptyArray
+                          [ ListTokenSpanSublist
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Unstyled "foo") ])
+                              )
+                              ( OrderedList
+                                  ( NonEmptyArray
+                                      [ ListTokenSpanSublist
+                                          ( Span
+                                              ( NonEmptyArray
+                                                  [ TextToken (Italic "bar") ]
+                                              )
+                                          )
+                                          ( OrderedList
+                                              ( NonEmptyArray
+                                                  [ ListTokenSpan
+                                                      ( Span
+                                                          ( NonEmptyArray
+                                                              [ TextToken
+                                                                  ( BoldItalic
+                                                                      "baz"
+                                                                  )
+                                                              ]
+                                                          )
+                                                      )
+                                                  ]
+                                              )
+                                          )
+                                      ]
+                                  )
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  ( NonEmptyArray
+                                      [ TextToken (Unstyled "bingus") ]
+                                  )
+                              )
+                          ]
+                      )
+                  )
             describe "document" do
               it "should parse document" do
                 testParser
