@@ -14,14 +14,17 @@ jobs:
       with: {node-version: 14.x}
     - uses: actions/cache@v2
       with:
-        path: ~/.npm
-        key: ${{runner.os}}-node-${{hashFiles('**/package-lock.json')}}
+        path: |
+          ~/.yarn
+          node_modules
+        key: ${{runner.os}}-node-${{hashFiles('**/yarn.lock')}}
         restore-keys: ${{runner.os}}-node-14
     - run: "git fetch --all"
     - run: "git switch hostme"
     - run: "git reset main --hard"
-    - run: "npm ci"
-    - run: "npm run build:prod"
+    - run: "npm install yarn --global"
+    - run: "yarn"
+    - run: "yarn build:prod"
     - run: |
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"
