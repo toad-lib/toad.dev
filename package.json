@@ -4,10 +4,7 @@
     "@parcel/optimizer-data-url": "^2.6.1",
     "@parcel/transformer-inline-string": "^2.6.1",
     "esbuild": "^0.14.45",
-    "mocha": "^8.3.0",
-    "mocha-headless-chrome": "^3.1.0",
     "parcel": "^2.6",
-    "pulp": "^16.0.2",
     "purescript": "^0.15.2",
     "purescript-psa": "^0.8.2",
     "purs-tidy": "^0.9.0",
@@ -17,11 +14,13 @@
     "fmt": "purs-tidy format-in-place src test",
     "build": "spago build",
     "build:watch": "spago build -w",
-    "build:prod": "npm run build && parcel build static/index.html",
+    "build:prod": "yarn build && parcel build static/index.html",
     "b": "yarn build",
     "b:w": "yarn build:watch",
     "serve": "parcel static/index.html --open",
-    "s": "yarn serve"
+    "s": "yarn serve",
+    "test": "spago test",
+    "t": "yarn test"
   },
   "browserslist": [
     "defaults"
