@@ -8,6 +8,7 @@ import Data.Either (Either(..), either)
 import Data.Foldable (for_)
 import Data.List (List(Nil), (:))
 import Data.Maybe (Maybe(..))
+import Data.String as String
 import Data.String.NonEmpty.Internal (NonEmptyString(..))
 import Effect (Effect)
 import Effect.Aff (Aff, forkAff, joinFiber, launchAff_, makeAff)
@@ -20,6 +21,8 @@ import Kwap.Markdown
   , Document(..)
   , Element(..)
   , Heading(..)
+  , List(..)
+  , ListToken(..)
   , Span(..)
   , Text(..)
   , Token(..)
@@ -27,6 +30,7 @@ import Kwap.Markdown
   , codeFenceP
   , documentP
   , headingP
+  , listP
   , spanP
   , textP
   , tokenP
@@ -169,18 +173,107 @@ main =
                   \> echo 'foo'\n\
                   \```"
                   (CodeFence Nothing "> echo 'foo'")
+            describe "ul / ol" do
+              it "should parse ul" do
+                testParser
+                  listP
+                  ( String.joinWith
+                      "\n"
+                      [ " - foo"
+                      , "  * *bar*"
+                      , "  - **_baz_**"
+                      ]
+                  )
+                  ( UnorderedList
+                      ( NonEmptyArray
+                          [ ListTokenSpan
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Unstyled "foo") ])
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Italic "bar") ])
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  ( NonEmptyArray
+                                      [ TextToken (BoldItalic "baz") ]
+                                  )
+                              )
+                          ]
+                      )
+                  )
+              it "should parse nested ul" do
+                testParser
+                  listP
+                  ( String.joinWith
+                      "\n"
+                      [ " - foo"
+                      , "    - *bar*"
+                      , "       - **_baz_**"
+                      , " * bingus"
+                      ]
+                  )
+                  ( UnorderedList
+                      ( NonEmptyArray
+                          [ ListTokenSpanSublist
+                              ( Span
+                                  (NonEmptyArray [ TextToken (Unstyled "foo") ])
+                              )
+                              ( UnorderedList
+                                  ( NonEmptyArray
+                                      [ ListTokenSpanSublist
+                                          ( Span
+                                              ( NonEmptyArray
+                                                  [ TextToken (Italic "bar") ]
+                                              )
+                                          )
+                                          ( UnorderedList
+                                              ( NonEmptyArray
+                                                  [ ListTokenSpan
+                                                      ( Span
+                                                          ( NonEmptyArray
+                                                              [ TextToken
+                                                                  ( BoldItalic
+                                                                      "baz"
+                                                                  )
+                                                              ]
+                                                          )
+                                                      )
+                                                  ]
+                                              )
+                                          )
+                                      ]
+                                  )
+                              )
+                          , ListTokenSpan
+                              ( Span
+                                  ( NonEmptyArray
+                                      [ TextToken (Unstyled "bingus") ]
+                                  )
+                              )
+                          ]
+                      )
+                  )
             describe "document" do
               it "should parse document" do
                 testParser
                   documentP
-                  "# hello\n\
-                  \this is my **markdown** document\n\n\
-                  \`it has code` _and style_\n\n\
-                  \```rust\n\
-                  \pub fn main() {\n\
-                  \  println!(\"it works!\");\n\
-                  \}\n\
-                  \```[check out my *website*](cheese.com)"
+                  ( String.joinWith
+                      "\n"
+                      [ "# hello"
+                      , "this is my **markdown** document\n"
+                      , "`it has code` _and style_\n"
+                      , " - foo"
+                      , "   - foo"
+                      , " * foo"
+                      , "```rust"
+                      , "pub fn main() {"
+                      , "  println!(\"it works!\");"
+                      , "}"
+                      , "```[check out my *website*](cheese.com)"
+                      ]
+                  )
                   $ Document
                       [ ElementHeading
                           ( H1
@@ -205,6 +298,39 @@ main =
                                   [ TextToken (InlineCode "it has code")
                                   , TextToken (Unstyled " ")
                                   , TextToken (Italic "and style")
+                                  ]
+                              )
+                          )
+                      , ElementList
+                          ( UnorderedList
+                              ( NonEmptyArray
+                                  [ ListTokenSpanSublist
+                                      ( Span
+                                          ( NonEmptyArray
+                                              [ TextToken (Unstyled "foo") ]
+                                          )
+                                      )
+                                      ( UnorderedList
+                                          ( NonEmptyArray
+                                              [ ListTokenSpan
+                                                  ( Span
+                                                      ( NonEmptyArray
+                                                          [ TextToken
+                                                              (Unstyled "foo")
+                                                          ]
+                                                      )
+                                                  )
+                                              ]
+                                          )
+                                      )
+                                  , ListTokenSpan
+                                      ( Span
+                                          ( NonEmptyArray
+                                              [ TextToken
+                                                  (Unstyled "foo")
+                                              ]
+                                          )
+                                      )
                                   ]
                               )
                           )

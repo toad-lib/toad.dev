@@ -3,15 +3,19 @@ module Kwap.Markdown where
 import Prelude
 
 import Control.Alternative ((<|>))
+import Data.Array as Array
 import Data.Array.NonEmpty as NEA
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Show.Generic (genericShow)
+import Data.String as String
 import Data.String.NonEmpty as NES
 import Data.String.NonEmpty.CodeUnits (fromNonEmptyCharArray)
 import Data.Tuple (fst)
-import Parsing (Parser)
+import Effect.Console (log)
+import Effect.Unsafe (unsafePerformEffect)
+import Parsing (Parser, fail)
 import Parsing.Combinators
   ( advance
   , choice
@@ -19,6 +23,7 @@ import Parsing.Combinators
   , many
   , many1Till_
   , notFollowedBy
+  , optionMaybe
   , optional
   , try
   )
@@ -57,10 +62,19 @@ data CodeFenceFileType = CodeFenceFileType NES.NonEmptyString
 
 data CodeFence = CodeFence (Maybe CodeFenceFileType) String
 
+data ListToken
+  = ListTokenSpan Span
+  | ListTokenSpanSublist Span List
+
+data List
+  = OrderedList (NEA.NonEmptyArray ListToken)
+  | UnorderedList (NEA.NonEmptyArray ListToken)
+
 data Element
   = ElementHeading Heading
   | ElementCodeFence CodeFence
   | ElementSpan Span
+  | ElementList List
 
 data Document = Document (Array Element)
 
@@ -108,8 +122,45 @@ documentP = CombinatorArray.many elementP <#> Document
 elementP :: Parser String Element
 elementP =
   (headingP <#> ElementHeading)
+    <|> (listP <#> ElementList)
     <|> (codeFenceP <#> ElementCodeFence)
     <|> ((spanP []) <#> ElementSpan)
+
+data Indentation = IndentSpaces Int
+
+indentP :: Indentation -> Parser String Indentation
+indentP i@(IndentSpaces n) = try $ do
+  _ <- string $ String.joinWith "" $ Array.replicate n " "
+  pure i
+
+derive instance genericIndent :: Generic Indentation _
+instance showIndent :: Show Indentation where
+  show = genericShow
+
+olP :: Array Indentation -> Parser String List
+olP _ = fail "poop"
+
+ulP :: Array Indentation -> Parser String List
+ulP indents =
+  UnorderedList <$> CombinatorArray.many1 do
+    (IndentSpaces spaces) <- choice $ map indentP indents
+    _ <- choice [ string "* ", string "- " ]
+    span <- spanP [ Stop $ string "\n" ]
+    child <- optionMaybe
+      (listP_ [ IndentSpaces (spaces + 3), IndentSpaces (spaces + 2) ])
+    pure $
+      case child of
+        Just child' -> ListTokenSpanSublist span child'
+        Nothing -> ListTokenSpan span
+
+listRootIndentation :: Array Indentation
+listRootIndentation = [ IndentSpaces 2, IndentSpaces 1 ]
+
+listP_ :: Array Indentation -> Parser String List
+listP_ indents = ulP indents <|> olP indents
+
+listP :: Parser String List
+listP = listP_ listRootIndentation
 
 codeFenceP :: Parser String CodeFence
 codeFenceP = do
@@ -176,7 +227,7 @@ wrapOpen_ = case _ of
 wrapClose_ :: Wrap -> String
 wrapClose_ WrapStar2Under1 = "_**"
 wrapClose_ WrapUnder1Star2 = "**_"
-wrapClose_ w = wrapOpen_ w
+wrapClose_ symmetric = wrapOpen_ symmetric
 
 wrapNotFollowedByStar :: Wrap -> Boolean
 wrapNotFollowedByStar WrapStar1 = true
@@ -190,18 +241,26 @@ wrapOpen w
         _ <- string $ wrapOpen_ w
         _ <- notFollowedBy $ string "*"
         pure w
-  | otherwise = const w <$> (string $ wrapOpen_ w)
+  | otherwise = do
+      _ <- string $ wrapOpen_ w
+      pure w
 
 wrapClose :: Wrap -> Parser String Wrap
-wrapClose w = const w <$> (string $ wrapClose_ w)
+wrapClose w = do
+  _ <- string $ wrapClose_ w
+  pure w
 
 textP :: Array Stop -> Parser String Text
 textP stops =
   let
-    greenLight p = (notFollowedBy $ choice $ stops <#> stop) >>= const p
+    greenLight :: forall a. Parser String a -> Parser String a
+    greenLight p = do
+      _ <- notFollowedBy $ choice $ stops <#> stop
+      p
 
-    textP' t ds = greenLight do
-      wrap <- choice $ ds <#> wrapOpen
+    textP' :: forall a. (String -> a) -> Array Wrap -> Parser String a
+    textP' t ws = greenLight do
+      wrap <- choice $ ws <#> wrapOpen
       s <- untilTokenStopOr $ stops <>
         [ Stop $ map (const "") (wrapClose wrap) ]
       pure $ t s
@@ -211,12 +270,11 @@ textP stops =
       , try $ textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
       , try $ textP' Italic [ WrapStar1, WrapUnder1 ]
       , try $ textP' Bold [ WrapStar2 ]
-      , greenLight
-          $ anyChar
-              <#> NEA.singleton
-              <#> fromNonEmptyCharArray
-              <#> NES.toString
-              <#> Unstyled
+      , greenLight anyChar
+          <#> NEA.singleton
+          <#> fromNonEmptyCharArray
+          <#> NES.toString
+          <#> Unstyled
       ]
 
 derive instance eqCodeFenceFileType :: Eq CodeFenceFileType
@@ -228,6 +286,8 @@ derive instance eqHeading :: Eq Heading
 derive instance eqElement :: Eq Element
 derive instance eqDocument :: Eq Document
 derive instance eqAnchor :: Eq Anchor
+derive instance eqListToken :: Eq ListToken
+derive instance eqList :: Eq List
 derive instance genericCodeFenceFileType :: Generic CodeFenceFileType _
 derive instance genericCodeFence :: Generic CodeFence _
 derive instance genericSpan :: Generic Span _
@@ -265,3 +325,13 @@ instance showAnchor :: Show Anchor where
 instance showToken :: Show Token where
   show (AnchorToken an) = "AnchorToken (" <> show an <> ")"
   show (TextToken text) = "TextToken (" <> show text <> ")"
+
+instance showList :: Show List where
+  show (UnorderedList lts) = "UnorderedList (" <> show lts <> ")"
+  show (OrderedList lts) = "OrderedList (" <> show lts <> ")"
+
+instance showListToken :: Show ListToken where
+  show (ListTokenSpan s) = "ListTokenSpan (" <> show s <> ")"
+  show (ListTokenSpanSublist s l) = "ListTokenSpanSublist (" <> show s <> ") ("
+    <> show l
+    <> ")"
