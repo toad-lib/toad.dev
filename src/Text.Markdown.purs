@@ -155,23 +155,32 @@ listRootIndentation :: Array Indentation
 listRootIndentation = [ IndentSpaces 2, IndentSpaces 1 ]
 
 listP_ :: Array Indentation -> Parser String List
-listP_ is = let
-      fromPartsListP :: forall a. Parser String a -> (NEA.NonEmptyArray ListToken -> List) -> Parser String List
-      fromPartsListP pre l =
-        l <$> CombinatorArray.many1 do
-          (IndentSpaces spaces) <- choice $ map indentP is
-          _ <- pre
-          span <- spanP [ Stop $ string "\n" ]
-          child <- optionMaybe
-            (listP_ [ IndentSpaces (spaces + 3), IndentSpaces (spaces + 2) ])
-          pure $
-            case child of
-              Just child' -> ListTokenSpanSublist span child'
-              Nothing -> ListTokenSpan span
-      olP = fromPartsListP (choice [CombinatorArray.many1 digit, CombinatorArray.many1 lower] *> string ". ") OrderedList
-      ulP = fromPartsListP (choice [string "* ", string "- "]) UnorderedList
-    in
-      ulP <|> olP
+listP_ is =
+  let
+    fromPartsListP
+      :: forall a
+       . Parser String a
+      -> (NEA.NonEmptyArray ListToken -> List)
+      -> Parser String List
+    fromPartsListP pre l =
+      l <$> CombinatorArray.many1 do
+        (IndentSpaces spaces) <- choice $ map indentP is
+        _ <- pre
+        span <- spanP [ Stop $ string "\n" ]
+        child <- optionMaybe
+          (listP_ [ IndentSpaces (spaces + 3), IndentSpaces (spaces + 2) ])
+        pure $
+          case child of
+            Just child' -> ListTokenSpanSublist span child'
+            Nothing -> ListTokenSpan span
+    olP = fromPartsListP
+      ( choice [ CombinatorArray.many1 digit, CombinatorArray.many1 lower ] *>
+          string ". "
+      )
+      OrderedList
+    ulP = fromPartsListP (choice [ string "* ", string "- " ]) UnorderedList
+  in
+    ulP <|> olP
 
 listP :: Parser String List
 listP = listP_ listRootIndentation
