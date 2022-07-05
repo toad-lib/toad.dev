@@ -3,17 +3,18 @@ module Kwap.App.State where
 import Prelude
 
 import Control.Alt ((<|>))
-import Effect.Aff (Aff)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
+import Effect.Aff (Aff)
 import Kwap.App.Css (KwapGradient, kwapGradientInit)
 import Kwap.App.Navbar as App.Navbar
 import Kwap.Concept as Concept
 
 newtype ErrorMessage = ErrorMessage String
 
-data State = State (Maybe ErrorMessage) (Maybe App.Navbar.Section) (Maybe KwapGradient)
-  (Maybe Concept.Decl) 
+data State = State (Maybe ErrorMessage) (Maybe App.Navbar.Section)
+  (Maybe KwapGradient)
+  (Maybe Concept.Decl)
 
 class LiftState a where
   liftState :: a -> State

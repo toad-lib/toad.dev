@@ -2,12 +2,9 @@ module Kwap.Concept (Decl(..), fetchDecl) where
 
 import Prelude
 
-import Data.Generic.Rep (class Generic)
-import Data.Show.Generic (genericShow)
 import Data.Argonaut.Core (Json, jsonNull) as Text.Json
 import Data.Argonaut.Parser (jsonParser) as Text.Json
 import Data.Bifunctor (lmap, rmap)
-import Data.Codec.Argonaut ((>~>))
 import Data.Codec.Argonaut
   ( JsonCodec
   , array
@@ -15,11 +12,14 @@ import Data.Codec.Argonaut
   , printJsonDecodeError
   , string
   ) as Text.Json
-import Data.Codec.Argonaut.Migration (addDefaultField) as Text.Json
+import Data.Codec.Argonaut ((>~>))
 import Data.Codec.Argonaut.Compat (maybe) as Text.Json
+import Data.Codec.Argonaut.Migration (addDefaultField) as Text.Json
 import Data.Codec.Argonaut.Record (object) as Text.Json
 import Data.Either (Either)
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe)
+import Data.Show.Generic (genericShow)
 import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
 
@@ -32,18 +32,19 @@ data Decl = Decl
   )
 
 derive instance genericDecl :: Generic Decl _
-instance showDecl :: Show Decl where show = genericShow
+instance showDecl :: Show Decl where
+  show = genericShow
 
 declCodec
   :: Text.Json.JsonCodec
        (Array { path :: String, title :: String, alias :: Maybe String })
 declCodec = Text.Json.array
-          $ Text.Json.addDefaultField "alias" Text.Json.jsonNull
-          >~> Text.Json.object "Decl"
-              { path: Text.Json.string
-              , title: Text.Json.string
-              , alias: Text.Json.maybe Text.Json.string
-              }
+  $ Text.Json.addDefaultField "alias" Text.Json.jsonNull
+      >~> Text.Json.object "Decl"
+        { path: Text.Json.string
+        , title: Text.Json.string
+        , alias: Text.Json.maybe Text.Json.string
+        }
 
 decodeDecl :: String -> Either String Decl
 decodeDecl s = do

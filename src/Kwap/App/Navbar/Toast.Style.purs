@@ -1,32 +1,36 @@
-module Kwap.App.Navbar.Toast.Style (Status(..), container, statusStyle, iconContainer) where
-
-import Prelude hiding (top)
+module Kwap.App.Navbar.Toast.Style
+  ( Status(..)
+  , container
+  , statusStyle
+  , iconContainer
+  ) where
 
 import Kwap.App.Css
+import Prelude hiding (top)
 
 data Status = StatusError | StatusWarn | StatusInfo
 
 container :: CSS
 container = do
-              position relative
-              sym padding $ rem 1.0
-              paddingTop $ rem 2.0
+  position relative
+  sym padding $ rem 1.0
+  paddingTop $ rem 2.0
 
 iconContainer :: CSS
 iconContainer = do
-                  position absolute
-                  height $ rem 2.0
-                  width $ rem 2.0
-                  top $ rem 0.25
-                  right $ rem 0.25
+  position absolute
+  height $ rem 2.0
+  width $ rem 2.0
+  top $ rem 0.25
+  right $ rem 0.25
 
 statusStyle :: Status -> CSS
 statusStyle StatusError = do
-                            backgroundColor $ Red Light
-                            color $ Red Dark
+  backgroundColor $ Red Light
+  color $ Red Dark
 statusStyle StatusWarn = do
-                            backgroundColor $ Yellow Light
-                            color $ Yellow Dark
+  backgroundColor $ Yellow Light
+  color $ Yellow Dark
 statusStyle StatusInfo = do
-                            backgroundColor $ Purple Light
-                            color $ Purple Dark
+  backgroundColor $ Purple Light
+  color $ Purple Dark

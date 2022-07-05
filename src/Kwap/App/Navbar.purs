@@ -11,8 +11,8 @@ import Kwap.App.Css as Css
 import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
 import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
-import Kwap.App.Navbar.Toast as Toast
 import Kwap.App.Navbar.Button as Button
+import Kwap.App.Navbar.Toast as Toast
 
 data Section = Home | Book | Concepts
 

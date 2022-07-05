@@ -44,7 +44,8 @@ headingStyle font' = do
   margin nil nil nil nil
 
 h1_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h1_ = HH.h1 [ headingStyleProp $ fontSize FontSizeH1 <> fontFamily InterExtraBold ]
+h1_ = HH.h1
+  [ headingStyleProp $ fontSize FontSizeH1 <> fontFamily InterExtraBold ]
 
 h2_ :: ∀ w i. Array (HTML w i) -> HTML w i
 h2_ = HH.h2 [ headingStyleProp $ fontSize FontSizeH2 <> fontFamily InterBold ]
