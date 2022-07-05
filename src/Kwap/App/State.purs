@@ -1,4 +1,13 @@
-module Kwap.App.State (State, init, class LiftState, liftState, error, conceptDecl, navbarSection, kwapGradient) where
+module Kwap.App.State
+  ( State
+  , init
+  , class LiftState
+  , liftState
+  , error
+  , conceptDecl
+  , navbarSection
+  , kwapGradient
+  ) where
 
 import Prelude
 
