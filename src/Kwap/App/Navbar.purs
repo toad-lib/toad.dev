@@ -11,6 +11,7 @@ import Kwap.App.Css as Css
 import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
 import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
+import Kwap.App.Navbar.Toast as Toast
 import Kwap.App.Navbar.Button as Button
 
 data Section = Home | Book | Concepts
@@ -23,7 +24,8 @@ data NavbarGridRegion
   | GridButtonA
   | GridButtonB
   | GridButtonC
-  | GridRemainder
+  | GridEmpty
+  | GridToast
 
 navbarGridRegionLabel :: NavbarGridRegion -> String
 navbarGridRegionLabel = case _ of
@@ -32,7 +34,8 @@ navbarGridRegionLabel = case _ of
   GridButtonA -> "navbar-button-a"
   GridButtonB -> "navbar-button-b"
   GridButtonC -> "navbar-button-c"
-  GridRemainder -> "navbar-remainder"
+  GridEmpty -> "navbar-remainder"
+  GridToast -> "navbar-toast"
 
 navbarGrid :: AppLayout -> Css.CSS
 navbarGrid _ = navbarGridDesktop
@@ -42,6 +45,7 @@ navbarGridDesktop =
   let
     pct = Css.pct >>> Css.anySize
     rem = Css.rem >>> Css.anySize
+    fr = show >>> (_ <> "fr") >>> Css.fromString >>> Css.Size.BasicSize
   in
     grid
       (fist1 (GridCol $ pct 100.0))
@@ -50,7 +54,8 @@ navbarGridDesktop =
       , GridRow (rem 6.0) (fist1 GridButtonA)
       , GridRow (rem 6.0) (fist1 GridButtonB)
       , GridRow (rem 6.0) (fist1 GridButtonC)
-      , GridRow (pct 100.0) (fist1 GridRemainder)
+      , GridRow (fr 1.0) (fist1 GridEmpty)
+      , GridRow (rem 12.0) (fist1 GridToast)
       ]
       navbarGridRegionLabel
 
@@ -83,5 +88,6 @@ render picked layout section =
       , Button.render (select Concepts) (isSelected Concepts) "concepts"
           (inArea GridButtonC)
       , solidBg GridGapA
-      , solidBg GridRemainder
+      , solidBg GridEmpty
+      , Toast.render (inArea GridToast) Toast.StatusInfo "oh no!!1"
       ]

@@ -19,4 +19,5 @@ import Kwap.App.Navbar.Button.Style as Navbar.Button.Style
 
 stylesheet :: forall w i. HTML w i
 stylesheet = HalogenCss.stylesheet do
+  color $ Purple Darkest
   Navbar.Button.Style.global

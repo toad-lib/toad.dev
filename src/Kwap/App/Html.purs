@@ -35,26 +35,22 @@ withText ctor =
     >>> Array.singleton
     >>> ctor
 
-textStyle :: CSS
-textStyle = color (Purple Dark)
-
 headingStyleProp :: forall i r. Font -> IProp (style :: String | r) i
 headingStyleProp = headingStyle >>> style
 
 headingStyle :: forall i r. Font -> CSS
 headingStyle font' = do
-  textStyle
   font font'
   margin nil nil nil nil
 
 h1_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h1_ = HH.h1 [ headingStyleProp $ fontSize FontSizeH1 <> fontFamily StokeBold ]
+h1_ = HH.h1 [ headingStyleProp $ fontSize FontSizeH1 <> fontFamily InterExtraBold ]
 
 h2_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h2_ = HH.h2 [ headingStyleProp $ fontSize FontSizeH2 <> fontFamily StokeBold ]
+h2_ = HH.h2 [ headingStyleProp $ fontSize FontSizeH2 <> fontFamily InterBold ]
 
 h3_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h3_ = HH.h3 [ headingStyleProp $ fontSize FontSizeH3 <> fontFamily StokeBold ]
+h3_ = HH.h3 [ headingStyleProp $ fontSize FontSizeH3 <> fontFamily InterBold ]
 
 h4_ :: ∀ w i. Array (HTML w i) -> HTML w i
 h4_ = HH.h4 [ headingStyleProp $ fontSize FontSizeH4 <> fontFamily InterBold ]
@@ -69,7 +65,6 @@ p_ :: ∀ w i. Array (HTML w i) -> HTML w i
 p_ =
   HH.p
     [ style do
-        textStyle
         font mempty
         margin nil nil nil nil
     ]

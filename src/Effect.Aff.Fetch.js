@@ -1,4 +1,4 @@
-export optionsToMilkOptions = isJust => fromJust => ({body, credentials, redirect, method, headers}) => {
+export var optionsToFetchOptions = isJust => fromJust => ({body, credentials, redirect, method, headers}) => {
   const obj = {method}
 
   if (isJust(body)) obj['body'] = fromJust(body)

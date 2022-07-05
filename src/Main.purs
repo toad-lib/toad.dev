@@ -3,12 +3,15 @@ module Main where
 import Prelude
 
 import Control.Monad.Rec.Class (forever)
+import Data.Bifunctor (lmap)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
+import Effect.Console (error)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
@@ -17,6 +20,7 @@ import Kwap.App as App
 import Kwap.App.Action (Action(..))
 import Kwap.App.Css (tick)
 import Kwap.App.State as App.State
+import Kwap.Concept as Concept
 
 main :: Effect Unit
 main =
@@ -59,7 +63,15 @@ handleAction =
     case _ of
       Init -> do
         _ <- H.subscribe =<< timer Tick
-        mempty
+        decl <- H.liftAff $ Concept.fetchDecl
+
+        _ <- case decl of
+          Left err -> H.liftEffect $ error err
+          Right _ -> pure unit
+
+        let decl' = lmap (const "An error ocurred fetching concepts.") decl
+
+        H.put =<< modifyPartial decl'
       NavbarSectionPicked n -> H.put =<< modifyPartial n
       Tick -> do
         kwapGradientState <- App.State.kwapGradient <$> H.get
