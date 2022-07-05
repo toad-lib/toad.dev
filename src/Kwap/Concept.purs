@@ -56,7 +56,7 @@ decodeDecl s = do
 
 baseUrl :: String
 baseUrl =
-  "https://raw.githubusercontent.com/clov-cofee/kwap-docs/main/concepts"
+  "https://raw.githubusercontent.com/clov-coffee/kwap-docs/main/concepts"
 
 fetchDecl :: Aff (Either String Decl)
 fetchDecl =
