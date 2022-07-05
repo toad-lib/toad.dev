@@ -4,14 +4,14 @@ import Prelude
 
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
-import Data.Either (Either(..))
+import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
-import Effect.Console (error)
+import Effect.Console as Console
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
@@ -31,7 +31,7 @@ main =
 component :: ∀ q i o m. MonadAff m => H.Component q i o m
 component =
   H.mkComponent
-    { initialState: mempty
+    { initialState: const App.State.init
     , render: App.render
     , eval: H.mkEval H.defaultEval
         { handleAction = handleAction, initialize = Just Init }
@@ -53,27 +53,25 @@ handleAction
   -> H.HalogenM App.State.State Action s o m Unit
 handleAction =
   let
-    modifyPartial
+    put
       :: forall s' o' m' sp
        . App.State.LiftState sp
       => sp
-      -> H.HalogenM App.State.State Action s' o' m' App.State.State
-    modifyPartial = H.modify <<< append <<< App.State.liftState
+      -> H.HalogenM App.State.State Action s' o' m' Unit
+    put = (flip bind $ H.put) <<< H.modify <<< append <<< App.State.liftState
   in
     case _ of
       Init -> do
         _ <- H.subscribe =<< timer Tick
+
         decl <- H.liftAff $ Concept.fetchDecl
+        either (H.liftEffect <<< Console.error) (const $ pure unit) decl
 
-        _ <- case decl of
-          Left err -> H.liftEffect $ error err
-          Right _ -> pure unit
+        let decl' = lmap (const "An error occurred fetching concepts.") decl
 
-        let decl' = lmap (const "An error ocurred fetching concepts.") decl
-
-        H.put =<< modifyPartial decl'
-      NavbarSectionPicked n -> H.put =<< modifyPartial n
+        put decl'
+      NavbarSectionPicked n -> put n
       Tick -> do
         kwapGradientState <- App.State.kwapGradient <$> H.get
-        H.put =<< (modifyPartial $ tick kwapGradientState)
+        put $ tick kwapGradientState
       Nop -> mempty

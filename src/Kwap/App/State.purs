@@ -1,4 +1,4 @@
-module Kwap.App.State where
+module Kwap.App.State (State, init, class LiftState, liftState, error, conceptDecl, navbarSection, kwapGradient) where
 
 import Prelude
 
@@ -15,6 +15,9 @@ newtype ErrorMessage = ErrorMessage String
 data State = State (Maybe ErrorMessage) (Maybe App.Navbar.Section)
   (Maybe KwapGradient)
   (Maybe Concept.Decl)
+
+init :: State
+init = mempty
 
 class LiftState a where
   liftState :: a -> State
@@ -39,8 +42,8 @@ navbarSection (State _ n _ _) = fromMaybe App.Navbar.Home n
 kwapGradient :: State -> KwapGradient
 kwapGradient (State _ _ g _) = fromMaybe kwapGradientInit g
 
-conceptDecls :: State -> Maybe Concept.Decl
-conceptDecls (State _ _ _ d) = d
+conceptDecl :: State -> Maybe Concept.Decl
+conceptDecl (State _ _ _ d) = d
 
 --| Old state should always be on the right
 instance semiState :: Semigroup State where
