@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Foldable (class Foldable, foldl)
 import Kwap.App.Navbar as App.Navbar
+import Kwap.App.Route as App.Route
 
 data Action
   = Nop

@@ -10,68 +10,82 @@ import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
-import Effect.Class (class MonadEffect)
 import Effect.Console as Console
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
 import Kwap.App as App
-import Kwap.App.Action (Action(..))
-import Kwap.App.Css (tick)
+import Kwap.App.Action as App.Action
+import Kwap.App.Css as App.Css
+import Kwap.App.Query as App.Query
+import Kwap.App.Route as App.Route
 import Kwap.App.State as App.State
 import Kwap.Concept as Concept
+import Kwap.Navigate (navigate)
+import Routing.Hash as Routing.Hash
 
 main :: Effect Unit
 main =
-  HA.runHalogenAff do
-    body <- HA.awaitBody
-    runUI component unit body
+  let
+    tellAppRouteChanged _ (Just prev) route | prev == route = pure unit
+    tellAppRouteChanged io _ route = void <<< Aff.launchAff $
+      App.Query.sendNavigate route io
+  in
+    HA.runHalogenAff do
+      body <- HA.awaitBody
+      io <- runUI (H.hoist App.runM component) unit body
+      H.liftEffect <<< void <<< Routing.Hash.matchesWith App.Route.parse $
+        tellAppRouteChanged io
 
-component :: ∀ q i o m. MonadAff m => H.Component q i o m
+component :: ∀ i o. H.Component App.Query.Query i o App.M
 component =
   H.mkComponent
     { initialState: const App.State.init
     , render: App.render
     , eval: H.mkEval H.defaultEval
-        { handleAction = handleAction, initialize = Just Init }
+        { handleAction = handleAction
+        , handleQuery = handleQuery
+        , initialize = Just App.Action.Init
+        }
     }
 
-timer :: ∀ m a. MonadAff m => a -> m (HS.Emitter a)
-timer val = do
+timer :: ∀ m a. MonadAff m => Milliseconds -> a -> m (HS.Emitter a)
+timer ms val = do
   { emitter, listener } <- H.liftEffect HS.create
   _ <- H.liftAff $ Aff.forkAff $ forever do
-    Aff.delay $ Milliseconds 200.0
+    Aff.delay ms
     H.liftEffect $ HS.notify listener val
   pure emitter
 
+handleQuery
+  :: ∀ a s o
+   . App.Query.Query a
+  -> H.HalogenM App.State.State App.Action.Action s o App.M (Maybe a)
+handleQuery = case _ of
+  App.Query.Navigate route _ -> do
+    App.put route
+    s <- H.get
+    H.liftEffect $ Console.log $ show s
+    pure Nothing
+
 handleAction
-  :: ∀ s o m
-   . MonadEffect m
-  => MonadAff m
-  => Action
-  -> H.HalogenM App.State.State Action s o m Unit
+  :: ∀ s o
+   . App.Action.Action
+  -> H.HalogenM App.State.State App.Action.Action s o App.M Unit
 handleAction =
-  let
-    put
-      :: forall s' o' m' sp
-       . App.State.LiftState sp
-      => sp
-      -> H.HalogenM App.State.State Action s' o' m' Unit
-    put = (flip bind $ H.put) <<< H.modify <<< append <<< App.State.liftState
-  in
-    case _ of
-      Init -> do
-        _ <- H.subscribe =<< timer Tick
+  case _ of
+    App.Action.Init -> do
+      navigate App.Route.init
 
-        decl <- H.liftAff $ Concept.fetchDecl
-        either (H.liftEffect <<< Console.error) (const $ pure unit) decl
+      _ <- H.subscribe =<< timer (Milliseconds 100.0) App.Action.Tick
 
-        let decl' = lmap (const "An error occurred fetching concepts.") decl
+      decl <- H.liftAff $ Concept.fetchDecl
+      either (H.liftEffect <<< Console.error) (const <<< pure $ unit) decl
 
-        put decl'
-      NavbarSectionPicked n -> put n
-      Tick -> do
-        kwapGradientState <- App.State.kwapGradient <$> H.get
-        put $ tick kwapGradientState
-      Nop -> mempty
+      App.put $ lmap (const "An error occurred fetching concepts.") decl
+    App.Action.NavbarSectionPicked n -> navigate (App.Route.ofNavbarSection n)
+    App.Action.Tick -> do
+      kwapGradientState <- App.State.kwapGradient <$> H.get
+      App.put $ App.Css.tick kwapGradientState
+    App.Action.Nop -> mempty

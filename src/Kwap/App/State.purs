@@ -1,5 +1,6 @@
 module Kwap.App.State
-  ( State
+  ( State(..)
+  , ErrorMessage(..)
   , init
   , class LiftState
   , liftState
@@ -7,63 +8,78 @@ module Kwap.App.State
   , conceptDecl
   , navbarSection
   , kwapGradient
+  , route
   ) where
 
 import Prelude
 
 import Control.Alt ((<|>))
 import Data.Either (Either(..))
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Effect.Aff (Aff)
+import Data.Show.Generic (genericShow)
 import Kwap.App.Css (KwapGradient, kwapGradientInit)
 import Kwap.App.Navbar as App.Navbar
+import Kwap.App.Route as App.Route
 import Kwap.Concept as Concept
 
 newtype ErrorMessage = ErrorMessage String
 
-data State = State (Maybe ErrorMessage) (Maybe App.Navbar.Section)
+derive newtype instance showErrorMessage :: Show ErrorMessage
+derive newtype instance eqErrorMessage :: Eq ErrorMessage
+
+data State = State (Maybe ErrorMessage)
   (Maybe KwapGradient)
   (Maybe Concept.Decl)
+  (Maybe App.Route.Route)
+
+derive instance eqState :: Eq State
+derive instance genericState :: Generic State _
+instance showState :: Show State where
+  show = genericShow
+
+--| Old state should always be on the right
+instance semiState :: Semigroup State where
+  append (State eA gA cdA rA) (State eB gB cdB rB) =
+    let
+      err = eA <|> eB
+      grad = gA <|> gB
+      concepts = cdA <|> cdB
+      route_ = rA <|> rB
+    in
+      State err grad concepts route_
+
+instance monoidState :: Monoid State where
+  mempty = State Nothing Nothing Nothing Nothing
 
 init :: State
 init = mempty
-
-class LiftState a where
-  liftState :: a -> State
-
-instance conceptDeclAppState :: LiftState (Either String Concept.Decl) where
-  liftState (Right d) = State Nothing Nothing Nothing (Just d)
-  liftState (Left m) = State (Just $ ErrorMessage m) Nothing Nothing Nothing
-
-instance kwapGradientAppState :: LiftState KwapGradient where
-  liftState g = State Nothing Nothing (Just g) Nothing
-
-instance navbarSecAppState :: LiftState App.Navbar.Section where
-  liftState n = State Nothing (Just n) Nothing Nothing
 
 error :: State -> Maybe String
 error (State (Just (ErrorMessage e)) _ _ _) = Just e
 error (State (Nothing) _ _ _) = Nothing
 
 navbarSection :: State -> App.Navbar.Section
-navbarSection (State _ n _ _) = fromMaybe App.Navbar.Home n
+navbarSection s = App.Route.toNavbarSection <<< route $ s
 
 kwapGradient :: State -> KwapGradient
-kwapGradient (State _ _ g _) = fromMaybe kwapGradientInit g
+kwapGradient (State _ g _ _) = fromMaybe kwapGradientInit g
 
 conceptDecl :: State -> Maybe Concept.Decl
-conceptDecl (State _ _ _ d) = d
+conceptDecl (State _ _ d _) = d
 
---| Old state should always be on the right
-instance semiState :: Semigroup State where
-  append (State eA nA gA cdA) (State eB nB gB cdB) =
-    let
-      err = eA <|> eB
-      nav = nA <|> nB
-      grad = gA <|> gB
-      concepts = cdA <|> cdB
-    in
-      State err nav grad concepts
+route :: State -> App.Route.Route
+route (State _ _ _ r) = fromMaybe App.Route.init r
 
-instance monoidState :: Monoid State where
-  mempty = State Nothing Nothing Nothing Nothing
+class LiftState a where
+  liftState :: a -> State
+
+instance routeAppState :: LiftState App.Route.Route where
+  liftState r = State Nothing Nothing Nothing (Just r)
+
+instance conceptDeclAppState :: LiftState (Either String Concept.Decl) where
+  liftState (Right d) = State Nothing Nothing (Just d) Nothing
+  liftState (Left m) = State (Just $ ErrorMessage m) Nothing Nothing Nothing
+
+instance kwapGradientAppState :: LiftState KwapGradient where
+  liftState g = State Nothing (Just g) Nothing Nothing

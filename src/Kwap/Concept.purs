@@ -31,6 +31,7 @@ data Decl = Decl
       }
   )
 
+derive instance eqDecl :: Eq Decl
 derive instance genericDecl :: Generic Decl _
 instance showDecl :: Show Decl where
   show = genericShow

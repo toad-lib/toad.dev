@@ -97,6 +97,9 @@ newtype KwapGradient = KwapGradient
       }
   )
 
+derive newtype instance showKwapGradient :: Show KwapGradient
+derive newtype instance eqKwapGradient :: Eq KwapGradient
+
 kwapGradientInit :: KwapGradient
 kwapGradientInit =
   KwapGradient $
@@ -259,8 +262,13 @@ kwapGradient (KwapGradient gradients) =
     for_ vendorPrefixes $ \vendorPrefix -> do
       kwapGradientWithPrefix vendorPrefix
 
+derive instance eqColor :: Eq Color
+derive instance eqShade :: Eq Shade
 derive instance genericColor :: Generic Color _
 derive instance genericShade :: Generic Shade _
+derive newtype instance eqAccel2D :: Eq Accel2D
+derive newtype instance eqVelocity2D :: Eq Velocity2D
+derive newtype instance eqPosition2D :: Eq Position2D
 derive instance genericAccel2D :: Generic Accel2D _
 derive instance genericVelocity2D :: Generic Velocity2D _
 derive instance genericPosition2D :: Generic Position2D _

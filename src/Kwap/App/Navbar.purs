@@ -5,7 +5,9 @@ import Prelude
 
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
 import Kwap.App.Atom.Logo as Atom.Logo
 import Kwap.App.Css as Css
 import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
@@ -17,6 +19,9 @@ import Kwap.App.Navbar.Toast as Toast
 data Section = Home | Book | Concepts
 
 derive instance eqSection :: Eq Section
+derive instance genericSection :: Generic Section _
+instance showSection :: Show Section where
+  show = genericShow
 
 data NavbarGridRegion
   = GridLogo

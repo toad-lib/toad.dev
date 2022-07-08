@@ -31,6 +31,8 @@
   , "psci-support"
   , "random"
   , "record"
+  , "routing"
+  , "routing-duplex"
   , "spec"
   , "strings"
   , "tailrec"
