@@ -1,4 +1,4 @@
-module Kwap.App.Navbar.Section (Section(..)) where
+module Kwap.Navbar.Section (Section(..)) where
 
 import Prelude
 

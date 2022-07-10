@@ -1,11 +1,11 @@
-module Kwap.App.Navbar.Toast.Style
+module Kwap.Navbar.Toast.Style
   ( Status(..)
   , container
   , statusStyle
   , iconContainer
   ) where
 
-import Kwap.App.Css
+import Kwap.Css
 import Prelude hiding (top)
 
 data Status = StatusError | StatusWarn | StatusInfo

@@ -1,4 +1,4 @@
-module Kwap.App.Layout
+module Kwap.Layout
   ( AppLayout(..)
   ) where
 

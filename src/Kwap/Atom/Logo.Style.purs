@@ -1,9 +1,9 @@
-module Kwap.App.Atom.Logo.Style
+module Kwap.Atom.Logo.Style
   ( kwapMaskUrl
   , logoContainer
   ) where
 
-import Kwap.App.Css
+import Kwap.Css
 import Prelude hiding (top)
 
 import CSS.Common as Css.Common

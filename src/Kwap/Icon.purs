@@ -1,10 +1,10 @@
-module Kwap.App.Icon (Icon(..), render) where
+module Kwap.Icon (Icon(..), render) where
 
 import Prelude
 
 import Halogen.HTML.Properties as HP
-import Kwap.App.Css as Css
-import Kwap.App.Html as HH
+import Kwap.Css as Css
+import Kwap.Html as HH
 
 foreign import iconCloseUrl :: String
 

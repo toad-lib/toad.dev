@@ -1,4 +1,4 @@
-module Kwap.App.Page.Concepts.All (render) where
+module Kwap.Page.Concepts.All (render) where
 
 import Prelude
 
@@ -6,10 +6,10 @@ import Data.Maybe (Maybe(..))
 import Halogen.HTML.CSS (style)
 import Halogen.HTML.Events as H
 import Halogen.HTML.Properties as HP
-import Kwap.App.Action as Action
-import Kwap.App.Css as Css
-import Kwap.App.Html as HH
-import Kwap.App.Route as Route
+import Kwap.Action as Action
+import Kwap.Css as Css
+import Kwap.Html as HH
+import Kwap.Route as Route
 import Kwap.Concept as C
 
 renderOneLink :: forall w i. C.One -> HH.HTML w i

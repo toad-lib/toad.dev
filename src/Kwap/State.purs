@@ -1,4 +1,4 @@
-module Kwap.App.State
+module Kwap.State
   ( State(..)
   , ErrorMessage(..)
   , init
@@ -18,9 +18,9 @@ import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Show.Generic (genericShow)
-import Kwap.App.Css (KwapGradient, kwapGradientInit)
-import Kwap.App.Navbar as App.Navbar
-import Kwap.App.Route as App.Route
+import Kwap.Css (KwapGradient, kwapGradientInit)
+import Kwap.Navbar.Section as Navbar
+import Kwap.Route as Route
 import Kwap.Concept as Concept
 
 newtype ErrorMessage = ErrorMessage String
@@ -31,7 +31,7 @@ derive newtype instance eqErrorMessage :: Eq ErrorMessage
 data State = State (Maybe ErrorMessage)
   (Maybe KwapGradient)
   (Maybe Concept.Decl)
-  (Maybe App.Route.Route)
+  (Maybe Route.Route)
 
 derive instance eqState :: Eq State
 derive instance genericState :: Generic State _
@@ -59,8 +59,8 @@ error :: State -> Maybe String
 error (State (Just (ErrorMessage e)) _ _ _) = Just e
 error (State (Nothing) _ _ _) = Nothing
 
-navbarSection :: State -> App.Navbar.Section
-navbarSection s = App.Route.toNavbarSection <<< route $ s
+navbarSection :: State -> Navbar.Section
+navbarSection s = Route.toNavbarSection <<< route $ s
 
 kwapGradient :: State -> KwapGradient
 kwapGradient (State _ g _ _) = fromMaybe kwapGradientInit g
@@ -68,13 +68,13 @@ kwapGradient (State _ g _ _) = fromMaybe kwapGradientInit g
 conceptDecl :: State -> Maybe Concept.Decl
 conceptDecl (State _ _ d _) = d
 
-route :: State -> App.Route.Route
-route (State _ _ _ r) = fromMaybe App.Route.init r
+route :: State -> Route.Route
+route (State _ _ _ r) = fromMaybe Route.init r
 
 class LiftState a where
   liftState :: a -> State
 
-instance routeAppState :: LiftState App.Route.Route where
+instance routeAppState :: LiftState Route.Route where
   liftState r = State Nothing Nothing Nothing (Just r)
 
 instance conceptDeclAppState :: LiftState (Either String Concept.Decl) where

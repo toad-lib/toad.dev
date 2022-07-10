@@ -1,4 +1,4 @@
-module Kwap.App.Css.Font
+module Kwap.Css.Font
   ( Font(..)
   , FontSize(..)
   , FontFamily(..)

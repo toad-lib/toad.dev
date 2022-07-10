@@ -1,4 +1,4 @@
-module Kwap.App.Route
+module Kwap.Route
   ( Route(..)
   , OneOrAll(..)
   , ConceptPath(..)
@@ -20,7 +20,7 @@ import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
 import Data.String (joinWith, split)
 import Data.String.Pattern (Pattern(..))
-import Kwap.App.Navbar.Section as App.Navbar
+import Kwap.Navbar.Section as Navbar
 import Prelude (class Eq, class Show, map, ($), (<<<), (>>>))
 import Routing.Duplex (RouteDuplex', optional, rest, root)
 import Routing.Duplex as Routing.Duplex
@@ -77,15 +77,15 @@ instance showRoute :: Show Route where
 init :: Route
 init = Home
 
-ofNavbarSection :: App.Navbar.Section -> Route
-ofNavbarSection App.Navbar.Home = Home
-ofNavbarSection App.Navbar.Concepts = Concepts All
-ofNavbarSection App.Navbar.Book = Book
+ofNavbarSection :: Navbar.Section -> Route
+ofNavbarSection Navbar.Home = Home
+ofNavbarSection Navbar.Concepts = Concepts All
+ofNavbarSection Navbar.Book = Book
 
-toNavbarSection :: Route -> App.Navbar.Section
-toNavbarSection Home = App.Navbar.Home
-toNavbarSection (Concepts _) = App.Navbar.Concepts
-toNavbarSection Book = App.Navbar.Book
+toNavbarSection :: Route -> Navbar.Section
+toNavbarSection Home = Navbar.Home
+toNavbarSection (Concepts _) = Navbar.Concepts
+toNavbarSection Book = Navbar.Book
 
 print :: Route -> String
 print = Routing.Duplex.print codec

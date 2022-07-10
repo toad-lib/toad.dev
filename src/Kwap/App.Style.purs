@@ -1,10 +1,10 @@
-module Kwap.App.Style (appBackground, appWrap, navbarWrap) where
+module Kwap.Style (appBackground, appWrap, navbarWrap) where
 
-import Kwap.App.Css
+import Kwap.Css
 import Prelude hiding (top)
 
-import Kwap.App.Css.Grid as Grid
-import Kwap.App.Layout (AppLayout(..))
+import Kwap.Css.Grid as Grid
+import Kwap.Layout (AppLayout(..))
 
 appBackground :: KwapGradient -> CSS
 appBackground grabent = do

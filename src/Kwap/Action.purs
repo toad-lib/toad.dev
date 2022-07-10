@@ -1,16 +1,14 @@
-module Kwap.App.Action where
+module Kwap.Action where
 
 import Prelude
 
 import Data.Foldable (class Foldable, foldl)
-import Kwap.App.Navbar as App.Navbar
-import Kwap.App.Route as App.Route
-import Web.UIEvent.MouseEvent (MouseEvent)
+import Kwap.Navbar as Navbar
 
 data Action
   = Nop
   | Init
-  | NavbarSectionPicked App.Navbar.Section
+  | NavbarSectionPicked Navbar.Section
   | Tick
 
 fromFoldable :: ∀ f. Foldable f => f Action -> Action

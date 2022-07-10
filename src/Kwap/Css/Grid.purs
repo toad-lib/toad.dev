@@ -1,4 +1,4 @@
-module Kwap.App.Css.Grid
+module Kwap.Css.Grid
   ( GridCol(..)
   , GridRow(..)
   , AppGridArea(..)
@@ -17,8 +17,8 @@ import Data.Array as Array
 import Data.Foldable (class Foldable, foldl, intercalate)
 import Data.Functor (class Functor)
 import Data.String as String
-import Kwap.App.Css as Css
-import Kwap.App.Layout (AppLayout(..))
+import Kwap.Css as Css
+import Kwap.Layout (AppLayout(..))
 
 newtype GridCol s = GridCol (Css.Size s)
 

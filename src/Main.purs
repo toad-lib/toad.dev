@@ -16,12 +16,12 @@ import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
-import Kwap.App as App
-import Kwap.App.Action as App.Action
-import Kwap.App.Css as App.Css
-import Kwap.App.Query as App.Query
-import Kwap.App.Route as App.Route
-import Kwap.App.State as App.State
+import Kwap.App as Kwap
+import Kwap.Action as Kwap.Action
+import Kwap.Css as Kwap.Css
+import Kwap.Query as Kwap.Query
+import Kwap.Route as Kwap.Route
+import Kwap.State as Kwap.State
 import Kwap.Concept as Concept
 import Kwap.Navigate (navigate)
 import Routing.Duplex as Routing.Duplex
@@ -34,24 +34,24 @@ main =
   let
     tellAppRouteChanged _ (Just prev) new | prev == new = pure unit
     tellAppRouteChanged io _ route = void <<< Aff.launchAff $
-      App.Query.sendNavigate (fromMaybe App.Route.Home route) io
+      Kwap.Query.sendNavigate (fromMaybe Kwap.Route.Home route) io
   in
     HA.runHalogenAff do
       body <- HA.awaitBody
-      io <- runUI (H.hoist App.runM component) unit body
+      io <- runUI (H.hoist Kwap.runM component) unit body
       H.liftEffect <<< void <<< Routing.Hash.matchesWith
-        (Routing.Duplex.parse $ Routing.Duplex.optional App.Route.codec) $
+        (Routing.Duplex.parse $ Routing.Duplex.optional Kwap.Route.codec) $
         tellAppRouteChanged io
 
-component :: ∀ i o. H.Component App.Query.Query i o App.M
+component :: ∀ i o. H.Component Kwap.Query.Query i o Kwap.M
 component =
   H.mkComponent
-    { initialState: const App.State.init
-    , render: App.render
+    { initialState: const Kwap.State.init
+    , render: Kwap.render
     , eval: H.mkEval H.defaultEval
         { handleAction = handleAction
         , handleQuery = handleQuery
-        , initialize = Just App.Action.Init
+        , initialize = Just Kwap.Action.Init
         }
     }
 
@@ -65,28 +65,28 @@ timer ms val = do
 
 handleQuery
   :: ∀ a s o
-   . App.Query.Query a
-  -> H.HalogenM App.State.State App.Action.Action s o App.M (Maybe a)
+   . Kwap.Query.Query a
+  -> H.HalogenM Kwap.State.State Kwap.Action.Action s o Kwap.M (Maybe a)
 handleQuery = case _ of
-  App.Query.Navigate route _ -> do
-    App.put route
+  Kwap.Query.Navigate route _ -> do
+    Kwap.put route
     pure Nothing
 
 handleAction
   :: ∀ s o
-   . App.Action.Action
-  -> H.HalogenM App.State.State App.Action.Action s o App.M Unit
+   . Kwap.Action.Action
+  -> H.HalogenM Kwap.State.State Kwap.Action.Action s o Kwap.M Unit
 handleAction =
   case _ of
-    App.Action.Init -> do
-      _ <- H.subscribe =<< timer (Milliseconds 100.0) App.Action.Tick
+    Kwap.Action.Init -> do
+      _ <- H.subscribe =<< timer (Milliseconds 100.0) Kwap.Action.Tick
 
       decl <- H.liftAff $ Concept.fetchDecl
       either (H.liftEffect <<< Console.error) (const <<< pure $ unit) decl
 
-      App.put $ lmap (const "An error occurred fetching concepts.") decl
-    App.Action.NavbarSectionPicked n -> navigate (App.Route.ofNavbarSection n)
-    App.Action.Tick -> do
-      kwapGradientState <- App.State.kwapGradient <$> H.get
-      App.put $ App.Css.tick kwapGradientState
-    App.Action.Nop -> mempty
+      Kwap.put $ lmap (const "An error occurred fetching concepts.") decl
+    Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
+    Kwap.Action.Tick -> do
+      kwapGradientState <- Kwap.State.kwapGradient <$> H.get
+      Kwap.put $ Kwap.Css.tick kwapGradientState
+    Kwap.Action.Nop -> mempty

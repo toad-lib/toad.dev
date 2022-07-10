@@ -1,11 +1,11 @@
-module Kwap.App.Page.Concepts (render) where
+module Kwap.Page.Concepts (render) where
 
 import Data.Maybe (Maybe)
-import Kwap.App.Action as Action
-import Kwap.App.Css as Css
-import Kwap.App.Html as HH
-import Kwap.App.Page.Concepts.All as Self.All
-import Kwap.App.Route as Route
+import Kwap.Action as Action
+import Kwap.Css as Css
+import Kwap.Html as HH
+import Kwap.Page.Concepts.All as Self.All
+import Kwap.Route as Route
 import Kwap.Concept as C
 
 render

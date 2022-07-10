@@ -1,4 +1,4 @@
-module Kwap.App.Css.Color
+module Kwap.Css.Color
   ( Accel2D(..)
   , Color(..)
   , KwapGradient

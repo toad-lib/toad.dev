@@ -1,4 +1,4 @@
-module Kwap.App.Html
+module Kwap.Html
   ( module X
   , headingStyle
   , withText
@@ -14,7 +14,7 @@ module Kwap.App.Html
   , p_
   ) where
 
-import Kwap.App.Css hiding (map)
+import Kwap.Css hiding (map)
 import Prelude
 
 import Data.Array as Array
@@ -24,7 +24,7 @@ import Halogen.HTML as HH
 import Halogen.HTML hiding (a_, h1_, h2_, h3_, h4_, h5_, h6_, map, p_) as X
 import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
-import Kwap.App.Route as App.Route
+import Kwap.Route as Route
 
 type ClassProp i r = HP.IProp (class :: String | r) i
 
@@ -45,8 +45,8 @@ headingStyle font' = do
   font font'
   margin nil nil nil nil
 
-a_ :: forall w i. App.Route.Route -> String -> HTML w i
-a_ route title = HH.a [ HP.href $ "#" <> (App.Route.print route) ]
+a_ :: forall w i. Route.Route -> String -> HTML w i
+a_ route title = HH.a [ HP.href <<< append "#" $ Route.print route ]
   [ HH.text title ]
 
 h1_ :: ∀ w i. Array (HTML w i) -> HTML w i

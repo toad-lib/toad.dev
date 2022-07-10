@@ -4,10 +4,10 @@ import Prelude
 
 import Halogen (HalogenM)
 import Halogen as H
-import Kwap.App.Route as App.Route
+import Kwap.Route as Route
 
 class Monad m <= Navigate m where
-  navigate :: App.Route.Route -> m Unit
+  navigate :: Route.Route -> m Unit
 
 instance navigateHalogenM :: Navigate m => Navigate (HalogenM a b c d m) where
   navigate = H.lift <<< navigate

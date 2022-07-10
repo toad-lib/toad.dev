@@ -1,4 +1,4 @@
-module Kwap.App.Css
+module Kwap.Css
   ( MaskComposite(..)
   , MaskMode(..)
   , anySize
@@ -40,8 +40,8 @@ import Halogen.HTML as HH
 import Halogen.HTML.Core as HC
 import Halogen.HTML.Elements as HE
 import Halogen.HTML.Properties as HP
-import Kwap.App.Css.Color as X
-import Kwap.App.Css.Font as X
+import Kwap.Css.Color as X
+import Kwap.Css.Font as X
 
 kwapEasing :: Css.Transition.TimingFunction
 kwapEasing = Css.Transition.cubicBezier 0.25 1.0 0.5 1.0

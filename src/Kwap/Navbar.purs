@@ -1,4 +1,4 @@
-module Kwap.App.Navbar (module Section, render) where
+module Kwap.Navbar (module Section, render) where
 
 import Data.Fist
 import Prelude
@@ -8,15 +8,15 @@ import CSS.Size as Css.Size
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
-import Kwap.App.Atom.Logo as Atom.Logo
-import Kwap.App.Css as Css
-import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
-import Kwap.App.Html as HH
-import Kwap.App.Layout (AppLayout(..))
-import Kwap.App.Navbar.Button as Button
-import Kwap.App.Navbar.Section (Section(..))
-import Kwap.App.Navbar.Section (Section(..)) as Section
-import Kwap.App.Navbar.Toast as Toast
+import Kwap.Atom.Logo as Atom.Logo
+import Kwap.Css as Css
+import Kwap.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
+import Kwap.Html as HH
+import Kwap.Layout (AppLayout(..))
+import Kwap.Navbar.Button as Button
+import Kwap.Navbar.Section (Section(..))
+import Kwap.Navbar.Section (Section(..)) as Section
+import Kwap.Navbar.Toast as Toast
 
 data NavbarGridRegion
   = GridLogo

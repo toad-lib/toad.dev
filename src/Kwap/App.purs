@@ -6,17 +6,17 @@ import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Halogen as H
-import Kwap.App.Action (Action(..))
-import Kwap.App.Css as Css
-import Kwap.App.Css.Grid as App.Grid
-import Kwap.App.Html as HH
-import Kwap.App.Layout (AppLayout(..))
-import Kwap.App.Navbar as App.Navbar
-import Kwap.App.Page.Concepts as App.Page.Concepts
-import Kwap.App.Route as App.Route
-import Kwap.App.State as App.State
-import Kwap.App.Style as App.Style
-import Kwap.App.Style.Global as App.Style.Global
+import Kwap.Action (Action(..))
+import Kwap.Css as Css
+import Kwap.Css.Grid as Grid
+import Kwap.Html as HH
+import Kwap.Layout (AppLayout(..))
+import Kwap.Navbar as Navbar
+import Kwap.Page.Concepts as Page.Concepts
+import Kwap.Route as Route
+import Kwap.State as State
+import Kwap.Style as Style
+import Kwap.Style.Global as Style.Global
 import Kwap.Navigate (class Navigate)
 import Routing.Hash (setHash)
 
@@ -34,37 +34,37 @@ derive newtype instance monadEffectM :: MonadEffect M
 derive newtype instance monadAffM :: MonadAff M
 
 instance navigateM :: Navigate M where
-  navigate = liftEffect <<< setHash <<< App.Route.print
+  navigate = liftEffect <<< setHash <<< Route.print
 
 put
   :: ∀ a s o sp
-   . App.State.LiftState sp
+   . State.LiftState sp
   => sp
-  -> H.HalogenM App.State.State a s o M Unit
-put = (flip bind $ H.put) <<< H.modify <<< append <<< App.State.liftState
+  -> H.HalogenM State.State a s o M Unit
+put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
 
-render :: ∀ w. App.State.State -> HH.HTML w Action
+render :: ∀ w. State.State -> HH.HTML w Action
 render state =
   HH.div_
-    [ App.Style.Global.stylesheet
+    [ Style.Global.stylesheet
     , HH.div
-        [ Css.style $ App.Style.appBackground $ App.State.kwapGradient state
+        [ Css.style $ Style.appBackground $ State.kwapGradient state
         ]
         []
     , HH.div
-        [ Css.style App.Style.appWrap
+        [ Css.style Style.appWrap
         ]
         [ HH.div
-            [ Css.style App.Style.navbarWrap
+            [ Css.style Style.navbarWrap
             ]
-            [ App.Navbar.render NavbarSectionPicked AppLayoutDesktop
-                (App.State.navbarSection state)
+            [ Navbar.render NavbarSectionPicked AppLayoutDesktop
+                (State.navbarSection state)
             ]
-        , case App.State.route state of
-            App.Route.Home -> HH.div_ []
-            App.Route.Concepts oa ->
-              App.Page.Concepts.render oa App.Grid.inAppContent $
-                App.State.conceptDecl state
-            App.Route.Book -> HH.div_ []
+        , case State.route state of
+            Route.Home -> HH.div_ []
+            Route.Concepts oa ->
+              Page.Concepts.render oa Grid.inAppContent $
+                State.conceptDecl state
+            Route.Book -> HH.div_ []
         ]
     ]
