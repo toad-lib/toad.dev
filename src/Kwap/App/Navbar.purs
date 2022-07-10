@@ -1,4 +1,4 @@
-module Kwap.App.Navbar (Section(..), render) where
+module Kwap.App.Navbar (module Section, render) where
 
 import Data.Fist
 import Prelude
@@ -14,14 +14,9 @@ import Kwap.App.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
 import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
 import Kwap.App.Navbar.Button as Button
+import Kwap.App.Navbar.Section (Section(..))
+import Kwap.App.Navbar.Section (Section(..)) as Section
 import Kwap.App.Navbar.Toast as Toast
-
-data Section = Home | Book | Concepts
-
-derive instance eqSection :: Eq Section
-derive instance genericSection :: Generic Section _
-instance showSection :: Show Section where
-  show = genericShow
 
 data NavbarGridRegion
   = GridLogo

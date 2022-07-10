@@ -1,10 +1,10 @@
-module Kwap.Concept (Decl(..), fetchDecl) where
+module Kwap.Concept (Decl, One, array, fetchDecl, path, alias, title) where
 
 import Prelude
 
-import Data.Argonaut.Core (Json, jsonNull) as Text.Json
+import Data.Argonaut.Core (jsonNull) as Text.Json
 import Data.Argonaut.Parser (jsonParser) as Text.Json
-import Data.Bifunctor (lmap, rmap)
+import Data.Bifunctor (lmap)
 import Data.Codec.Argonaut
   ( JsonCodec
   , array
@@ -17,24 +17,35 @@ import Data.Codec.Argonaut.Compat (maybe) as Text.Json
 import Data.Codec.Argonaut.Migration (addDefaultField) as Text.Json
 import Data.Codec.Argonaut.Record (object) as Text.Json
 import Data.Either (Either)
-import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe)
-import Data.Show.Generic (genericShow)
 import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
 
-data Decl = Decl
-  ( Array
-      { path :: String
-      , title :: String
-      , alias :: Maybe String
-      }
-  )
+newtype One = One
+  { path :: String
+  , title :: String
+  , alias :: Maybe String
+  }
 
-derive instance eqDecl :: Eq Decl
-derive instance genericDecl :: Generic Decl _
-instance showDecl :: Show Decl where
-  show = genericShow
+derive newtype instance eqOne :: Eq One
+derive newtype instance showOne :: Show One
+
+path :: One -> String
+path (One { path: p }) = p
+
+title :: One -> String
+title (One { title: t }) = t
+
+alias :: One -> Maybe String
+alias (One { alias: a }) = a
+
+newtype Decl = Decl (Array One)
+
+derive newtype instance eqDecl :: Eq Decl
+derive newtype instance showDecl :: Show Decl
+
+array :: Decl -> Array One
+array (Decl a) = a
 
 declCodec
   :: Text.Json.JsonCodec
@@ -53,7 +64,7 @@ decodeDecl s = do
   decls <- lmap Text.Json.printJsonDecodeError $ Text.Json.decode
     declCodec
     json
-  pure $ Decl decls
+  pure $ Decl $ One <$> decls
 
 baseUrl :: String
 baseUrl =

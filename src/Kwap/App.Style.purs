@@ -1,4 +1,4 @@
-module Kwap.App.Style (appBackground, appWrap, contentWrap, navbarWrap) where
+module Kwap.App.Style (appBackground, appWrap, navbarWrap) where
 
 import Kwap.App.Css
 import Prelude hiding (top)
@@ -24,11 +24,6 @@ appWrap = do
   top $ px 0.0
   left $ px 0.0
   Grid.appGrid AppLayoutDesktop
-
-contentWrap :: CSS
-contentWrap = do
-  Grid.inAppContent
-  sym margin $ rem 2.0
 
 navbarWrap :: CSS
 navbarWrap = do

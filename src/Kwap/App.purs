@@ -7,11 +7,12 @@ import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Halogen as H
 import Kwap.App.Action (Action(..))
-import Kwap.App.Content as App.Content
 import Kwap.App.Css as Css
+import Kwap.App.Css.Grid as App.Grid
 import Kwap.App.Html as HH
 import Kwap.App.Layout (AppLayout(..))
 import Kwap.App.Navbar as App.Navbar
+import Kwap.App.Page.Concepts as App.Page.Concepts
 import Kwap.App.Route as App.Route
 import Kwap.App.State as App.State
 import Kwap.App.Style as App.Style
@@ -59,10 +60,11 @@ render state =
             [ App.Navbar.render NavbarSectionPicked AppLayoutDesktop
                 (App.State.navbarSection state)
             ]
-        , HH.div
-            [ Css.style App.Style.contentWrap
-            ]
-            [ App.Content.render
-            ]
+        , case App.State.route state of
+            App.Route.Home -> HH.div_ []
+            App.Route.Concepts oa ->
+              App.Page.Concepts.render oa App.Grid.inAppContent $
+                App.State.conceptDecl state
+            App.Route.Book -> HH.div_ []
         ]
     ]

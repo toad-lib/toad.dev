@@ -40,7 +40,9 @@
   , "tuples"
   , "typelevel-prelude"
   , "web-dom"
+  , "web-events"
   , "web-html"
+  , "web-uievents"
   , "yoga-fetch"
   ]
 , packages = ./packages.dhall

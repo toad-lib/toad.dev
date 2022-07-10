@@ -5,9 +5,10 @@ import Prelude
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
 import Data.Either (either)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
+import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console as Console
@@ -23,19 +24,23 @@ import Kwap.App.Route as App.Route
 import Kwap.App.State as App.State
 import Kwap.Concept as Concept
 import Kwap.Navigate (navigate)
+import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
+import Web.Event.Event as Event
+import Web.UIEvent.MouseEvent as MouseEvent
 
 main :: Effect Unit
 main =
   let
-    tellAppRouteChanged _ (Just prev) route | prev == route = pure unit
+    tellAppRouteChanged _ (Just prev) new | prev == new = pure unit
     tellAppRouteChanged io _ route = void <<< Aff.launchAff $
-      App.Query.sendNavigate route io
+      App.Query.sendNavigate (fromMaybe App.Route.Home route) io
   in
     HA.runHalogenAff do
       body <- HA.awaitBody
       io <- runUI (H.hoist App.runM component) unit body
-      H.liftEffect <<< void <<< Routing.Hash.matchesWith App.Route.parse $
+      H.liftEffect <<< void <<< Routing.Hash.matchesWith
+        (Routing.Duplex.parse $ Routing.Duplex.optional App.Route.codec) $
         tellAppRouteChanged io
 
 component :: ∀ i o. H.Component App.Query.Query i o App.M
@@ -53,7 +58,7 @@ component =
 timer :: ∀ m a. MonadAff m => Milliseconds -> a -> m (HS.Emitter a)
 timer ms val = do
   { emitter, listener } <- H.liftEffect HS.create
-  _ <- H.liftAff $ Aff.forkAff $ forever do
+  _ <- H.liftAff <<< Aff.forkAff <<< forever $ do
     Aff.delay ms
     H.liftEffect $ HS.notify listener val
   pure emitter
@@ -65,8 +70,6 @@ handleQuery
 handleQuery = case _ of
   App.Query.Navigate route _ -> do
     App.put route
-    s <- H.get
-    H.liftEffect $ Console.log $ show s
     pure Nothing
 
 handleAction
@@ -76,8 +79,6 @@ handleAction
 handleAction =
   case _ of
     App.Action.Init -> do
-      navigate App.Route.init
-
       _ <- H.subscribe =<< timer (Milliseconds 100.0) App.Action.Tick
 
       decl <- H.liftAff $ Concept.fetchDecl
