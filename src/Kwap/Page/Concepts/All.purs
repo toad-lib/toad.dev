@@ -7,10 +7,10 @@ import Halogen.HTML.CSS (style)
 import Halogen.HTML.Events as H
 import Halogen.HTML.Properties as HP
 import Kwap.Action as Action
+import Kwap.Concept as C
 import Kwap.Css as Css
 import Kwap.Html as HH
 import Kwap.Route as Route
-import Kwap.Concept as C
 
 renderOneLink :: forall w i. C.One -> HH.HTML w i
 renderOneLink c = HH.a_

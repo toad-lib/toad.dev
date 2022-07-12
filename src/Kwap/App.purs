@@ -12,12 +12,12 @@ import Kwap.Css.Grid as Grid
 import Kwap.Html as HH
 import Kwap.Layout (AppLayout(..))
 import Kwap.Navbar as Navbar
+import Kwap.Navigate (class Navigate)
 import Kwap.Page.Concepts as Page.Concepts
 import Kwap.Route as Route
 import Kwap.State as State
 import Kwap.Style as Style
 import Kwap.Style.Global as Style.Global
-import Kwap.Navigate (class Navigate)
 import Routing.Hash (setHash)
 
 newtype M a = M (Aff a)

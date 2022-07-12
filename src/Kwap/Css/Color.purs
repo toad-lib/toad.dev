@@ -1,10 +1,7 @@
 module Kwap.Css.Color
-  ( Accel2D(..)
-  , Color(..)
+  ( Color(..)
   , KwapGradient
-  , Position2D(..)
   , Shade(..)
-  , Velocity2D(..)
   , backgroundColor
   , color
   , cssColor
@@ -22,14 +19,17 @@ import CSS.Gradient as Css.Gradient
 import CSS.Size as Css.Size
 import Data.Array (snoc)
 import Data.Bifunctor (bimap)
+import Data.Coord.Cart as Cart
+import Data.Coord.Polar (Pos(..), Radians(..))
+import Data.Coord.Polar as Polar
 import Data.Foldable (for_)
 import Data.Generic.Rep (class Generic)
-import Data.Number (max, min)
+import Data.Number (max, min, pi, pow, sqrt)
 import Data.Profunctor.Strong (first, second)
 import Data.Range (clamp, (..=))
 import Data.Show.Generic (genericShow)
 import Data.String as String
-import Data.Tuple (Tuple(..), fst)
+import Data.Tuple (Tuple(..), fst, swap)
 import Data.Tuple.Nested ((/\))
 
 data Shade
@@ -84,76 +84,52 @@ color = cssColor >>> Css.color
 backgroundColor :: Color -> Css.CSS
 backgroundColor = cssColor >>> Css.backgroundColor
 
-newtype Position2D = Position2D (Tuple Number Number)
-newtype Velocity2D = Velocity2D (Tuple Number Number)
-newtype Accel2D = Accel2D (Tuple Number Number)
-
 newtype KwapGradient = KwapGradient
   ( Array
       { color :: Color
-      , pos :: Position2D
-      , vel :: Velocity2D
-      , acc :: Accel2D
+      , p :: Pos
+      , da :: Delta Radians
       }
   )
 
 derive newtype instance showKwapGradient :: Show KwapGradient
 derive newtype instance eqKwapGradient :: Eq KwapGradient
 
+newtype Delta a = Delta a
+
+derive newtype instance showDelta :: Show a => Show (Delta a)
+derive newtype instance eqDelta :: Eq a => Eq (Delta a)
+
+delta :: forall a. Delta a -> a
+delta (Delta a) = a
+
 kwapGradientInit :: KwapGradient
 kwapGradientInit =
-  KwapGradient $
-    [ { color: Pink Medium
-      , pos: Position2D $ Tuple 10.0 100.0
-      , vel: Velocity2D $ Tuple 0.0 0.0
-      , acc: Accel2D $ Tuple 0.0 0.0
-      }
-    , { color: Yellow Medium
-      , pos: Position2D $ Tuple 10.0 10.0
-      , vel: Velocity2D $ Tuple 0.0 0.0
-      , acc: Accel2D $ Tuple 0.0 0.0
-      }
-    , { color: Purple Medium
-      , pos: Position2D $ Tuple 100.0 15.0
-      , vel: Velocity2D $ Tuple 0.0 0.0
-      , acc: Accel2D $ Tuple 0.0 0.0
-      }
-    , { color: Purple Medium
-      , pos: Position2D $ Tuple 100.0 90.0
-      , vel: Velocity2D $ Tuple 0.0 0.0
-      , acc: Accel2D $ Tuple 0.0 0.0
-      }
-    , { color: Red Light
-      , pos: Position2D $ Tuple 45.0 55.0
-      , vel: Velocity2D $ Tuple 0.0 0.0
-      , acc: Accel2D $ Tuple 0.0 0.0
-      }
-    ]
-
-class Cartesian x where
-  coords :: x -> Tuple Number Number
-  fromCoords :: Tuple Number Number -> x
-
-instance cartesianAccel2D :: Cartesian Accel2D where
-  coords (Accel2D t) = t
-  fromCoords t = Accel2D t
-
-instance cartesianVelocity2D :: Cartesian Velocity2D where
-  coords (Velocity2D t) = t
-  fromCoords t = Velocity2D t
-
-instance cartesianPosition2D :: Cartesian Position2D where
-  coords (Position2D t) = t
-  fromCoords t = Position2D t
-
-integral :: ∀ df f. Cartesian df => Cartesian f => df -> f -> f
-integral df f =
   let
-    df' = coords df
-    f' = coords f
-    go (Tuple dx dy) (Tuple x y) = fromCoords $ (dx + x) /\ (dy + y)
+    da = Delta $ Radians $ pi / 64.0
   in
-    go df' f'
+    KwapGradient $
+      [ { color: Pink Medium
+        , p: Polar.make 60.0 (Radians 0.0)
+        , da
+        }
+      , { color: Yellow Medium
+        , p: Polar.make 60.0 (Radians (pi / 2.0))
+        , da
+        }
+      , { color: Purple Medium
+        , p: Polar.make 60.0 (Radians pi)
+        , da
+        }
+      , { color: Purple Medium
+        , p: Polar.make 60.0 (Radians (3.0 * pi / 2.0))
+        , da
+        }
+      , { color: Red Light
+        , p: Polar.make 0.0 (Radians 0.0)
+        , da: Delta (Radians 0.0)
+        }
+      ]
 
 alpha :: Number -> Css.Color -> Css.Color
 alpha a = Css.Color.toHSLA >>>
@@ -181,33 +157,14 @@ sideBottom_ = side_ "bottom"
 sideLeft_ :: Css.Size Css.Percentage -> Css.Side
 sideLeft_ = side_ "left"
 
---| acceleration vector field
-accelField :: Position2D -> Accel2D
-accelField (Position2D (Tuple x y)) =
-  let
-    -- move the origin to the middle (50%, 50%)
-    x' = (x - 50.0)
-    y' = (y - 50.0)
-    slowDownFactor = 150.0
-  in
-    Accel2D $ ((y' - x') / slowDownFactor) /\ ((-x' - y') / slowDownFactor)
-
 tick :: KwapGradient -> KwapGradient
 tick (KwapGradient grads) =
   let
-    tickOne { color: color', pos, vel } =
-      let
-        acc' = accelField pos
-        vel' = integral acc' vel
-      in
-        { color: color'
-        , pos: fromCoords
-            $ bimap (clamp $ (0.0) ..= 100.0) (clamp $ (0.0) ..= 100.0)
-            $ coords
-            $ integral vel' pos
-        , vel: vel'
-        , acc: acc'
-        }
+    tickOne { color: color', p, da } =
+      { color: color'
+      , p: Polar.modifyAngle (_ + (delta da)) p
+      , da
+      }
   in
     KwapGradient $ tickOne <$> grads
 
@@ -233,9 +190,18 @@ kwapGradient (KwapGradient gradients) =
           , Css.fromString ")"
           ] # Css.noCommas
 
-        gradientCss { color: color', pos: Position2D (Tuple left bottom) } =
+        cssScalarFromPolar
+          :: (Cart.Pos -> Number)
+          -> Polar.Pos
+          -> Css.Size.Size Css.Size.Percentage
+        cssScalarFromPolar f = Css.pct <<< f <<< Cart.fromPolar
+
+        gradientCss { color: color', p } =
           radialGradient
-            (sideLeft_ (Css.pct left) /\ sideBottom_ (Css.pct bottom))
+            ( sideLeft_
+                (cssScalarFromPolar (Cart.x >>> (_ + 50.0)) p) /\ sideBottom_
+                (cssScalarFromPolar (Cart.y >>> (_ + 50.0)) p)
+            )
             circle
             [ (alpha 0.8 $ cssColor color') /\ Css.pct 0.0
             , transparent /\ Css.pct 100.0
@@ -266,24 +232,9 @@ derive instance eqColor :: Eq Color
 derive instance eqShade :: Eq Shade
 derive instance genericColor :: Generic Color _
 derive instance genericShade :: Generic Shade _
-derive newtype instance eqAccel2D :: Eq Accel2D
-derive newtype instance eqVelocity2D :: Eq Velocity2D
-derive newtype instance eqPosition2D :: Eq Position2D
-derive instance genericAccel2D :: Generic Accel2D _
-derive instance genericVelocity2D :: Generic Velocity2D _
-derive instance genericPosition2D :: Generic Position2D _
 
 instance showColor :: Show Color where
   show = genericShow
 
 instance showShade :: Show Shade where
-  show = genericShow
-
-instance showAccel2D :: Show Accel2D where
-  show = genericShow
-
-instance showVelocity2D :: Show Velocity2D where
-  show = genericShow
-
-instance showPosition2D :: Show Position2D where
   show = genericShow

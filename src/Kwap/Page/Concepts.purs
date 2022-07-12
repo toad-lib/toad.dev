@@ -2,11 +2,11 @@ module Kwap.Page.Concepts (render) where
 
 import Data.Maybe (Maybe)
 import Kwap.Action as Action
+import Kwap.Concept as C
 import Kwap.Css as Css
 import Kwap.Html as HH
 import Kwap.Page.Concepts.All as Self.All
 import Kwap.Route as Route
-import Kwap.Concept as C
 
 render
   :: forall w

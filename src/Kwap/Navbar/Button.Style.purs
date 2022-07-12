@@ -5,10 +5,8 @@ module Kwap.Navbar.Button.Style
   , global
   ) where
 
-import Prelude hiding (top)
-
 import Kwap.Css
-import Kwap.Html (ClassProp, classNames, headingStyle)
+import Prelude hiding (top)
 
 import CSS.Common as Css.Common
 import CSS.Cursor as Css.Cursor
@@ -16,6 +14,7 @@ import CSS.Selector as Sel
 import CSS.Size as Css.Size
 import CSS.Time as Time
 import CSS.Transform as Css.Transform
+import Kwap.Html (ClassProp, classNames, headingStyle)
 
 -- See Kwap.App.Style
 global :: CSS

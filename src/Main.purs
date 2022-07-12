@@ -16,14 +16,14 @@ import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
-import Kwap.App as Kwap
 import Kwap.Action as Kwap.Action
+import Kwap.App as Kwap
+import Kwap.Concept as Concept
 import Kwap.Css as Kwap.Css
+import Kwap.Navigate (navigate)
 import Kwap.Query as Kwap.Query
 import Kwap.Route as Kwap.Route
 import Kwap.State as Kwap.State
-import Kwap.Concept as Concept
-import Kwap.Navigate (navigate)
 import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
 import Web.Event.Event as Event
@@ -88,5 +88,8 @@ handleAction =
     Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
     Kwap.Action.Tick -> do
       kwapGradientState <- Kwap.State.kwapGradient <$> H.get
-      Kwap.put $ Kwap.Css.tick kwapGradientState
+      let t = Kwap.Css.tick kwapGradientState
+      H.liftEffect <<< Console.log <<< show $ t
+      Kwap.put t
+
     Kwap.Action.Nop -> mempty

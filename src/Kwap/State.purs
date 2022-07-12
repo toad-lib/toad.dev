@@ -18,10 +18,10 @@ import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Show.Generic (genericShow)
+import Kwap.Concept as Concept
 import Kwap.Css (KwapGradient, kwapGradientInit)
 import Kwap.Navbar.Section as Navbar
 import Kwap.Route as Route
-import Kwap.Concept as Concept
 
 newtype ErrorMessage = ErrorMessage String
 
