@@ -88,17 +88,17 @@ manifestCodec = Text.Json.array
 decodeManifest :: String -> Either String Manifest
 decodeManifest s = do
   json <- Text.Json.jsonParser s
-  decls <- lmap Text.Json.printJsonDecodeError $ Text.Json.decode
+  decls' <- lmap Text.Json.printJsonDecodeError $ Text.Json.decode
     manifestCodec
     json
-  pure $ Manifest $ declOfRecord <$> decls
+  pure $ Manifest $ declOfRecord <$> decls'
 
 baseUrl :: String
 baseUrl =
   "https://raw.githubusercontent.com/clov-coffee/kwap-docs/main/concepts"
 
-fetchManifest :: Aff (Either String Manifest)
-fetchManifest =
-  HTTP.fetch (HTTP.URL $ baseUrl <> "/index.json") HTTP.Get mempty
+fetchManifest :: HTTP.FetchImpl -> Aff (Either String Manifest)
+fetchManifest impl =
+  HTTP.fetch impl (HTTP.URL $ baseUrl <> "/index.json") HTTP.Get mempty
     >>= HTTP.text
     <#> decodeManifest

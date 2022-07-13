@@ -11,6 +11,7 @@ import Data.String.NonEmpty.Internal (NonEmptyString(..))
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Exception (Error)
+import Kwap.Concept as Concept
 import Kwap.Markdown
   ( Anchor(..)
   , CodeFence(..)
@@ -99,6 +100,10 @@ main =
                   $ AnchorToken
                   $ Anchor (NonEmptyArray [ BoldItalic "bold italic" ])
                       "cheese.com"
+              it "should parse [concept](@concept) link" do
+                testParser (tokenP []) "[concept](@concept)"
+                  $ AnchorToken
+                  $ ConceptAnchor (pure $ Unstyled "concept") (Concept.Alias "concept")
               it "should parse [_**bold**_]   (cheese.com) link with spaces" do
                 testParser (tokenP []) "[**bold**]   (cheese.com)"
                   $ AnchorToken

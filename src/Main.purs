@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Effect.Aff.Fetch.Browser (windowFetch)
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
 import Data.Either (either)
@@ -78,7 +79,7 @@ handleAction =
     Kwap.Action.Init -> do
       _ <- H.subscribe =<< timer (Milliseconds 100.0) Kwap.Action.Tick
 
-      conceptManifest <- H.liftAff $ Concept.fetchManifest
+      conceptManifest <- H.liftAff $ Concept.fetchManifest windowFetch
       either (H.liftEffect <<< Console.error) (const <<< pure $ unit)
         conceptManifest
 

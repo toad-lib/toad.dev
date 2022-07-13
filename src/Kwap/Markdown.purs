@@ -217,15 +217,17 @@ anchorP :: Parser String Anchor
 anchorP = do
   _ <- char '['
   label <-
-    many1Till_ (advance $ textP [ Stop $ lookAhead $ string "]" ])
-      (lookAhead $ string "]")
+    many1Till_ (advance <<< textP <<< pure <<< Stop <<< lookAhead <<< string $ "]")
+      (lookAhead <<< string $ "]")
       <#> fst
       <#> NEA.fromFoldable1
   _ <- char ']'
-  _ <- many $ char ' '
+  _ <- many <<< char $ ' '
   _ <- char '('
-  href <- untilTokenStopOr [ Stop $ string ")" ]
-  pure $ Anchor (combineUnstyled Just identity label) href
+  at <- optionMaybe <<< char $ '@'
+  href <- untilTokenStopOr <<< pure <<< Stop <<< string $ ")"
+  let text = combineUnstyled Just identity label
+  pure $ maybe (Anchor text href) (const <<< ConceptAnchor text <<< Concept.Alias $ href) at
 
 data Wrap
   = WrapStar1 -- *text*
@@ -275,24 +277,24 @@ wrapClose w = do
 textP :: Array Stop -> Parser String Text
 textP stops =
   let
-    greenLight :: forall a. Parser String a -> Parser String a
-    greenLight p = do
+    stopOr :: forall a. Parser String a -> Parser String a
+    stopOr p = do
       _ <- notFollowedBy $ choice $ stops <#> stop
       p
 
     textP' :: forall a. (String -> a) -> Array Wrap -> Parser String a
-    textP' t ws = greenLight do
+    textP' t ws = try $ stopOr do
       wrap <- choice $ ws <#> wrapOpen
       s <- untilTokenStopOr $ stops <>
         [ Stop $ map (const "") (wrapClose wrap) ]
       pure $ t s
   in
     choice
-      [ try $ textP' InlineCode [ WrapBacktick ]
-      , try $ textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
-      , try $ textP' Italic [ WrapStar1, WrapUnder1 ]
-      , try $ textP' Bold [ WrapStar2 ]
-      , greenLight anyChar
+      [ textP' InlineCode [ WrapBacktick ]
+      , textP' BoldItalic [ WrapStar3, WrapStar2Under1, WrapUnder1Star2 ]
+      , textP' Italic [ WrapStar1, WrapUnder1 ]
+      , textP' Bold [ WrapStar2 ]
+      , stopOr anyChar
           <#> NEA.singleton
           <#> fromNonEmptyCharArray
           <#> NES.toString
