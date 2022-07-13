@@ -69,8 +69,8 @@ render state =
         , case State.route state of
             Route.Home -> HH.div_ []
             Route.Concepts oa ->
-              Page.Concepts.render oa Grid.inAppContent $
-                State.conceptDecl state
+              Page.Concepts.render Grid.inAppContent oa $
+                State.conceptManifest state
             Route.Book -> HH.div_ []
         ]
     ]

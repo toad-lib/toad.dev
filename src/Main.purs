@@ -78,10 +78,12 @@ handleAction =
     Kwap.Action.Init -> do
       _ <- H.subscribe =<< timer (Milliseconds 100.0) Kwap.Action.Tick
 
-      decl <- H.liftAff $ Concept.fetchDecl
-      either (H.liftEffect <<< Console.error) (const <<< pure $ unit) decl
+      conceptManifest <- H.liftAff $ Concept.fetchManifest
+      either (H.liftEffect <<< Console.error) (const <<< pure $ unit)
+        conceptManifest
 
-      Kwap.put $ lmap (const "An error occurred fetching concepts.") decl
+      Kwap.put $ lmap (const "An error occurred fetching concepts.")
+        conceptManifest
     Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
     Kwap.Action.Tick -> do
       kwapGradientState <- Kwap.State.kwapGradient <$> H.get

@@ -1,13 +1,11 @@
 module Kwap.Route
   ( Route(..)
   , OneOrAll(..)
-  , ConceptPath(..)
   , ofNavbarSection
   , toNavbarSection
   , init
   , codec
   , print
-  , conceptPathString
   ) where
 
 import Data.Array (null)
@@ -20,6 +18,7 @@ import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
 import Data.String (joinWith, split)
 import Data.String.Pattern (Pattern(..))
+import Kwap.Concept as Concept
 import Kwap.Navbar.Section as Navbar
 import Prelude (class Eq, class Show, map, ($), (<<<), (>>>))
 import Routing.Duplex (RouteDuplex', optional, rest, root)
@@ -28,21 +27,13 @@ import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
 import Routing.Duplex.Parser (RouteError)
 
-newtype ConceptPath = ConceptPath String
-
-derive newtype instance eqConceptPath :: Eq ConceptPath
-derive newtype instance showConceptPath :: Show ConceptPath
-
-conceptPathString :: ConceptPath -> String
-conceptPathString (ConceptPath s) = s
-
-maybeConceptPath :: RouteDuplex' (Maybe ConceptPath)
+maybeConceptPath :: RouteDuplex' (Maybe Concept.Path)
 maybeConceptPath =
   let
-    toSegments = maybe [] (conceptPathString >>> split (Pattern "/"))
+    toSegments = maybe [] (Concept.pathString >>> split (Pattern "/"))
     ofSegments = Just
       >>> filter (not <<< null)
-      >>> map (joinWith "/" >>> ConceptPath)
+      >>> map (joinWith "/" >>> Concept.Path)
   in
     dimap toSegments ofSegments rest
 
@@ -66,7 +57,7 @@ orAll a = dimap maybeOne oneMaybe a
 
 data Route
   = Home
-  | Concepts (OneOrAll ConceptPath)
+  | Concepts (OneOrAll Concept.Path)
   | Book
 
 derive instance genericRoute :: Generic Route _

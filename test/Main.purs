@@ -4,15 +4,12 @@ import Prelude
 
 import Control.Monad.Error.Class (class MonadThrow)
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
-import Data.Either (Either(..), either)
-import Data.Foldable (for_)
-import Data.List (List(Nil), (:))
+import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.String.NonEmpty.Internal (NonEmptyString(..))
 import Effect (Effect)
-import Effect.Aff (Aff, forkAff, joinFiber, launchAff_, makeAff)
-import Effect.Class (liftEffect)
+import Effect.Aff (launchAff_)
 import Effect.Exception (Error)
 import Kwap.Markdown
   ( Anchor(..)
@@ -26,7 +23,6 @@ import Kwap.Markdown
   , Span(..)
   , Text(..)
   , Token(..)
-  , anchorP
   , codeFenceP
   , documentP
   , headingP

@@ -13,9 +13,8 @@ import Data.String as String
 import Data.String.NonEmpty as NES
 import Data.String.NonEmpty.CodeUnits (fromNonEmptyCharArray)
 import Data.Tuple (fst)
-import Effect.Console (log)
-import Effect.Unsafe (unsafePerformEffect)
-import Parsing (Parser, fail)
+import Kwap.Concept as Concept
+import Parsing (Parser)
 import Parsing.Combinators
   ( advance
   , choice
@@ -38,7 +37,7 @@ data Text
   | BoldItalic String
   | InlineCode String
 
-data Anchor = Anchor (NEA.NonEmptyArray Text) String
+data Anchor = Anchor (NEA.NonEmptyArray Text) String | ConceptAnchor (NEA.NonEmptyArray Text) Concept.Alias
 
 data Token
   = AnchorToken Anchor

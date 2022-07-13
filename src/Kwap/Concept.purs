@@ -1,77 +1,104 @@
-module Kwap.Concept (Decl, One, array, fetchDecl, path, alias, title) where
+module Kwap.Concept (Manifest, Decl, decls, fetchManifest, pathString, aliasString, titleString, path, alias, title, Path(..), Alias(..), Title(..)) where
 
 import Prelude
 
 import Data.Argonaut.Core (jsonNull) as Text.Json
 import Data.Argonaut.Parser (jsonParser) as Text.Json
 import Data.Bifunctor (lmap)
-import Data.Codec.Argonaut
-  ( JsonCodec
-  , array
-  , decode
-  , printJsonDecodeError
-  , string
-  ) as Text.Json
 import Data.Codec.Argonaut ((>~>))
+import Data.Codec.Argonaut (JsonCodec, array, decode, printJsonDecodeError, string) as Text.Json
 import Data.Codec.Argonaut.Compat (maybe) as Text.Json
 import Data.Codec.Argonaut.Migration (addDefaultField) as Text.Json
 import Data.Codec.Argonaut.Record (object) as Text.Json
 import Data.Either (Either)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe, fromMaybe)
 import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
 
-newtype One = One
-  { path :: String
-  , title :: String
-  , alias :: Maybe String
+newtype Alias = Alias String
+derive newtype instance showAlias :: Show Alias
+derive newtype instance eqAlias :: Eq Alias
+derive newtype instance ordAlias :: Ord Alias
+derive newtype instance semiAlias :: Semigroup Alias
+derive newtype instance monoidAlias :: Monoid Alias
+
+aliasString :: Alias -> String
+aliasString (Alias s) = s
+
+newtype Path = Path String
+derive newtype instance showPath :: Show Path
+derive newtype instance eqPath :: Eq Path
+derive newtype instance ordPath :: Ord Path
+derive newtype instance semiPath :: Semigroup Path
+derive newtype instance monoidPath :: Monoid Path
+
+pathString :: Path -> String
+pathString (Path s) = s
+
+newtype Title = Title String
+derive newtype instance showTitle :: Show Title
+derive newtype instance eqTitle :: Eq Title
+derive newtype instance ordTitle :: Ord Title
+derive newtype instance semiTitle :: Semigroup Title
+derive newtype instance monoidTitle :: Monoid Title
+
+titleString :: Title -> String
+titleString (Title s) = s
+
+newtype Decl = Decl
+  { path :: Path
+  , title :: Title
+  , alias :: Maybe Alias
   }
 
-derive newtype instance eqOne :: Eq One
-derive newtype instance showOne :: Show One
+derive newtype instance eqOne :: Eq Decl
+derive newtype instance showOne :: Show Decl
 
-path :: One -> String
-path (One { path: p }) = p
+declOfRecord :: {path :: String, title :: String, alias :: Maybe String} -> Decl
+declOfRecord {path: p, title: t, alias: a} = Decl {path: Path p, title: Title t, alias: Alias <$> a}
 
-title :: One -> String
-title (One { title: t }) = t
+path :: Decl -> Path
+path (Decl { path: p }) = p
 
-alias :: One -> Maybe String
-alias (One { alias: a }) = a
+title :: Decl -> Title
+title (Decl { title: t }) = t
 
-newtype Decl = Decl (Array One)
+alias :: Decl -> Alias
+alias (Decl { path: (Path p), alias: a }) = fromMaybe (Alias p) a
 
-derive newtype instance eqDecl :: Eq Decl
-derive newtype instance showDecl :: Show Decl
+newtype Manifest = Manifest (Array Decl)
 
-array :: Decl -> Array One
-array (Decl a) = a
+derive newtype instance eqManifest :: Eq Manifest
+derive newtype instance showManifest :: Show Manifest
 
-declCodec
+decls :: Manifest -> Array Decl
+decls (Manifest a) = a
+
+manifestCodec
   :: Text.Json.JsonCodec
        (Array { path :: String, title :: String, alias :: Maybe String })
-declCodec = Text.Json.array
+manifestCodec = Text.Json.array
   $ Text.Json.addDefaultField "alias" Text.Json.jsonNull
-      >~> Text.Json.object "Decl"
+      >~> Text.Json.object "Manifest"
         { path: Text.Json.string
         , title: Text.Json.string
         , alias: Text.Json.maybe Text.Json.string
         }
 
-decodeDecl :: String -> Either String Decl
-decodeDecl s = do
+decodeManifest :: String -> Either String Manifest
+decodeManifest s = do
   json <- Text.Json.jsonParser s
   decls <- lmap Text.Json.printJsonDecodeError $ Text.Json.decode
-    declCodec
+    manifestCodec
     json
-  pure $ Decl $ One <$> decls
+  pure $ Manifest $ declOfRecord <$> decls
 
 baseUrl :: String
 baseUrl =
   "https://raw.githubusercontent.com/clov-coffee/kwap-docs/main/concepts"
 
-fetchDecl :: Aff (Either String Decl)
-fetchDecl =
+fetchManifest :: Aff (Either String Manifest)
+fetchManifest =
   HTTP.fetch (HTTP.URL $ baseUrl <> "/index.json") HTTP.Get mempty
     >>= HTTP.text
-    <#> decodeDecl
+    <#> decodeManifest

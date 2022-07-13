@@ -6,7 +6,7 @@ module Kwap.State
   , dismissError
   , liftState
   , error
-  , conceptDecl
+  , conceptManifest
   , navbarSection
   , kwapGradient
   , route
@@ -31,7 +31,7 @@ derive newtype instance eqErrorMessage :: Eq ErrorMessage
 
 data State = State (Maybe ErrorMessage)
   (Maybe KwapGradient)
-  (Maybe Concept.Decl)
+  (Maybe Concept.Manifest)
   (Maybe Route.Route)
 
 derive instance eqState :: Eq State
@@ -69,8 +69,8 @@ navbarSection s = Route.toNavbarSection <<< route $ s
 kwapGradient :: State -> KwapGradient
 kwapGradient (State _ g _ _) = fromMaybe kwapGradientInit g
 
-conceptDecl :: State -> Maybe Concept.Decl
-conceptDecl (State _ _ d _) = d
+conceptManifest :: State -> Maybe Concept.Manifest
+conceptManifest (State _ _ m _) = m
 
 route :: State -> Route.Route
 route (State _ _ _ r) = fromMaybe Route.init r
@@ -81,8 +81,9 @@ class LiftState a where
 instance routeAppState :: LiftState Route.Route where
   liftState r = State Nothing Nothing Nothing (Just r)
 
-instance conceptDeclAppState :: LiftState (Either String Concept.Decl) where
-  liftState (Right d) = State Nothing Nothing (Just d) Nothing
+instance eitherConceptManifestAppState ::
+  LiftState (Either String Concept.Manifest) where
+  liftState (Right m) = State Nothing Nothing (Just m) Nothing
   liftState (Left m) = State (Just $ ErrorMessage m) Nothing Nothing Nothing
 
 instance kwapGradientAppState :: LiftState KwapGradient where
