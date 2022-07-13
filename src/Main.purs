@@ -8,7 +8,6 @@ import Data.Either (either)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
-import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console as Console
@@ -26,8 +25,6 @@ import Kwap.Route as Kwap.Route
 import Kwap.State as Kwap.State
 import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
-import Web.Event.Event as Event
-import Web.UIEvent.MouseEvent as MouseEvent
 
 main :: Effect Unit
 main =
@@ -89,7 +86,7 @@ handleAction =
     Kwap.Action.Tick -> do
       kwapGradientState <- Kwap.State.kwapGradient <$> H.get
       let t = Kwap.Css.tick kwapGradientState
-      H.liftEffect <<< Console.log <<< show $ t
       Kwap.put t
 
+    Kwap.Action.DismissError -> H.modify Kwap.State.dismissError >>= H.put
     Kwap.Action.Nop -> mempty

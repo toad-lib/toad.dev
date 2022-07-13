@@ -6,8 +6,10 @@ import Prelude
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size
 import Data.Generic.Rep (class Generic)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromJust, maybe)
 import Data.Show.Generic (genericShow)
+import Data.Tuple (Tuple(..))
+import Data.Tuple.Nested (T3)
 import Kwap.Atom.Logo as Atom.Logo
 import Kwap.Css as Css
 import Kwap.Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
@@ -59,8 +61,14 @@ navbarGridDesktop =
       ]
       navbarGridRegionLabel
 
-render :: ∀ a w. (Section -> a) -> AppLayout -> Section -> HH.HTML w a
-render picked layout section =
+render
+  :: ∀ a w
+   . Maybe (T3 Toast.Status String a)
+  -> (Section -> a)
+  -> AppLayout
+  -> Section
+  -> HH.HTML w a
+render t picked layout section =
   let
     isSelected test
       | test == section = Button.Selected
@@ -73,6 +81,7 @@ render picked layout section =
           Css.backgroundColor $ Css.Yellow Css.Lightest
       ]
       []
+    toast (Tuple ts (Tuple t ta)) = Toast.render (inArea GridToast) ta ts t
   in
     HH.div
       [ Css.style do
@@ -89,5 +98,5 @@ render picked layout section =
           (inArea GridButtonC)
       , solidBg GridGapA
       , solidBg GridEmpty
-      , Toast.render (inArea GridToast) Toast.StatusInfo "oh no!!1"
+      , maybe (solidBg GridToast) toast t
       ]

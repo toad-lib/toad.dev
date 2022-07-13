@@ -10,6 +10,7 @@ data Action
   | Init
   | NavbarSectionPicked Navbar.Section
   | Tick
+  | DismissError
 
 fromFoldable :: ∀ f. Foldable f => f Action -> Action
 fromFoldable = foldl (const identity) Nop

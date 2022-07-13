@@ -13,14 +13,11 @@ module Effect.Aff.Fetch
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Array as Array
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromJust, isJust)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import Partial.Unsafe (unsafePartial)
-import Record (union)
-import Type.Row.Homogeneous (class Homogeneous)
 import Yoga.Fetch
   ( Response
   , URL(..)

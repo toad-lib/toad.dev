@@ -2,6 +2,8 @@ module Kwap.App (M, runM, put, render) where
 
 import Prelude
 
+import Data.Maybe (Maybe)
+import Data.Tuple.Nested (T3, (/\))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
@@ -12,6 +14,7 @@ import Kwap.Css.Grid as Grid
 import Kwap.Html as HH
 import Kwap.Layout (AppLayout(..))
 import Kwap.Navbar as Navbar
+import Kwap.Navbar.Toast as Toast
 import Kwap.Navigate (class Navigate)
 import Kwap.Page.Concepts as Page.Concepts
 import Kwap.Route as Route
@@ -43,6 +46,9 @@ put
   -> H.HalogenM State.State a s o M Unit
 put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
 
+toast :: State.State -> Maybe (T3 Toast.Status String Action)
+toast = State.error >>> map ((Toast.StatusError /\ _) <<< (_ /\ DismissError))
+
 render :: ∀ w. State.State -> HH.HTML w Action
 render state =
   HH.div_
@@ -57,7 +63,7 @@ render state =
         [ HH.div
             [ Css.style Style.navbarWrap
             ]
-            [ Navbar.render NavbarSectionPicked AppLayoutDesktop
+            [ Navbar.render (toast state) NavbarSectionPicked AppLayoutDesktop
                 (State.navbarSection state)
             ]
         , case State.route state of

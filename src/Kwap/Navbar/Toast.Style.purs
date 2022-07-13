@@ -5,8 +5,27 @@ module Kwap.Navbar.Toast.Style
   , iconContainer
   ) where
 
+import CSS.Cursor as Css.Cursor
 import Kwap.Css
-import Prelude hiding (top)
+  ( CSS
+  , Color(..)
+  , Shade(..)
+  , absolute
+  , backgroundColor
+  , color
+  , cursor
+  , height
+  , padding
+  , paddingTop
+  , position
+  , relative
+  , rem
+  , right
+  , sym
+  , top
+  , width
+  )
+import Prelude (discard, ($))
 
 data Status = StatusError | StatusWarn | StatusInfo
 
@@ -23,6 +42,7 @@ iconContainer = do
   width $ rem 2.0
   top $ rem 0.25
   right $ rem 0.25
+  cursor Css.Cursor.Pointer
 
 statusStyle :: Status -> CSS
 statusStyle StatusError = do

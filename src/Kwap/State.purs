@@ -3,6 +3,7 @@ module Kwap.State
   , ErrorMessage(..)
   , init
   , class LiftState
+  , dismissError
   , liftState
   , error
   , conceptDecl
@@ -20,7 +21,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Show.Generic (genericShow)
 import Kwap.Concept as Concept
 import Kwap.Css (KwapGradient, kwapGradientInit)
-import Kwap.Navbar.Section as Navbar
+import Kwap.Navbar as Navbar
 import Kwap.Route as Route
 
 newtype ErrorMessage = ErrorMessage String
@@ -54,6 +55,9 @@ instance monoidState :: Monoid State where
 
 init :: State
 init = mempty
+
+dismissError :: State -> State
+dismissError (State _ a b c) = State Nothing a b c
 
 error :: State -> Maybe String
 error (State (Just (ErrorMessage e)) _ _ _) = Just e
