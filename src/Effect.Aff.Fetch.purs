@@ -18,10 +18,19 @@ import Data.Maybe (Maybe(..), fromJust, isJust)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import Partial.Unsafe (unsafePartial)
-import Yoga.Fetch (Response, URL(..), arrayBuffer, headers, json, statusCode, text, url) as X
+import Yoga.Fetch
+  ( Response
+  , URL(..)
+  , arrayBuffer
+  , headers
+  , json
+  , statusCode
+  , text
+  , url
+  ) as X
 import Yoga.Fetch as Fetch
-import Yoga.Fetch.Impl (FetchImpl) as X
 import Yoga.Fetch.Impl (FetchImpl)
+import Yoga.Fetch.Impl (FetchImpl) as X
 
 foreign import optionsToFetchOptions
   :: ∀ a
@@ -36,7 +45,8 @@ foreign import optionsToFetchOptions
   -> { method :: Fetch.Method | Fetch.Options }
 
 fetch
-  :: FetchImpl -> Fetch.URL
+  :: FetchImpl
+  -> Fetch.URL
   -> Method
   -> Options
   -> Aff Fetch.Response

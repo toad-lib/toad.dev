@@ -37,7 +37,9 @@ data Text
   | BoldItalic String
   | InlineCode String
 
-data Anchor = Anchor (NEA.NonEmptyArray Text) String | ConceptAnchor (NEA.NonEmptyArray Text) Concept.Alias
+data Anchor
+  = Anchor (NEA.NonEmptyArray Text) String
+  | ConceptAnchor (NEA.NonEmptyArray Text) Concept.Alias
 
 data Token
   = AnchorToken Anchor
@@ -217,7 +219,8 @@ anchorP :: Parser String Anchor
 anchorP = do
   _ <- char '['
   label <-
-    many1Till_ (advance <<< textP <<< pure <<< Stop <<< lookAhead <<< string $ "]")
+    many1Till_
+      (advance <<< textP <<< pure <<< Stop <<< lookAhead <<< string $ "]")
       (lookAhead <<< string $ "]")
       <#> fst
       <#> NEA.fromFoldable1
@@ -227,7 +230,9 @@ anchorP = do
   at <- optionMaybe <<< char $ '@'
   href <- untilTokenStopOr <<< pure <<< Stop <<< string $ ")"
   let text = combineUnstyled Just identity label
-  pure $ maybe (Anchor text href) (const <<< ConceptAnchor text <<< Concept.Alias $ href) at
+  pure $ maybe (Anchor text href)
+    (const <<< ConceptAnchor text <<< Concept.Alias $ href)
+    at
 
 data Wrap
   = WrapStar1 -- *text*

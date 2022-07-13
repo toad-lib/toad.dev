@@ -1,12 +1,32 @@
-module Kwap.Concept (Manifest, Decl, decls, fetchManifest, pathString, aliasString, titleString, path, alias, title, Path(..), Alias(..), Title(..)) where
+module Kwap.Concept
+  ( Manifest
+  , Decl
+  , decls
+  , fetchManifest
+  , pathString
+  , aliasString
+  , titleString
+  , path
+  , alias
+  , title
+  , Path(..)
+  , Alias(..)
+  , Title(..)
+  ) where
 
 import Prelude
 
 import Data.Argonaut.Core (jsonNull) as Text.Json
 import Data.Argonaut.Parser (jsonParser) as Text.Json
 import Data.Bifunctor (lmap)
+import Data.Codec.Argonaut
+  ( JsonCodec
+  , array
+  , decode
+  , printJsonDecodeError
+  , string
+  ) as Text.Json
 import Data.Codec.Argonaut ((>~>))
-import Data.Codec.Argonaut (JsonCodec, array, decode, printJsonDecodeError, string) as Text.Json
 import Data.Codec.Argonaut.Compat (maybe) as Text.Json
 import Data.Codec.Argonaut.Migration (addDefaultField) as Text.Json
 import Data.Codec.Argonaut.Record (object) as Text.Json
@@ -16,6 +36,7 @@ import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
 
 newtype Alias = Alias String
+
 derive newtype instance showAlias :: Show Alias
 derive newtype instance eqAlias :: Eq Alias
 derive newtype instance ordAlias :: Ord Alias
@@ -26,6 +47,7 @@ aliasString :: Alias -> String
 aliasString (Alias s) = s
 
 newtype Path = Path String
+
 derive newtype instance showPath :: Show Path
 derive newtype instance eqPath :: Eq Path
 derive newtype instance ordPath :: Ord Path
@@ -36,6 +58,7 @@ pathString :: Path -> String
 pathString (Path s) = s
 
 newtype Title = Title String
+
 derive newtype instance showTitle :: Show Title
 derive newtype instance eqTitle :: Eq Title
 derive newtype instance ordTitle :: Ord Title
@@ -54,8 +77,10 @@ newtype Decl = Decl
 derive newtype instance eqOne :: Eq Decl
 derive newtype instance showOne :: Show Decl
 
-declOfRecord :: {path :: String, title :: String, alias :: Maybe String} -> Decl
-declOfRecord {path: p, title: t, alias: a} = Decl {path: Path p, title: Title t, alias: Alias <$> a}
+declOfRecord
+  :: { path :: String, title :: String, alias :: Maybe String } -> Decl
+declOfRecord { path: p, title: t, alias: a } = Decl
+  { path: Path p, title: Title t, alias: Alias <$> a }
 
 path :: Decl -> Path
 path (Decl { path: p }) = p

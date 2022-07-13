@@ -2,7 +2,6 @@ module Main where
 
 import Prelude
 
-import Effect.Aff.Fetch.Browser (windowFetch)
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
 import Data.Either (either)
@@ -11,6 +10,7 @@ import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
+import Effect.Aff.Fetch.Browser (windowFetch)
 import Effect.Console as Console
 import Halogen as H
 import Halogen.Aff as HA
