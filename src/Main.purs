@@ -18,7 +18,7 @@ import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
 import Kwap.Action as Kwap.Action
 import Kwap.App as Kwap
-import Kwap.Concept as Concept
+import Kwap.Concept.Fetch as Concept.Fetch
 import Kwap.Css as Kwap.Css
 import Kwap.Navigate (navigate)
 import Kwap.Query as Kwap.Query
@@ -82,7 +82,7 @@ handleAction =
     Kwap.Action.Init -> do
       _ <- H.subscribe =<< timer (Milliseconds 100.0) Kwap.Action.Tick
 
-      conceptManifest <- H.liftAff $ Concept.fetchManifest windowFetch
+      conceptManifest <- H.liftAff $ Concept.Fetch.manifest windowFetch
 
       fromMaybe (pure unit)
         <<< map H.liftEffect

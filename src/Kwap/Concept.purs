@@ -1,7 +1,8 @@
 module Kwap.Concept
-  ( Manifest
-  , Decl
+  ( Manifest(..)
+  , Decl(..)
   , decls
+  , declOfRecord
   , fetchManifest
   , pathString
   , aliasString
