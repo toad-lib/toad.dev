@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
-import Data.Either (either)
+import Data.Either (Either, blush)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
@@ -26,6 +26,9 @@ import Kwap.Route as Kwap.Route
 import Kwap.State as Kwap.State
 import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
+
+left :: forall a b. Either a b -> Maybe a
+left = blush
 
 main :: Effect Unit
 main =
@@ -80,16 +83,24 @@ handleAction =
       _ <- H.subscribe =<< timer (Milliseconds 100.0) Kwap.Action.Tick
 
       conceptManifest <- H.liftAff $ Concept.fetchManifest windowFetch
-      either (H.liftEffect <<< Console.error) (const <<< pure $ unit)
-        conceptManifest
+
+      fromMaybe (pure unit)
+        <<< map H.liftEffect
+        <<< map Console.error
+        <<< left
+        $ conceptManifest
 
       Kwap.put $ lmap (const "An error occurred fetching concepts.")
         conceptManifest
-    Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
-    Kwap.Action.Tick -> do
-      kwapGradientState <- Kwap.State.kwapGradient <$> H.get
-      let t = Kwap.Css.tick kwapGradientState
-      Kwap.put t
 
-    Kwap.Action.DismissError -> H.modify Kwap.State.dismissError >>= H.put
+    Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
+
+    Kwap.Action.Tick ->
+      Kwap.put
+        <<< Kwap.Css.tick
+        <<< Kwap.State.kwapGradient
+        =<< H.get
+
+    Kwap.Action.DismissError -> H.put =<< H.modify Kwap.State.dismissError
+
     Kwap.Action.Nop -> mempty

@@ -1,8 +1,6 @@
 { name = "halogen-project"
 , dependencies =
   [ "aff"
-  , "aff-promise"
-  , "argonaut"
   , "argonaut-core"
   , "arrays"
   , "bifunctors"
@@ -19,7 +17,6 @@
   , "halogen"
   , "halogen-css"
   , "halogen-subscriptions"
-  , "lists"
   , "maybe"
   , "newtype"
   , "numbers"
@@ -28,9 +25,6 @@
   , "partial"
   , "prelude"
   , "profunctor"
-  , "psci-support"
-  , "random"
-  , "record"
   , "routing"
   , "routing-duplex"
   , "spec"
@@ -38,11 +32,6 @@
   , "tailrec"
   , "transformers"
   , "tuples"
-  , "typelevel-prelude"
-  , "web-dom"
-  , "web-events"
-  , "web-html"
-  , "web-uievents"
   , "yoga-fetch"
   ]
 , packages = ./packages.dhall
