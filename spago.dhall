@@ -1,4 +1,4 @@
-{ name = "halogen-project"
+{ name = "kwap-rs-halogen"
 , dependencies =
   [ "aff"
   , "argonaut-core"
@@ -17,6 +17,7 @@
   , "halogen"
   , "halogen-css"
   , "halogen-subscriptions"
+  , "kwap-rs"
   , "maybe"
   , "newtype"
   , "numbers"
