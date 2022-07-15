@@ -20,26 +20,7 @@ import Data.Either (Either)
 import Data.Maybe (Maybe, fromMaybe)
 import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
-import Kwap.Concept (declOfRecord, Manifest(..))
-
-manifestCodec
-  :: Text.Json.JsonCodec
-       (Array { path :: String, title :: String, alias :: Maybe String })
-manifestCodec = Text.Json.array
-  $ Text.Json.addDefaultField "alias" Text.Json.jsonNull
-      >~> Text.Json.object "Manifest"
-        { path: Text.Json.string
-        , title: Text.Json.string
-        , alias: Text.Json.maybe Text.Json.string
-        }
-
-decodeManifest :: String -> Either String Manifest
-decodeManifest s = do
-  json <- Text.Json.jsonParser s
-  decls' <- lmap Text.Json.printJsonDecodeError $ Text.Json.decode
-    manifestCodec
-    json
-  pure $ Manifest $ declOfRecord <$> decls'
+import Kwap.Concept (Manifest(..), decodeManifest)
 
 baseUrl :: String
 baseUrl =
