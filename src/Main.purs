@@ -5,8 +5,10 @@ import Prelude
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap)
 import Data.Either (Either, blush)
+import Data.Foldable (find)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
+import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
@@ -18,9 +20,11 @@ import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
 import Kwap.Action as Kwap.Action
 import Kwap.App as Kwap
+import Kwap.Concept as Concept
 import Kwap.Concept.Fetch as Concept.Fetch
 import Kwap.Css as Kwap.Css
 import Kwap.Navigate (navigate)
+import Kwap.Page.Concepts as Kwap.Page.Concepts
 import Kwap.Query as Kwap.Query
 import Kwap.Route as Kwap.Route
 import Kwap.State as Kwap.State
@@ -104,3 +108,11 @@ handleAction =
     Kwap.Action.DismissError -> H.put =<< H.modify Kwap.State.dismissError
 
     Kwap.Action.Nop -> mempty
+
+    Kwap.Action.ConceptsPageOutput (Kwap.Page.Concepts.FetchConcept ident) -> do
+      mp <- map (Kwap.State.lookupDecl ident) $ H.get
+      one <-
+        H.liftAff <<< sequence <<< map
+          (Concept.Fetch.one windowFetch <<< Concept.path) $ mp
+      H.liftEffect <<< Console.log <<< show $ one
+      pure unit

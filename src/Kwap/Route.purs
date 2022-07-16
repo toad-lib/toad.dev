@@ -6,6 +6,7 @@ module Kwap.Route
   , init
   , codec
   , print
+  , maybeOne
   ) where
 
 import Data.Array (null)
@@ -27,13 +28,13 @@ import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
 import Routing.Duplex.Parser (RouteError)
 
-maybeConceptPath :: RouteDuplex' (Maybe Concept.Path)
-maybeConceptPath =
+maybeConceptIdent :: RouteDuplex' (Maybe Concept.Ident)
+maybeConceptIdent =
   let
-    toSegments = maybe [] (Concept.pathString >>> split (Pattern "/"))
+    toSegments = maybe [] (Concept.identString >>> split (Pattern "/"))
     ofSegments = Just
       >>> filter (not <<< null)
-      >>> map (joinWith "/" >>> Concept.Path)
+      >>> map (joinWith "/" >>> Concept.Ident)
   in
     dimap toSegments ofSegments rest
 
@@ -57,7 +58,7 @@ orAll a = dimap maybeOne oneMaybe a
 
 data Route
   = Home
-  | Concepts (OneOrAll Concept.Path)
+  | Concepts (OneOrAll Concept.Ident)
   | Book
 
 derive instance genericRoute :: Generic Route _
@@ -84,6 +85,6 @@ print = Routing.Duplex.print codec
 codec :: RouteDuplex' Route
 codec = root $ sum
   { "Home": noArgs
-  , "Concepts": "concepts" / (orAll maybeConceptPath)
+  , "Concepts": "concepts" / (orAll maybeConceptIdent)
   , "Book": "book" / noArgs
   }

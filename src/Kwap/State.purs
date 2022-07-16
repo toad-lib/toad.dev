@@ -5,6 +5,7 @@ module Kwap.State
   , class LiftState
   , dismissError
   , liftState
+  , lookupDecl
   , error
   , conceptManifest
   , navbarSection
@@ -16,6 +17,7 @@ import Prelude
 
 import Control.Alt ((<|>))
 import Data.Either (Either(..))
+import Data.Foldable (find)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Show.Generic (genericShow)
@@ -71,6 +73,11 @@ kwapGradient (State _ g _ _) = fromMaybe kwapGradientInit g
 
 conceptManifest :: State -> Maybe Concept.Manifest
 conceptManifest (State _ _ m _) = m
+
+lookupDecl :: Concept.Ident -> State -> Maybe Concept.Decl
+lookupDecl ident =
+  (flip bind) (find (eq ident <<< Concept.ident) <<< Concept.decls) <<<
+    conceptManifest
 
 route :: State -> Route.Route
 route (State _ _ _ r) = fromMaybe Route.init r

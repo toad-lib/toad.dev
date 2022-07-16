@@ -22,6 +22,7 @@ import Kwap.State as State
 import Kwap.Style as Style
 import Kwap.Style.Global as Style.Global
 import Routing.Hash (setHash)
+import Type.Proxy (Proxy(..))
 
 newtype M a = M (Aff a)
 
@@ -46,10 +47,18 @@ put
   -> H.HalogenM State.State a s o M Unit
 put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
 
+type Slots = (concepts :: forall q. H.Slot q Page.Concepts.Output Int)
+
+_concepts = Proxy :: Proxy "concepts"
+
 toast :: State.State -> Maybe (T3 Toast.Status String Action)
 toast = State.error >>> map ((Toast.StatusError /\ _) <<< (_ /\ DismissError))
 
-render :: ∀ w. State.State -> HH.HTML w Action
+render
+  :: ∀ m
+   . MonadEffect m
+  => State.State
+  -> HH.HTML (H.ComponentSlot Slots m Action) Action
 render state =
   HH.div_
     [ Style.Global.stylesheet
@@ -69,8 +78,17 @@ render state =
         , case State.route state of
             Route.Home -> HH.div_ []
             Route.Concepts oa ->
-              Page.Concepts.render Grid.inAppContent oa $
-                State.conceptManifest state
+              HH.slot
+                _concepts
+                0
+                Page.Concepts.concepts
+                ( Page.Concepts.Input
+                    { route: oa
+                    , manifest: State.conceptManifest state
+                    , style: Grid.inAppContent
+                    }
+                )
+                ConceptsPageOutput
             Route.Book -> HH.div_ []
         ]
     ]

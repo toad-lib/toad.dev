@@ -47,14 +47,18 @@ headingStyle font' = do
   font font'
   margin nil nil nil nil
 
-a :: forall r w i. Array (IProp I.HTMLa i) -> Route.Route -> String -> HTML w i
+a
+  :: forall r w i
+   . Array (IProp I.HTMLa i)
+  -> Route.Route
+  -> Array (HTML w i)
+  -> HTML w i
 a ps r t = HH.a
   (ps <> [ HP.href <<< append "#" $ Route.print r ])
-  [ HH.text t ]
+  t
 
-a_ :: forall w i. Route.Route -> String -> HTML w i
-a_ route title = HH.a [ HP.href <<< append "#" $ Route.print route ]
-  [ HH.text title ]
+a_ :: forall w i. Route.Route -> Array (HTML w i) -> HTML w i
+a_ r t = HH.a [ HP.href <<< append "#" $ Route.print r ] t
 
 h1_ :: ∀ w i. Array (HTML w i) -> HTML w i
 h1_ = HH.h1
