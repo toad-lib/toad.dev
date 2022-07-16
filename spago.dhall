@@ -9,6 +9,7 @@
   , "control"
   , "css"
   , "datetime"
+  , "dom-indexed"
   , "effect"
   , "either"
   , "exceptions"

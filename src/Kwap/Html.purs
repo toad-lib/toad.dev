@@ -4,6 +4,7 @@ module Kwap.Html
   , withText
   , classNames
   , ClassProp
+  , a
   , a_
   , h1_
   , h2_
@@ -17,11 +18,12 @@ module Kwap.Html
 import Kwap.Css hiding (map)
 import Prelude
 
+import DOM.HTML.Indexed as I
 import Data.Array as Array
 import Halogen (ClassName(..))
 import Halogen.HTML (HTML, IProp)
 import Halogen.HTML as HH
-import Halogen.HTML hiding (a_, h1_, h2_, h3_, h4_, h5_, h6_, map, p_) as X
+import Halogen.HTML hiding (a, a_, h1_, h2_, h3_, h4_, h5_, h6_, map, p_) as X
 import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
 import Kwap.Route as Route
@@ -44,6 +46,11 @@ headingStyle :: forall i r. Font -> CSS
 headingStyle font' = do
   font font'
   margin nil nil nil nil
+
+a :: forall r w i. Array (IProp I.HTMLa i) -> Route.Route -> String -> HTML w i
+a ps r t = HH.a
+  (ps <> [ HP.href <<< append "#" $ Route.print r ])
+  [ HH.text t ]
 
 a_ :: forall w i. Route.Route -> String -> HTML w i
 a_ route title = HH.a [ HP.href <<< append "#" $ Route.print route ]

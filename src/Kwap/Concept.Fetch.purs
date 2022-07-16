@@ -1,4 +1,4 @@
-module Kwap.Concept.Fetch ( manifest ) where
+module Kwap.Concept.Fetch (manifest) where
 
 import Prelude
 
