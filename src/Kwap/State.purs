@@ -75,9 +75,9 @@ conceptManifest :: State -> Maybe Concept.Manifest
 conceptManifest (State _ _ m _) = m
 
 lookupDecl :: Concept.Ident -> State -> Maybe Concept.Decl
-lookupDecl ident =
-  (flip bind) (find (eq ident <<< Concept.ident) <<< Concept.decls) <<<
-    conceptManifest
+lookupDecl ident s = do
+  ds <- Concept.decls <$> conceptManifest s
+  find (eq ident <<< Concept.ident) ds
 
 route :: State -> Route.Route
 route (State _ _ _ r) = fromMaybe Route.init r

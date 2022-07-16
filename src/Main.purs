@@ -112,7 +112,9 @@ handleAction =
     Kwap.Action.ConceptsPageOutput (Kwap.Page.Concepts.FetchConcept ident) -> do
       mp <- map (Kwap.State.lookupDecl ident) $ H.get
       one <-
-        H.liftAff <<< sequence <<< map
-          (Concept.Fetch.one windowFetch <<< Concept.path) $ mp
+        H.liftAff
+          <<< sequence
+          <<< map (Concept.Fetch.one windowFetch <<< Concept.path)
+          $ mp
       H.liftEffect <<< Console.log <<< show $ one
       pure unit

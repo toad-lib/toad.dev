@@ -74,8 +74,10 @@ handleAction
   -> H.HalogenM Input Action () Output m Unit
 handleAction =
   let
-    fetchIfNeeded = maybe mempty (H.raise <<< FetchConcept) <<< Route.maybeOne
-      <<< route
+    fetchIfNeeded =
+      maybe mempty (H.raise <<< FetchConcept)
+        <<< Route.maybeOne
+        <<< route
   in
     case _ of
       Init -> fetchIfNeeded =<< H.get
