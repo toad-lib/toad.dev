@@ -21,6 +21,7 @@
   , "halogen-subscriptions"
   , "integers"
   , "kwap-rs"
+  , "lists"
   , "maybe"
   , "newtype"
   , "now"
@@ -37,6 +38,7 @@
   , "tailrec"
   , "transformers"
   , "tuples"
+  , "unordered-collections"
   , "yoga-fetch"
   ]
 , packages = ./packages.dhall

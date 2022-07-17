@@ -3,12 +3,13 @@ module Main where
 import Prelude
 
 import Control.Monad.Rec.Class (forever)
-import Data.Bifunctor (lmap)
-import Data.Either (Either, blush)
+import Data.Bifunctor (lmap, rmap)
+import Data.Either (Either, blush, note)
 import Data.Foldable (find)
+import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
-import Data.Traversable (sequence)
+import Data.Traversable (sequence, traverse)
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
@@ -23,11 +24,14 @@ import Kwap.App as Kwap
 import Kwap.Concept as Concept
 import Kwap.Concept.Fetch as Concept.Fetch
 import Kwap.Css as Kwap.Css
+import Kwap.Error as Kwap.Error
+import Kwap.Markdown as Md
 import Kwap.Navigate (navigate)
 import Kwap.Page.Concepts as Kwap.Page.Concepts
 import Kwap.Query as Kwap.Query
 import Kwap.Route as Kwap.Route
 import Kwap.State as Kwap.State
+import Parsing (runParser)
 import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
 
@@ -94,8 +98,10 @@ handleAction =
         <<< left
         $ conceptManifest
 
-      Kwap.put $ lmap (const "An error occurred fetching concepts.")
-        conceptManifest
+      Kwap.handleError
+        <<< lmap Kwap.Error.fetchingManifest
+        <<< rmap Kwap.put
+        $ conceptManifest
 
     Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
 
@@ -110,11 +116,24 @@ handleAction =
     Kwap.Action.Nop -> mempty
 
     Kwap.Action.ConceptsPageOutput (Kwap.Page.Concepts.FetchConcept ident) -> do
-      mp <- map (Kwap.State.lookupDecl ident) $ H.get
-      one <-
-        H.liftAff
-          <<< sequence
-          <<< map (Concept.Fetch.one windowFetch <<< Concept.path)
-          $ mp
-      H.liftEffect <<< Console.log <<< show $ one
-      pure unit
+      let
+        fetchConcept = H.liftAff <<< Concept.Fetch.one windowFetch <<<
+          Concept.path
+      let
+        tryParseConcept =
+          (flip bind)
+            ( lmap Kwap.Error.parsingConcept
+                <<< lmap show
+                <<< (flip runParser) Md.documentP
+            )
+
+      bind H.get $
+        (flip bind)
+          ( Kwap.handleError
+              <<< rmap (Kwap.put <<< (flip $ Map.insert ident) Map.empty)
+              <<< tryParseConcept
+          )
+          <<< traverse fetchConcept
+          <<< lmap Kwap.Error.lookingUpRouteConcept
+          <<< note ("concept " <> show ident <> " not found")
+          <<< Kwap.State.lookupDecl ident

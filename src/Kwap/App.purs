@@ -1,16 +1,22 @@
-module Kwap.App (M, runM, put, render) where
+module Kwap.App (M, runM, put, render, handleError) where
 
 import Prelude
 
+import Data.Either (Either(..))
+import Data.Map as Map
 import Data.Maybe (Maybe)
+import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (T3, (/\))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
+import Effect.Console as Console
+import Halogen (HalogenM(..))
 import Halogen as H
 import Kwap.Action (Action(..))
 import Kwap.Css as Css
 import Kwap.Css.Grid as Grid
+import Kwap.Error (Error)
 import Kwap.Html as HH
 import Kwap.Layout (AppLayout(..))
 import Kwap.Navbar as Navbar
@@ -41,11 +47,24 @@ instance navigateM :: Navigate M where
   navigate = liftEffect <<< setHash <<< Route.print
 
 put
-  :: ∀ a s o sp
+  :: ∀ a s o m sp
    . State.LiftState sp
+  => Monad m
   => sp
-  -> H.HalogenM State.State a s o M Unit
+  -> H.HalogenM State.State a s o m Unit
 put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
+
+handleError
+  :: forall a s o m
+   . Monad m
+  => MonadEffect m
+  => Either Error (HalogenM State.State a s o m Unit)
+  -> HalogenM State.State a s o m Unit
+handleError (Right a) = a
+handleError (Left (Tuple i u)) = do
+  liftEffect <<< Console.error $ i
+  put u
+  pure unit
 
 type Slots = (concepts :: forall q. H.Slot q Page.Concepts.Output Int)
 
@@ -83,9 +102,15 @@ render state =
                 0
                 Page.Concepts.concepts
                 ( Page.Concepts.Input
-                    { route: oa
+                    { hash:
+                        [ State.routeHash
+                        , State.conceptManifestHash
+                        , State.conceptsHash
+                        ] <*> [ state ]
+                    , route: oa
                     , manifest: State.conceptManifest state
                     , style: Grid.inAppContent
+                    , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )
                 ConceptsPageOutput

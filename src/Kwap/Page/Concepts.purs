@@ -11,27 +11,29 @@ import Halogen as H
 import Kwap.Concept (Ident, Manifest)
 import Kwap.Css as Css
 import Kwap.Html as HH
+import Kwap.Markdown as Md
 import Kwap.Page.Concepts.All as Self.All
 import Kwap.Page.Concepts.One as Self.One
 import Kwap.Route as Route
 
 newtype Input = Input
-  { style :: Css.CSS
+  { hash :: Array Int
+  , style :: Css.CSS
   , route :: Route.OneOrAll Ident
   , manifest :: Maybe Manifest
+  , lookupDocument :: Ident -> Maybe Md.Document
   }
 
 instance eqInput :: Eq Input where
-  eq (Input { route: ra, manifest: ma }) (Input { route: rb, manifest: mb }) =
-    ra == rb && ma == mb
+  eq (Input { hash: ha }) (Input { hash: hb }) = ha == hb
 
 instance showInput :: Show Input where
-  show (Input { route: r, manifest: m }) =
+  show (Input { hash: h, route: r, manifest: m }) =
     joinWith "\n"
-      [ "Input { route: "
-      , show r
-      , "      , manifest: "
-      , show m
+      [ "Input { hash: " <> show h
+      , "      , route: " <> show r
+      , "      , manifest: " <> show m
+      , "      , lookupDocument: <Ident -> Maybe Md.Document>"
       , "      , style: <Css.CSS>"
       , "      }"
       ]
@@ -44,6 +46,9 @@ style (Input { style: s }) = s
 
 manifest :: Input -> Maybe Manifest
 manifest (Input { manifest: m }) = m
+
+lookupDocument :: Input -> Ident -> Maybe Md.Document
+lookupDocument (Input { lookupDocument: l }) = l
 
 data Output = FetchConcept Ident
 
@@ -64,8 +69,9 @@ render
   :: ∀ w
    . Input
   -> HH.HTML w Action
-render (Input { style: x, route: Route.One _ }) = Self.One.render x Nothing
-render (Input { style: x, route: Route.All, manifest: m }) = Self.All.render x m
+render i@(Input { route: Route.One id }) = Self.One.render (style i)
+  (lookupDocument i id)
+render i = Self.All.render (style i) (manifest i)
 
 handleAction
   :: forall m

@@ -14,6 +14,7 @@ import Data.BooleanAlgebra (not)
 import Data.Either (Either)
 import Data.Filterable (filter)
 import Data.Generic.Rep (class Generic)
+import Data.Hashable (class Hashable, hash)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
@@ -60,6 +61,12 @@ data Route
   = Home
   | Concepts (OneOrAll Concept.Ident)
   | Book
+
+instance hashRoute :: Hashable Route where
+  hash Home = 100
+  hash (Concepts (One ident)) = hash ident
+  hash (Concepts All) = 101
+  hash Book = 102
 
 derive instance genericRoute :: Generic Route _
 derive instance eqRoute :: Eq Route
