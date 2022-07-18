@@ -8,12 +8,7 @@ module Kwap.Error
 
 import Prelude
 
-import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
-import Effect.Class (class MonadEffect, liftEffect)
-import Effect.Console (error)
-import Halogen (HalogenM(..))
 
 newtype ErrorMessage = ErrorMessage String
 
@@ -31,7 +26,7 @@ fetchingManifest = addHumanErrorMessage
 
 lookingUpRouteConcept :: String -> Error
 lookingUpRouteConcept = addHumanErrorMessage
-  "Couldn't find Concept in URL! This is probably not a bug."
+  "Concept not found!"
 
 parsingConcept :: String -> Error
 parsingConcept = addHumanErrorMessage

@@ -43,6 +43,11 @@ data FontFamily
   | InterSemibold
   | InterBold
   | InterExtraBold
+  | AbrilFatface
+  | AtkinsonBold
+  | AtkinsonMedium
+  | LibreBaskervilleItalic
+  | LibreBaskervilleBold
 
 data Font = Font FontFamily FontSize
 
@@ -56,6 +61,11 @@ weight = case _ of
   InterExtraBold -> ExtraBold
   StokeMedium -> Light
   StokeBold -> Semibold
+  AbrilFatface -> Medium
+  AtkinsonMedium -> Medium
+  AtkinsonBold -> Bold
+  LibreBaskervilleBold -> Bold
+  LibreBaskervilleItalic -> Medium
 
 cssFontFamily :: FontFamily -> Css.CSS
 cssFontFamily =
@@ -63,11 +73,15 @@ cssFontFamily =
     fallback = pure >>> NEA.toNonEmpty
 
     inter = Css.fontFamily (pure "Inter var") (fallback Css.Font.sansSerif)
-
     stoke = Css.fontFamily (pure "Stoke") (fallback Css.Font.serif)
+    abril = Css.fontFamily (pure "Abril Fatface") (fallback Css.Font.serif)
+    atkinson = Css.fontFamily (pure "Atkinson Hyperlegible")
+      (fallback Css.Font.sansSerif)
+    libreBaskerville = Css.fontFamily (pure "Libre Baskerville")
+      (fallback Css.Font.serif)
   in
     case _ of
-      FontFamilyDefault -> cssFontFamily InterMedium
+      FontFamilyDefault -> cssFontFamily AtkinsonMedium
       InterLight -> inter
       InterMedium -> inter
       InterSemibold -> inter
@@ -75,6 +89,11 @@ cssFontFamily =
       InterExtraBold -> inter
       StokeMedium -> stoke
       StokeBold -> stoke
+      AbrilFatface -> abril
+      AtkinsonBold -> atkinson
+      AtkinsonMedium -> atkinson
+      LibreBaskervilleItalic -> libreBaskerville
+      LibreBaskervilleBold -> libreBaskerville
 
 cssFontWeight :: FontWeight -> Css.CSS
 cssFontWeight = case _ of
@@ -91,12 +110,12 @@ cssFontSize =
       FontSizeDefault -> pt FontSizeBody
       FontSizeSmall -> 8.0
       FontSizeH6 -> 10.0
-      FontSizeBody -> 14.0
+      FontSizeBody -> 16.0
       FontSizeH5 -> 12.0
-      FontSizeH4 -> 14.0
-      FontSizeH3 -> 16.0
-      FontSizeH2 -> 24.0
-      FontSizeH1 -> 32.0
+      FontSizeH4 -> 16.0
+      FontSizeH3 -> 24.0
+      FontSizeH2 -> 32.0
+      FontSizeH1 -> 42.0
   in
     pt >>> Css.pt >>> Css.fontSize
 

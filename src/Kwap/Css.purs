@@ -2,6 +2,7 @@ module Kwap.Css
   ( MaskComposite(..)
   , MaskMode(..)
   , anySize
+  , definedIn
   , mask
   , style
   , refinements
@@ -42,6 +43,9 @@ import Halogen.HTML.Elements as HE
 import Halogen.HTML.Properties as HP
 import Kwap.Css.Color as X
 import Kwap.Css.Font as X
+
+definedIn :: String -> Css.CSS
+definedIn = Css.key (Css.Key <<< Css.Plain $ "--defined-in")
 
 kwapEasing :: Css.Transition.TimingFunction
 kwapEasing = Css.Transition.cubicBezier 0.25 1.0 0.5 1.0

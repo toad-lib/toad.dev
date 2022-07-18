@@ -67,14 +67,15 @@ selectedRules :: CSS
 selectedRules = do
   containerHoverRules
   select (Sel.star `Sel.with` Sel.byClass textClass) do
-    headingStyle $ font' <> fontSize FontSizeH1 <> fontFamily InterExtraBold
+    headingStyle $ font' <> fontSize FontSizeH2 <> fontFamily InterExtraBold
     color $ Yellow Lightest
 
 font' :: Font
-font' = mempty <> fontFamily InterBold <> fontSize FontSizeH2
+font' = mempty <> fontFamily InterBold <> fontSize FontSizeH3
 
 containerRules :: CSS
 containerRules = do
+  definedIn "Kwap.Navbar.Button.Style"
   border solid (rem 1.0) (cssColor $ Yellow Lightest)
   cursor Css.Cursor.Pointer
   display flex
@@ -83,6 +84,7 @@ containerRules = do
   transition "border" (Time.ms 100.0) kwapEasing (Time.ms 0.0)
 
   select (Sel.star `Sel.with` Sel.byClass textClass) do
+    definedIn "Kwap.Navbar.Button.Style"
     prefixed (Css.Common.browsers <> Plain "user-select") "none"
     headingStyle font'
     color $ Yellow Lightest
@@ -90,12 +92,15 @@ containerRules = do
 
 containerHoverRules :: CSS
 containerHoverRules = do
+  definedIn "Kwap.Navbar.Button.Style"
   border solid (rem 0.25) (cssColor $ Yellow Lightest)
 
 containerClickRules :: CSS
 containerClickRules = do
+  definedIn "Kwap.Navbar.Button.Style"
   transition "border" (Time.ms 50.0) kwapEasing (Time.ms 0.0)
   border solid (rem 0.5) (cssColor $ Yellow Lightest)
 
   select (Sel.star `Sel.with` Sel.byClass textClass) do
+    definedIn "Kwap.Navbar.Button.Style"
     transition "font-weight" (Time.ms 50.0) kwapEasing (Time.ms 0.0)

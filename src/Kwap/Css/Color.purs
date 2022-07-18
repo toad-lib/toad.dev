@@ -58,7 +58,7 @@ shadify = case _ of
   Light -> Css.Color.lighten 0.25 >>> Css.Color.saturate (0.2)
   Medium -> identity
   Dark -> Css.Color.darken 0.2 >>> Css.Color.saturate 0.2
-  Darkest -> Css.Color.darken 0.4 >>> Css.Color.saturate 0.4
+  Darkest -> Css.Color.darken 0.35 >>> Css.Color.saturate 0.2
 
 hue :: Color -> Number
 hue = case _ of

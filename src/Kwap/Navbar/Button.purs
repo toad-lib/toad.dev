@@ -28,5 +28,5 @@ render a state text extra = HH.div
       ]
   , HE.onClick (\_ -> a)
   ]
-  [ HH.withText (flip HH.h1) text [ HH.classNames [ Style.textClass ] ]
+  [ HH.withText (flip HH.h2) text [ HH.classNames [ Style.textClass ] ]
   ]
