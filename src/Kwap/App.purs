@@ -14,13 +14,12 @@ import Effect.Console as Console
 import Halogen (HalogenM(..))
 import Halogen as H
 import Kwap.Action (Action(..))
+import Kwap.Atom.Cloud as Atom.Cloud
 import Kwap.Css as Css
 import Kwap.Css.Grid as Grid
 import Kwap.Error (Error)
 import Kwap.Html as HH
 import Kwap.Layout (AppLayout(..))
-import Kwap.Navbar as Navbar
-import Kwap.Navbar.Toast as Toast
 import Kwap.Navigate (class Navigate)
 import Kwap.Page.Concepts as Page.Concepts
 import Kwap.Route as Route
@@ -70,9 +69,6 @@ type Slots = (concepts :: forall q. H.Slot q Page.Concepts.Output Int)
 
 _concepts = Proxy :: Proxy "concepts"
 
-toast :: State.State -> Maybe (T3 Toast.Status String Action)
-toast = State.error >>> map ((Toast.StatusError /\ _) <<< (_ /\ DismissError))
-
 render
   :: ∀ m
    . MonadEffect m
@@ -81,21 +77,13 @@ render
 render state =
   HH.div_
     [ Style.Global.stylesheet
-    , HH.div
-        [ Css.style $ Style.appBackground $ State.kwapGradient state
-        ]
-        []
+    , HH.div [] []
     , HH.div
         [ Css.style Style.appWrap
         ]
-        [ HH.div
-            [ Css.style Style.navbarWrap
-            ]
-            [ Navbar.render (toast state) NavbarSectionPicked AppLayoutDesktop
-                (State.navbarSection state)
-            ]
+        [ HH.div [ Css.style Style.navbarWrap ] []
         , case State.route state of
-            Route.Home -> HH.div_ []
+            Route.Home -> HH.div_ [ Atom.Cloud.render_ ]
             Route.Concepts oa ->
               HH.slot
                 _concepts

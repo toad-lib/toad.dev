@@ -28,5 +28,11 @@ instance polarPos :: Polar Pos where
   angle (Pos (Tuple _ a)) = a
   make r a = Pos $ Tuple r a
 
+makePos :: Number -> Radians -> Pos
+makePos = make
+
 modifyAngle :: (Radians -> Radians) -> Pos -> Pos
-modifyAngle f p = make (radius p) (f <<< angle $ p)
+modifyAngle f p = make (radius p) (f $ angle p)
+
+modifyRadius :: (Number -> Number) -> Pos -> Pos
+modifyRadius f p = make (f $ radius p) (angle p)

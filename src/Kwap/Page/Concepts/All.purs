@@ -19,7 +19,7 @@ conceptLink c = HH.a
   (pure <<< HH.text <<< C.titleString <<< C.title $ c)
 
 render :: ∀ w i. Css.CSS -> Maybe C.Manifest -> HH.HTML w i
-render x Nothing = HH.div [ style x ] [ HH.h1_ `HH.withText` "Loading..." ]
+render x Nothing = HH.div [ style x ] [ HH.h3_ `HH.withText` "Loading..." ]
 render x (Just m) =
   HH.div
     [ style do

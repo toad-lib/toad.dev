@@ -3,13 +3,12 @@ module Kwap.Action where
 import Prelude
 
 import Data.Foldable (class Foldable, foldl)
-import Kwap.Navbar as Navbar
 import Kwap.Page.Concepts as Page.Concepts
 
 data Action
   = Nop
   | Init
-  | NavbarSectionPicked Navbar.Section
+  | NavbarSectionPicked
   | Tick
   | DismissError
   | ConceptsPageOutput Page.Concepts.Output

@@ -7,6 +7,8 @@ module Kwap.Css
   , style
   , refinements
   , kwapEasing
+  , backgroundColor
+  , color
   , module X
   ) where
 
@@ -29,20 +31,29 @@ import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
 import CSS.Transition as Css.Transition
 import Data.Array as Array
-import Data.Either (Either(..))
+import Data.Either (Either)
 import Data.Foldable (foldMap, foldl)
-import Data.Map as Map
-import Data.Maybe (Maybe(..), maybe)
-import Data.Profunctor.Strong (second)
+import Data.Maybe (Maybe(..))
 import Data.String as String
-import Data.Tuple (Tuple(..), snd)
-import Data.Tuple.Nested ((/\))
-import Halogen.HTML as HH
+import Data.Tuple (Tuple(..))
 import Halogen.HTML.Core as HC
-import Halogen.HTML.Elements as HE
 import Halogen.HTML.Properties as HP
-import Kwap.Css.Color as X
-import Kwap.Css.Font as X
+import Kwap.Css.Color (Color(..)) as X
+import Kwap.Css.Color as Color
+import Kwap.Css.Font
+  ( Font(..)
+  , FontFamily(..)
+  , FontSize(..)
+  , font
+  , fontFamily
+  , fontSize
+  ) as X
+
+color :: X.Color -> X.CSS
+color = Color.color >>> Css.color
+
+backgroundColor :: X.Color -> X.CSS
+backgroundColor = Color.color >>> Css.backgroundColor
 
 definedIn :: String -> Css.CSS
 definedIn = Css.key (Css.Key <<< Css.Plain $ "--defined-in")

@@ -19,6 +19,7 @@
   , "halogen"
   , "halogen-css"
   , "halogen-subscriptions"
+  , "halogen-svg-elems"
   , "integers"
   , "kwap-rs"
   , "lists"
