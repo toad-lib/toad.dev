@@ -2,6 +2,7 @@ module Kwap.Css
   ( MaskComposite(..)
   , MaskMode(..)
   , anySize
+  , backgroundColor'
   , definedIn
   , mask
   , style
@@ -26,6 +27,7 @@ import CSS hiding
   , fontWeight
   ) as X
 import CSS.Common as Css.Common
+import CSS.Color as Css.Color
 import CSS.Render as Css.Render
 import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
@@ -51,6 +53,9 @@ import Kwap.Css.Font
 
 color :: X.Color -> X.CSS
 color = Color.color >>> Css.color
+
+backgroundColor' :: Css.Color -> X.CSS
+backgroundColor' = Css.backgroundColor
 
 backgroundColor :: X.Color -> X.CSS
 backgroundColor = Color.color >>> Css.backgroundColor

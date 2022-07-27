@@ -2,6 +2,8 @@ module Kwap.App (M, runM, put, render, handleError) where
 
 import Prelude
 
+import Data.Color.OkLab as OkLab
+import Data.Coord.Polar (Degrees(..))
 import Data.Either (Either(..))
 import Data.Map as Map
 import Data.Maybe (Maybe)
@@ -81,7 +83,14 @@ render state =
     , HH.div
         [ Css.style Style.appWrap
         ]
-        [ HH.div [ Css.style Style.navbarWrap ] []
+        [ HH.div [ Css.style Style.navbarWrap ] [
+          HH.div [
+            Css.style do
+              Css.height $ Css.px 100.0
+              Css.width $ Css.px  100.0
+              Css.backgroundColor' <<< OkLab.css $ OkLab.lch 0.64 0.097 (Degrees 0.0)
+          ] []
+        ]
         , case State.route state of
             Route.Home -> HH.div_ [ Atom.Cloud.render_ ]
             Route.Concepts oa ->

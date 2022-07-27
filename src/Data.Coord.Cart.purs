@@ -2,7 +2,7 @@ module Data.Coord.Cart where
 
 import Prelude
 
-import Data.Coord.Polar (class Polar, Radians(..), angle, rad, radius)
+import Data.Coord.Polar (class Polar, Radians(..), angle, radiansFloat, radius)
 import Data.Coord.Polar as Polar
 import Data.Generic.Rep (class Generic)
 import Data.Number (atan2, cos, pow, sin, sqrt)
@@ -21,13 +21,13 @@ y :: forall f. Cartesian f => f -> Number
 y = coords >>> snd
 
 fromPolar :: forall p c. Polar p => Cartesian c => p -> c
-fromPolar p = make (radius p * (cos <<< rad <<< angle $ p))
-  (radius p * (sin <<< rad <<< angle $ p))
+fromPolar p = make (radius p * (cos <<< radiansFloat <<< angle $ p))
+  (radius p * (sin <<< radiansFloat <<< angle $ p))
 
 toPolar :: forall p c. Polar p => Cartesian c => c -> p
 toPolar f =
   let
-    toPolar' (Tuple x y) = Polar.make (magnitude f) (Radians $ atan2 y x)
+    toPolar' (Tuple x' y') = Polar.make (magnitude f) (Radians $ atan2 y' x')
   in
     toPolar' $ coords f
 

@@ -5,6 +5,7 @@ module Data.Color.OkLab
   , L(..)
   , A(..)
   , B(..)
+  , css
   , lch
   , lightness
   , chroma
@@ -19,13 +20,15 @@ module Data.Color.OkLab
   , setHue
   , shiftHue
   , toRgb
-  , toCie1931
+  , toCieXyz
   ) where
 
 import Data.Fist
 import Prelude
 
-import Data.Color.Cie1931 as Cie1931
+import CSS as Css
+import CSS.Color as Css.Color
+import Data.Color.Cie1931 as C
 import Data.Color.Rgb as Rgb
 import Data.Coord.Cart as Cartesian
 import Data.Coord.Polar as Polar
@@ -108,8 +111,8 @@ chroma = Polar.radius <<< polar
 hue :: Lab -> Polar.Radians
 hue = Polar.angle <<< polar
 
-lch :: Number -> Number -> Polar.Radians -> Lab
-lch l c h = ofPolar l (Polar.make c h)
+lch :: forall a. Polar.Angle a => Number -> Number -> a -> Lab
+lch l c h = ofPolar l (Polar.make c (Polar.toRadians h))
 
 m1 :: Mat.M3x3 Number
 m1 = Mat.M3x3
@@ -141,8 +144,8 @@ m1i = unsafePartial fromJust $ Mat.inverse3x3 m1
 m2i :: Mat.M3x3 Number
 m2i = unsafePartial fromJust $ Mat.inverse3x3 m2
 
-toCie1931 :: Lab -> Cie1931.Xyz
-toCie1931 (Lab (L l) (A a) (B b)) =
+toCieXyz :: Lab -> C.Xyz
+toCieXyz (Lab (L l) (A a) (B b)) =
   let
     lms = m2i `Mat.mul3x3_1x3` (Mat.M1x3 l a b)
     xyz = case lms of
@@ -150,7 +153,10 @@ toCie1931 (Lab (L l) (A a) (B b)) =
         (Mat.M1x3 (pow l' 3.0) (pow m' 3.0) (pow s' 3.0))
   in
     case xyz of
-      Mat.M1x3 x y z -> Cie1931.Xyz (Cie1931.X x) (Cie1931.Y y) (Cie1931.Z z)
+      Mat.M1x3 x y z -> C.Xyz (C.X x) (C.Y y) (C.Z z)
 
 toRgb :: Lab -> Rgb.Rgb
-toRgb = toCie1931 >>> Cie1931.toRgb
+toRgb = toCieXyz >>> C.toRgb
+
+css :: Lab -> Css.Color.Color
+css = toRgb >>> (case _ of (Rgb.Rgb (Rgb.R r) (Rgb.G g) (Rgb.B b)) -> Css.Color.rgb' r g b)
