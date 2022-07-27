@@ -1,3 +1,5 @@
+--| https://bottosson.github.io/posts/oklab/
+
 module Data.Color.OkLab
   ( Lab(..)
   , L(..)
@@ -17,20 +19,46 @@ module Data.Color.OkLab
   , setHue
   , shiftHue
   , toRgb
+  , toCie1931
   ) where
 
+import Data.Fist
 import Prelude
 
+import Data.Color.Cie1931 as Cie1931
 import Data.Color.Rgb as Rgb
 import Data.Coord.Cart as Cartesian
 import Data.Coord.Polar as Polar
+import Data.Generic.Rep (class Generic)
+import Data.Mat as Mat
+import Data.Maybe (fromJust)
 import Data.Number (pow)
+import Data.Show.Generic (genericShow)
+import Partial.Unsafe (unsafePartial)
 
 newtype L = L Number
+
+derive instance genericL :: Generic L _
+instance showL :: Show L where
+  show = genericShow
+
 newtype A = A Number
+
+derive instance genericA :: Generic A _
+instance showA :: Show A where
+  show = genericShow
+
 newtype B = B Number
 
+derive instance genericB :: Generic B _
+instance showB :: Show B where
+  show = genericShow
+
 data Lab = Lab L A B
+
+derive instance genericLab :: Generic Lab _
+instance showLab :: Show Lab where
+  show = genericShow
 
 polar :: Lab -> Polar.Pos
 polar (Lab _ (A a) (B b)) = Cartesian.toPolar $
@@ -83,17 +111,46 @@ hue = Polar.angle <<< polar
 lch :: Number -> Number -> Polar.Radians -> Lab
 lch l c h = ofPolar l (Polar.make c h)
 
---| https://bottosson.github.io/posts/oklab/
-toRgb :: Lab -> Rgb.Rgb
-toRgb (Lab (L l') (A a) (B b)) =
+m1 :: Mat.M3x3 Number
+m1 = Mat.M3x3
+  0.8189330101
+  0.3618667424
+  (-0.1288597137)
+  0.0329845436
+  0.9293118715
+  0.0361456387
+  0.0482003018
+  0.2643662691
+  0.6338517070
+
+m2 :: Mat.M3x3 Number
+m2 = Mat.M3x3
+  0.2104542553
+  0.7936177850
+  (-0.0040720468)
+  1.9779984951
+  (-2.4285922050)
+  0.4505937099
+  0.0259040371
+  0.7827717662
+  (-0.8086757660)
+
+m1i :: Mat.M3x3 Number
+m1i = unsafePartial fromJust $ Mat.inverse3x3 m1
+
+m2i :: Mat.M3x3 Number
+m2i = unsafePartial fromJust $ Mat.inverse3x3 m2
+
+toCie1931 :: Lab -> Cie1931.Xyz
+toCie1931 (Lab (L l) (A a) (B b)) =
   let
-    -- THE NUMBERS, WHAT DO THEY MEAN!?
-    pow' = flip pow
-    l = pow' 3.0 $ l' + (0.3963377774 * a) + (0.2158037573 * b)
-    m = pow' 3.0 $ l' - (0.1055613458 * a) - (0.0638541728 * b)
-    s = pow' 3.0 $ l' - (0.0894841775 * a) - (1.2914855480 * b)
-    red = (4.0767416621 * l) - (3.3077115913 * m) + (0.2309699292 * s)
-    grn = (-1.2684380046 * l) + (2.6097574011 * m) - (0.3413193965 * s)
-    blu = (-0.0041960863 * l) - (0.7034186147 * m) + (1.7076147010 * s)
+    lms = m2i `Mat.mul3x3_1x3` (Mat.M1x3 l a b)
+    xyz = case lms of
+      Mat.M1x3 l' m' s' -> m1i `Mat.mul3x3_1x3`
+        (Mat.M1x3 (pow l' 3.0) (pow m' 3.0) (pow s' 3.0))
   in
-    Rgb.Rgb (Rgb.R red) (Rgb.G grn) (Rgb.B blu)
+    case xyz of
+      Mat.M1x3 x y z -> Cie1931.Xyz (Cie1931.X x) (Cie1931.Y y) (Cie1931.Z z)
+
+toRgb :: Lab -> Rgb.Rgb
+toRgb = toCie1931 >>> Cie1931.toRgb
