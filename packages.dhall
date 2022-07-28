@@ -139,7 +139,7 @@ in  upstream
               , "tuples"
               ]
           , repo = "https://github.com/clov-coffee/purescript-kwap-rs"
-          , version = "c4c176a"
+          , version = "985142c23e9f9237ea8ebd25b21c4cb1e69700ee"
           }
    with unordered-collections =
           { dependencies =
