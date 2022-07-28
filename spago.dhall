@@ -1,4 +1,4 @@
-{ name = "kwap-rs-halogen"
+{ name = "toad-dev-halogen"
 , dependencies =
   [ "aff"
   , "argonaut-core"
@@ -21,7 +21,7 @@
   , "halogen-subscriptions"
   , "halogen-svg-elems"
   , "integers"
-  , "kwap-rs"
+  , "toad-dev"
   , "lists"
   , "maybe"
   , "newtype"

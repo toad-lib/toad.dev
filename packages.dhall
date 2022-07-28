@@ -121,7 +121,7 @@ let upstream =
       https://github.com/purescript/package-sets/releases/download/psc-0.15.2-20220615/packages.dhall
         sha256:6b62a899c22125a2735a7c354bbb66a2fe24ff45cec0a8b8b890769a01a99210
 in  upstream
-  with kwap-rs =
+  with toad-dev =
           { dependencies =
               [ "aff"
               , "arrays"
@@ -138,7 +138,7 @@ in  upstream
               , "transformers"
               , "tuples"
               ]
-          , repo = "https://github.com/clov-coffee/purescript-kwap-rs"
+          , repo = "https://github.com/clov-coffee/toad.dev-purs"
           , version = "985142c23e9f9237ea8ebd25b21c4cb1e69700ee"
           }
    with unordered-collections =
