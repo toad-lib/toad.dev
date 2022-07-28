@@ -24,4 +24,4 @@ global =
 typeRules :: CSS
 typeRules = do
   definedIn "Kwap.Css.Font.Style"
-  color $ Purple Darkest
+  color Black

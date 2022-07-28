@@ -8,6 +8,7 @@ prod
 .parcel-cache
 .spago
 .psc-ide*
+.psci_modules
 
 *.exe
 *.obj

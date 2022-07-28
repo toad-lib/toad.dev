@@ -103,13 +103,9 @@ handleAction =
         <<< rmap Kwap.put
         $ conceptManifest
 
-    Kwap.Action.NavbarSectionPicked n -> navigate (Kwap.Route.ofNavbarSection n)
+    Kwap.Action.NavbarSectionPicked -> mempty -- navigate (Kwap.Route.ofNavbarSection n)
 
-    Kwap.Action.Tick ->
-      Kwap.put
-        <<< Kwap.Css.tick
-        <<< Kwap.State.kwapGradient
-        =<< H.get
+    Kwap.Action.Tick -> mempty
 
     Kwap.Action.DismissError -> H.put =<< H.modify Kwap.State.dismissError
 

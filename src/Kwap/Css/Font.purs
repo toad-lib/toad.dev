@@ -115,7 +115,7 @@ cssFontSize =
       FontSizeH4 -> 16.0
       FontSizeH3 -> 24.0
       FontSizeH2 -> 32.0
-      FontSizeH1 -> 42.0
+      FontSizeH1 -> 48.0
   in
     pt >>> Css.pt >>> Css.fontSize
 
