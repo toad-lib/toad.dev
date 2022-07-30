@@ -1,85 +1,16 @@
 module Toad.Css.Grid
-  ( GridCol(..)
-  , GridRow(..)
-  , AppGridArea(..)
-  , grid
-  , gridArea
-  , appGrid
+  ( appGrid
   , inAppContent
   , inAppNavbar
   ) where
 
-import Data.Fist
+import Data.Fist (fist1, fist2)
 import Prelude
 
 import CSS.Common as Css.Common
-import Data.Array as Array
-import Data.Foldable (class Foldable, foldl, intercalate)
-import Data.Functor (class Functor)
-import Data.String as String
+import Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
 import Toad.Css as Css
 import Toad.Layout (AppLayout(..))
-
-newtype GridCol s = GridCol (Css.Size s)
-
-columnSize :: forall s. GridCol s -> Css.Size s
-columnSize (GridCol s) = s
-
-data GridRow :: (Type -> Type) -> Type -> Type -> Type
-data GridRow t a s = GridRow (Css.Size s) (t a)
-
-rowMembers :: ∀ t a s. Fist t => GridRow t a s -> t a
-rowMembers (GridRow _ t) = t
-
-rowSize :: ∀ t a s. Fist t => GridRow t a s -> Css.Size s
-rowSize (GridRow s _) = s
-
-gridArea :: ∀ a. (a -> String) -> a -> Css.CSS
-gridArea f = f >>> Css.key (Css.fromString "grid-area")
-
-grid
-  :: ∀ t f a s
-   . Fist t
-  => Functor f
-  => Foldable f
-  => t (GridCol s)
-  -> f (GridRow t a s)
-  -> (a -> String)
-  -> Css.CSS
-grid columns rows label =
-  let
-    templateRows = rows
-      <#> rowSize
-      # Array.fromFoldable
-      # Css.noCommas
-
-    templateColumns = columns
-      # arrayOf
-      <#> columnSize
-      # Css.noCommas
-    template = rows
-      <#> rowMembers
-        >>> arrayOf
-        >>> map label
-        >>> intercalate " "
-        >>> append "\""
-        >>> flip append "\""
-        >>> Css.value
-      # Array.fromFoldable
-      # Css.noCommas
-  in
-    do
-      Css.display Css.grid
-
-      (Css.fromString >>> Css.key)
-        "grid-template-areas"
-        template
-      (Css.fromString >>> Css.key)
-        "grid-template-rows"
-        templateRows
-      (Css.fromString >>> Css.key)
-        "grid-template-columns"
-        templateColumns
 
 data AppGridArea
   = AppGridNavbar

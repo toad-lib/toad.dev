@@ -4,7 +4,7 @@ import Prelude
 
 --| Fixed-Capacity List
 class Fist t where
-  arrayOf :: ∀ a. t a -> Array a
+  toArray :: ∀ a. t a -> Array a
 
 data Fist1 a = Fist1 a
 data Fist2 a = Fist2 a (Fist1 a)
@@ -48,31 +48,31 @@ fist10 :: ∀ a. a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Fist10 a
 fist10 a b c d e f g h i = fist9 b c d e f g h i >>> Fist10 a
 
 instance ft1Fixed :: Fist Fist1 where
-  arrayOf (Fist1 a) = [ a ]
+  toArray (Fist1 a) = [ a ]
 
 instance ft2Fixed :: Fist Fist2 where
-  arrayOf (Fist2 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist2 a rest) = [ a ] <> toArray rest
 
 instance ft3Fixed :: Fist Fist3 where
-  arrayOf (Fist3 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist3 a rest) = [ a ] <> toArray rest
 
 instance ft4Fixed :: Fist Fist4 where
-  arrayOf (Fist4 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist4 a rest) = [ a ] <> toArray rest
 
 instance ft5Fixed :: Fist Fist5 where
-  arrayOf (Fist5 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist5 a rest) = [ a ] <> toArray rest
 
 instance ft6Fixed :: Fist Fist6 where
-  arrayOf (Fist6 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist6 a rest) = [ a ] <> toArray rest
 
 instance ft7Fixed :: Fist Fist7 where
-  arrayOf (Fist7 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist7 a rest) = [ a ] <> toArray rest
 
 instance ft8Fixed :: Fist Fist8 where
-  arrayOf (Fist8 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist8 a rest) = [ a ] <> toArray rest
 
 instance ft9Fixed :: Fist Fist9 where
-  arrayOf (Fist9 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist9 a rest) = [ a ] <> toArray rest
 
 instance ft10Fixed :: Fist Fist10 where
-  arrayOf (Fist10 a rest) = [ a ] <> arrayOf rest
+  toArray (Fist10 a rest) = [ a ] <> toArray rest

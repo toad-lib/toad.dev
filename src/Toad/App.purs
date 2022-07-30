@@ -56,7 +56,7 @@ put
 put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
 
 handleError
-  :: forall a s o m
+  :: ∀ a s o m
    . Monad m
   => MonadEffect m
   => Either Error (HalogenM State.State a s o m Unit)
@@ -67,7 +67,7 @@ handleError (Left (Tuple i u)) = do
   put u
   pure unit
 
-type Slots = (concepts :: forall q. H.Slot q Page.Concepts.Output Int)
+type Slots = (concepts :: ∀ q. H.Slot q Page.Concepts.Output Int)
 
 _concepts = Proxy :: Proxy "concepts"
 
