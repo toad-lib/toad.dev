@@ -44,12 +44,14 @@ class Angle a where
   toRadians :: a -> Radians
 
 radiansFloat :: Radians -> Number
-radiansFloat (Radians n) | n < (2.0 * pi) = n
-                         | otherwise = n % (2.0 * pi)
+radiansFloat (Radians n)
+  | n < (2.0 * pi) = n
+  | otherwise = n % (2.0 * pi)
 
 degreesFloat :: Degrees -> Number
-degreesFloat (Degrees n) | n < 360.0 = n
-                         | otherwise = n % 360.0
+degreesFloat (Degrees n)
+  | n < 360.0 = n
+  | otherwise = n % 360.0
 
 radiansToDegrees :: Radians -> Degrees
 radiansToDegrees = Degrees <<< mul 360.0 <<< (_ / (2.0 * pi)) <<< radiansFloat

@@ -21,7 +21,6 @@
   , "halogen-subscriptions"
   , "halogen-svg-elems"
   , "integers"
-  , "toad-dev"
   , "lists"
   , "maybe"
   , "newtype"
@@ -37,9 +36,11 @@
   , "spec"
   , "strings"
   , "tailrec"
+  , "toad-dev"
   , "transformers"
   , "tuples"
   , "unordered-collections"
+  , "web-events"
   , "yoga-fetch"
   ]
 , packages = ./packages.dhall

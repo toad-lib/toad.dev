@@ -5,8 +5,8 @@ module Toad.Navbar.Button.Style
   , global
   ) where
 
-import Toad.Css
 import Prelude hiding (top)
+import Toad.Css
 
 import CSS.Common as Css.Common
 import CSS.Cursor as Css.Cursor

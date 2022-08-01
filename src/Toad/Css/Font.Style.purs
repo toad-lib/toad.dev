@@ -1,7 +1,7 @@
 module Toad.Css.Font.Style (global) where
 
-import Toad.Css
 import Prelude
+import Toad.Css
 
 import CSS.Selector as Sel
 import Data.Foldable (traverse_)

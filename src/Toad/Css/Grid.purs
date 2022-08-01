@@ -4,11 +4,11 @@ module Toad.Css.Grid
   , inAppNavbar
   ) where
 
-import Data.Fist (fist1, fist2)
 import Prelude
 
 import CSS.Common as Css.Common
 import Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
+import Data.Fist (fist1, fist2)
 import Toad.Css as Css
 import Toad.Layout (AppLayout(..))
 

@@ -2,7 +2,7 @@
 
 module Data.Color.OkLab
   ( Lab(..)
-  , L(..)
+  , Lightness(..)
   , A(..)
   , B(..)
   , css
@@ -35,14 +35,18 @@ import Data.Coord.Polar as Polar
 import Data.Generic.Rep (class Generic)
 import Data.Mat as Mat
 import Data.Maybe (fromJust)
+import Data.Newtype (class Newtype)
 import Data.Number (pow)
 import Data.Show.Generic (genericShow)
 import Partial.Unsafe (unsafePartial)
 
-newtype L = L Number
+newtype Lightness = Lightness Number
 
-derive instance genericL :: Generic L _
-instance showL :: Show L where
+derive instance newtypeL :: Newtype Lightness _
+derive instance genericL :: Generic Lightness _
+derive newtype instance eqL :: Eq Lightness
+derive newtype instance ordL :: Ord Lightness
+instance showL :: Show Lightness where
   show = genericShow
 
 newtype A = A Number
@@ -57,7 +61,7 @@ derive instance genericB :: Generic B _
 instance showB :: Show B where
   show = genericShow
 
-data Lab = Lab L A B
+data Lab = Lab Lightness A B
 
 derive instance genericLab :: Generic Lab _
 instance showLab :: Show Lab where
@@ -73,10 +77,10 @@ ofPolar l p =
     get :: (Cartesian.Pos -> Number) -> Number
     get n = n <<< Cartesian.fromPolar $ p
   in
-    Lab (L l) (A $ get Cartesian.x) (B $ get Cartesian.y)
+    Lab (Lightness l) (A $ get Cartesian.x) (B $ get Cartesian.y)
 
 modifyLightness :: (Number -> Number) -> Lab -> Lab
-modifyLightness f (Lab (L l) a b) = Lab (L $ f l) a b
+modifyLightness f (Lab (Lightness l) a b) = Lab (Lightness $ f l) a b
 
 setLightness :: Number -> Lab -> Lab
 setLightness = const >>> modifyLightness
@@ -103,7 +107,7 @@ shiftHue :: Polar.Radians -> Lab -> Lab
 shiftHue dh l = setHue (hue l + dh) l
 
 lightness :: Lab -> Number
-lightness (Lab (L l) _ _) = l
+lightness (Lab (Lightness l) _ _) = l
 
 chroma :: Lab -> Number
 chroma = Polar.radius <<< polar
@@ -145,7 +149,7 @@ m2i :: Mat.M3x3 Number
 m2i = unsafePartial fromJust $ Mat.inverse3x3 m2
 
 toCieXyz :: Lab -> C.Xyz
-toCieXyz (Lab (L l) (A a) (B b)) =
+toCieXyz (Lab (Lightness l) (A a) (B b)) =
   let
     lms = m2i `Mat.mul3x3_1x3` (Mat.M1x3 l a b)
     xyz = case lms of
@@ -159,4 +163,5 @@ toRgb :: Lab -> Rgb.Rgb
 toRgb = toCieXyz >>> C.toRgb
 
 css :: Lab -> Css.Color.Color
-css = toRgb >>> (case _ of (Rgb.Rgb (Rgb.R r) (Rgb.G g) (Rgb.B b)) -> Css.Color.rgb' r g b)
+css = toRgb >>>
+  (case _ of (Rgb.Rgb (Rgb.R r) (Rgb.G g) (Rgb.B b)) -> Css.Color.rgb' r g b)

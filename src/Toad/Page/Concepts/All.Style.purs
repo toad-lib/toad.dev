@@ -1,7 +1,7 @@
 module Toad.Page.Concepts.All.Style (container, link) where
 
-import Toad.Css
 import Prelude
+import Toad.Css
 
 container :: CSS
 container = pure unit

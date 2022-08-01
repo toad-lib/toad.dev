@@ -3,8 +3,8 @@ module Toad.Atom.Logo.Style
   , logoContainer
   ) where
 
-import Toad.Css
 import Prelude hiding (top)
+import Toad.Css
 
 import CSS.Common as Css.Common
 import CSS.Size as Css.Size

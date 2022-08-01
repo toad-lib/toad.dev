@@ -19,6 +19,9 @@ import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Subscription as HS
 import Halogen.VDom.Driver (runUI)
+import Parsing (runParser)
+import Routing.Duplex as Routing.Duplex
+import Routing.Hash as Routing.Hash
 import Toad.Action as Toad.Action
 import Toad.App as Toad
 import Toad.Concept as Concept
@@ -31,9 +34,6 @@ import Toad.Page.Concepts as Toad.Page.Concepts
 import Toad.Query as Toad.Query
 import Toad.Route as Toad.Route
 import Toad.State as Toad.State
-import Parsing (runParser)
-import Routing.Duplex as Routing.Duplex
-import Routing.Hash as Routing.Hash
 
 left :: forall a b. Either a b -> Maybe a
 left = blush

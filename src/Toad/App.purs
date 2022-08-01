@@ -15,6 +15,7 @@ import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Console as Console
 import Halogen (HalogenM(..))
 import Halogen as H
+import Routing.Hash (setHash)
 import Toad.Action (Action(..))
 import Toad.Atom.Cloud as Atom.Cloud
 import Toad.Css as Css
@@ -28,7 +29,6 @@ import Toad.Route as Route
 import Toad.State as State
 import Toad.Style as Style
 import Toad.Style.Global as Style.Global
-import Routing.Hash (setHash)
 import Type.Proxy (Proxy(..))
 
 newtype M a = M (Aff a)
@@ -83,14 +83,16 @@ render state =
     , HH.div
         [ Css.style Style.appWrap
         ]
-        [ HH.div [ Css.style Style.navbarWrap ] [
-          HH.div [
-            Css.style do
-              Css.height $ Css.px 100.0
-              Css.width $ Css.px  100.0
-              Css.backgroundColor' <<< OkLab.css $ OkLab.lch 0.64 0.097 (Degrees 0.0)
-          ] []
-        ]
+        [ HH.div [ Css.style Style.navbarWrap ]
+            [ HH.div
+                [ Css.style do
+                    Css.height $ Css.px 100.0
+                    Css.width $ Css.px 100.0
+                    Css.backgroundColor' <<< OkLab.css $ OkLab.lch 0.64 0.097
+                      (Degrees 0.0)
+                ]
+                []
+            ]
         , case State.route state of
             Route.Home -> HH.div_ [ Atom.Cloud.render_ ]
             Route.Concepts oa ->

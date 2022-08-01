@@ -1,7 +1,7 @@
 module Toad.Style (appWrap, navbarWrap) where
 
-import Toad.Css
 import Prelude hiding (top)
+import Toad.Css
 
 import Toad.Css.Grid as Grid
 import Toad.Layout (AppLayout(..))

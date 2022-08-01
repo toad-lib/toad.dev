@@ -20,14 +20,14 @@ import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
 import Data.String (joinWith, split)
 import Data.String.Pattern (Pattern(..))
-import Toad.Concept as Concept
-import Toad.Navbar.Section as Navbar
 import Prelude (class Eq, class Show, map, ($), (<<<), (>>>))
 import Routing.Duplex (RouteDuplex', optional, rest, root)
 import Routing.Duplex as Routing.Duplex
 import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
 import Routing.Duplex.Parser (RouteError)
+import Toad.Concept as Concept
+import Toad.Navbar.Section as Navbar
 
 maybeConceptIdent :: RouteDuplex' (Maybe Concept.Ident)
 maybeConceptIdent =

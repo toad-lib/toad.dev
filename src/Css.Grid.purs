@@ -7,11 +7,11 @@ module Css.Grid
 
 import Prelude
 
+import CSS as Css
+import Data.Array as Array
 import Data.Fist (class Fist)
 import Data.Fist as Fist
-import Data.Array as Array
 import Data.Foldable (class Foldable, intercalate)
-import CSS as Css
 
 newtype GridCol s = GridCol (Css.Size s)
 
@@ -45,17 +45,19 @@ grid columns rows label =
 
     columnSizes = Css.noCommas <<< map columnSize <<< Fist.toArray $ columns
 
-    templateLabels = Css.noCommas
-      <<< Array.fromFoldable
-      <<< map ( Css.value
-                <<< ("\"" <> _)
-                <<< (_ <> "\"")
-                <<< intercalate " "
-                <<< map label
-                <<< Fist.toArray
-                <<< rowAreas
-              )
-      $ rows
+    templateLabels =
+      Css.noCommas
+        <<< Array.fromFoldable
+        <<< map
+          ( Css.value
+              <<< ("\"" <> _)
+              <<< (_ <> "\"")
+              <<< intercalate " "
+              <<< map label
+              <<< Fist.toArray
+              <<< rowAreas
+          )
+        $ rows
 
     key = Css.key <<< Css.fromString
   in

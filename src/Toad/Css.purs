@@ -26,8 +26,8 @@ import CSS hiding
   , fontSize
   , fontWeight
   ) as X
-import CSS.Common as Css.Common
 import CSS.Color as Css.Color
+import CSS.Common as Css.Common
 import CSS.Render as Css.Render
 import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
@@ -40,7 +40,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Halogen.HTML.Core as HC
 import Halogen.HTML.Properties as HP
-import Toad.Css.Color (Color(..)) as X
+import Toad.Css.Color (Color(..), green) as X
 import Toad.Css.Color as Color
 import Toad.Css.Font
   ( Font(..)

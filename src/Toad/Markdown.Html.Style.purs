@@ -1,7 +1,7 @@
 module Toad.Markdown.Html.Style (document, element, elementFirst, span) where
 
-import Toad.Css
 import Prelude
+import Toad.Css
 
 document :: CSS
 document = do
