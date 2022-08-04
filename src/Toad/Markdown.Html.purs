@@ -1,17 +1,16 @@
 module Toad.Markdown.Html where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Array as Array
 import Data.Array.NonEmpty as NEArray
 import Data.Filterable (filterMap)
 import Data.FunctorWithIndex (mapWithIndex)
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (fromMaybe)
 import Halogen.HTML as HH
 import Halogen.HTML.CSS (style)
-import Halogen.HTML.Properties (IProp(..))
+import Halogen.HTML.Properties (IProp)
 import Halogen.HTML.Properties as HP
-import Toad.Css (CSS, FontFamily(..), fontFamily)
+import Toad.Css (CSS)
 import Toad.Html as KH
 import Toad.Markdown
   ( Anchor(..)
@@ -96,4 +95,5 @@ render d =
     KH.div [ style Style.document ]
       <<< mapWithIndex render'
       <<< filterMap renderable
-      <<< elements $ d
+      <<< elements
+      $ d

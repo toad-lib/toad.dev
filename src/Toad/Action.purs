@@ -1,8 +1,7 @@
 module Toad.Action where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Foldable (class Foldable, foldl)
 import Toad.Page.Concepts as Page.Concepts
 
 data Action

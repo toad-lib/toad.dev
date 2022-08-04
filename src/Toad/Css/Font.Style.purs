@@ -1,7 +1,7 @@
 module Toad.Css.Font.Style (global) where
 
-import Prelude
 import Toad.Css
+import Toad.Prelude
 
 import CSS.Selector as Sel
 import Data.Foldable (traverse_)
@@ -24,4 +24,4 @@ global =
 typeRules :: CSS
 typeRules = do
   definedIn "Toad.Css.Font.Style"
-  color Black
+  color <<< oklab <<< colorFg $ grey

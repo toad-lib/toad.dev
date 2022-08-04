@@ -1,15 +1,12 @@
 module Toad.Concept.Fetch (manifest, one) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.DateTime (DateTime(..), Month(..), Year, canonicalDate, diff, year)
-import Data.Either (Either)
-import Data.Enum (fromEnum, toEnum)
+import Data.DateTime (DateTime(..), Month(..), canonicalDate, diff)
+import Data.Enum (toEnum)
 import Data.Int (floor)
-import Data.Map as Map
-import Data.Maybe (Maybe, maybe)
 import Data.Newtype (unwrap)
-import Data.Time.Duration (Milliseconds(..), Seconds(..))
+import Data.Time.Duration (Seconds(..))
 import Effect.Aff (Aff)
 import Effect.Aff.Fetch as HTTP
 import Effect.Class (liftEffect)
@@ -35,8 +32,8 @@ cacheBust :: DateTime -> HTTP.URL -> HTTP.URL
 cacheBust dt (HTTP.URL u) =
   HTTP.URL
     $ u
-        <> "?cache-bust="
-        <> (show <<< floor <<< unwrap <<< unixTime $ dt)
+    <> "?cache-bust="
+    <> (show <<< floor <<< unwrap <<< unixTime $ dt)
 
 manifest :: HTTP.FetchImpl -> Aff (Either String Manifest)
 manifest impl =

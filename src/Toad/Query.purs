@@ -1,8 +1,7 @@
 module Toad.Query (Query(..), sendNavigate) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Maybe (Maybe)
 import Effect.Aff (Aff)
 import Halogen as H
 import Toad.Route as Route

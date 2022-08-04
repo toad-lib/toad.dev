@@ -1,31 +1,22 @@
 module Toad.Css.Color
-  ( Color(..)
-  , color
-  , green
+  ( green
+  , grey
+  , colorBg
+  , colorBg2
+  , colorFg
+  , colorPrimary
+  , colorPrimary2
   ) where
 
-import Prelude
+import Toad.Prelude
 
-import CSS.Color as Css.Color
 import Data.Color.OkLab as OkLab
-import Data.Coord.Polar (Degrees(..))
-import Data.Generic.Rep (class Generic)
 import Data.Newtype (unwrap)
 import Data.Number (pow)
 import Data.Range (contains, (..))
-import Data.Show.Generic (genericShow)
 
-data Color
-  = Blue
-  | Yellow
-  | Pink
-  | Black
-  | White
-
-derive instance eqColor :: Eq Color
-derive instance genericColor :: Generic Color _
-instance showColor :: Show Color where
-  show = genericShow
+grey :: OkLab.Lightness -> OkLab.Lab
+grey l = OkLab.lch (unwrap l) 0.0 (Degrees 0.0)
 
 green :: OkLab.Lightness -> OkLab.Lab
 green l =
@@ -37,29 +28,17 @@ green l =
   in
     OkLab.lch (unwrap l) (c $ unwrap l) (Degrees 142.0)
 
-hue :: Color -> Number
-hue = case _ of
-  Yellow -> 61.0
-  Blue -> 180.0
-  Pink -> 321.0
-  _ -> 0.0
+colorBg :: (OkLab.Lightness -> OkLab.Lab) -> OkLab.Lab
+colorBg f = f (OkLab.Lightness 0.0)
 
-sat :: Color -> Number
-sat = case _ of
-  -- TODO: get sats
-  Yellow -> 100.0
-  Blue -> 100.0
-  Pink -> 85.0
-  _ -> 0.0
+colorBg2 :: (OkLab.Lightness -> OkLab.Lab) -> OkLab.Lab
+colorBg2 f = f (OkLab.Lightness 0.2)
 
-light :: Color -> Number
-light = case _ of
-  -- TODO: get lights
-  Yellow -> 70.0
-  Pink -> 75.0
-  Blue -> 59.0
-  White -> 100.0
-  Black -> 0.0
+colorFg :: (OkLab.Lightness -> OkLab.Lab) -> OkLab.Lab
+colorFg f = f (OkLab.Lightness 0.99)
 
-color :: Color -> Css.Color.Color
-color color' = Css.Color.hsla (hue color') (sat color') (light color') 1.0
+colorPrimary :: (OkLab.Lightness -> OkLab.Lab) -> OkLab.Lab
+colorPrimary f = f (OkLab.Lightness 0.45)
+
+colorPrimary2 :: (OkLab.Lightness -> OkLab.Lab) -> OkLab.Lab
+colorPrimary2 f = f (OkLab.Lightness 0.55)

@@ -1,47 +1,38 @@
 module Toad.Css
   ( MaskComposite(..)
   , MaskMode(..)
+  , oklab
   , anySize
-  , backgroundColor'
   , definedIn
   , mask
   , style
   , refinements
   , kwapEasing
-  , backgroundColor
-  , color
   , module X
   ) where
 
-import Prelude
+import Toad.Prelude
 
 import CSS as Css
 import CSS hiding
-  ( Color(..)
-  , FontStyle(..)
+  ( FontStyle(..)
   , FontWeight(..)
-  , backgroundColor
-  , color
   , fontFamily
   , fontSize
   , fontWeight
   ) as X
-import CSS.Color as Css.Color
 import CSS.Common as Css.Common
 import CSS.Render as Css.Render
 import CSS.Selector as Css.Selector
 import CSS.Size as Css.Size
 import CSS.Transition as Css.Transition
 import Data.Array as Array
-import Data.Either (Either)
-import Data.Foldable (foldMap, foldl)
-import Data.Maybe (Maybe(..))
+import Data.Color.OkLab as OkLab
+import Data.Foldable (foldMap)
 import Data.String as String
-import Data.Tuple (Tuple(..))
 import Halogen.HTML.Core as HC
 import Halogen.HTML.Properties as HP
-import Toad.Css.Color (Color(..), green) as X
-import Toad.Css.Color as Color
+import Toad.Css.Color as X
 import Toad.Css.Font
   ( Font(..)
   , FontFamily(..)
@@ -51,14 +42,8 @@ import Toad.Css.Font
   , fontSize
   ) as X
 
-color :: X.Color -> X.CSS
-color = Color.color >>> Css.color
-
-backgroundColor' :: Css.Color -> X.CSS
-backgroundColor' = Css.backgroundColor
-
-backgroundColor :: X.Color -> X.CSS
-backgroundColor = Color.color >>> Css.backgroundColor
+oklab :: OkLab.Lab -> Css.Color
+oklab = OkLab.css
 
 definedIn :: String -> Css.CSS
 definedIn = Css.key (Css.Key <<< Css.Plain $ "--defined-in")
@@ -90,7 +75,7 @@ style =
   rules :: Array Css.Rule -> Array (Tuple String String)
   rules rs = Array.mapMaybe property rs
     >>= Css.Render.collect
-      >>> rights
+    >>> rights
 
   property :: Css.Rule -> Maybe (Tuple (Css.Key Unit) Css.Value)
   property (Css.Property k v) = Just (Tuple k v)

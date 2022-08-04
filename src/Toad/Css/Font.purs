@@ -7,13 +7,11 @@ module Toad.Css.Font
   , fontFamily
   ) where
 
-import Prelude
+import Toad.Prelude
 
 import CSS as Css
 import CSS.Font as Css.Font
 import Data.Array.NonEmpty as NEA
-import Data.Eq.Generic (genericEq)
-import Data.Generic.Rep (class Generic)
 
 --| private
 data FontWeight

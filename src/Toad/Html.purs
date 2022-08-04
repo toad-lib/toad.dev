@@ -22,7 +22,7 @@ module Toad.Html
   , span_
   ) where
 
-import Prelude
+import Toad.Prelude
 
 import DOM.HTML.Indexed as I
 import Data.Array as Array

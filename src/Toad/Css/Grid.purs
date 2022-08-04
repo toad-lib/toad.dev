@@ -4,7 +4,7 @@ module Toad.Css.Grid
   , inAppNavbar
   ) where
 
-import Prelude
+import Toad.Prelude
 
 import CSS.Common as Css.Common
 import Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
@@ -28,9 +28,8 @@ inAppContent :: Css.CSS
 inAppContent = gridArea appGridLabel AppGridContent
 
 appGrid :: AppLayout -> Css.CSS
-appGrid = case _ of
-  AppLayoutDesktop -> appGridDesktop
-  AppLayoutMobile -> appGridMobile
+appGrid AppLayoutDesktop = appGridDesktop
+appGrid AppLayoutMobile = appGridMobile
 
 appGridMobile :: Css.CSS
 appGridMobile =
@@ -40,7 +39,7 @@ appGridMobile =
   in
     grid
       (fist1 $ GridCol (pct 100.0))
-      [ GridRow (rem 20.0) $ fist1 AppGridNavbar
+      [ GridRow (rem 16.0) $ fist1 AppGridNavbar
       , GridRow Css.Common.auto $ fist1 AppGridContent
       ]
       appGridLabel
@@ -52,7 +51,7 @@ appGridDesktop =
     pct = Css.pct >>> Css.anySize
   in
     grid
-      (fist2 (GridCol (rem 20.0)) (GridCol Css.Common.auto))
+      (fist2 (GridCol (rem 16.0)) (GridCol Css.Common.auto))
       [ GridRow (pct 100.0) (fist2 AppGridNavbar AppGridContent)
       ]
       appGridLabel

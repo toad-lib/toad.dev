@@ -1,28 +1,21 @@
 module Toad.App (M, runM, put, render, handleError) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Color.OkLab as OkLab
-import Data.Coord.Polar (Degrees(..))
-import Data.Either (Either(..))
 import Data.Map as Map
-import Data.Maybe (Maybe)
-import Data.Tuple (Tuple(..))
-import Data.Tuple.Nested (T3, (/\))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Console as Console
-import Halogen (HalogenM(..))
+import Halogen (HalogenM)
 import Halogen as H
 import Routing.Hash (setHash)
 import Toad.Action (Action(..))
-import Toad.Atom.Cloud as Atom.Cloud
+import Toad.App.Navbar as Navbar
 import Toad.Css as Css
 import Toad.Css.Grid as Grid
 import Toad.Error (Error)
 import Toad.Html as HH
-import Toad.Layout (AppLayout(..))
 import Toad.Navigate (class Navigate)
 import Toad.Page.Concepts as Page.Concepts
 import Toad.Route as Route
@@ -79,22 +72,14 @@ render
 render state =
   HH.div_
     [ Style.Global.stylesheet
-    , HH.div [] []
     , HH.div
         [ Css.style Style.appWrap
         ]
-        [ HH.div [ Css.style Style.navbarWrap ]
-            [ HH.div
-                [ Css.style do
-                    Css.height $ Css.px 100.0
-                    Css.width $ Css.px 100.0
-                    Css.backgroundColor' <<< OkLab.css $ OkLab.lch 0.64 0.097
-                      (Degrees 0.0)
-                ]
-                []
-            ]
+        [ HH.div
+            [ Css.style Style.navbarWrap ]
+            [ Navbar.render ]
         , case State.route state of
-            Route.Home -> HH.div_ [ Atom.Cloud.render_ ]
+            Route.Home -> HH.div_ []
             Route.Concepts oa ->
               HH.slot
                 _concepts

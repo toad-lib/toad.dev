@@ -14,20 +14,17 @@ module Toad.State
   , routeHash
   ) where
 
-import Prelude
+import Toad.Prelude
 
 import Control.Alt ((<|>))
-import Data.Either (Either(..))
 import Data.Foldable (find)
-import Data.Generic.Rep (class Generic)
 import Data.Hashable (hash)
 import Data.List (List)
 import Data.Map (Map, SemigroupMap, keys)
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (fromMaybe)
 import Data.Newtype (unwrap, wrap)
 import Data.Set (Set)
 import Data.Set as Set
-import Data.Show.Generic (genericShow)
 import Toad.Concept as Concept
 import Toad.Error (ErrorMessage(..))
 import Toad.Markdown as Md

@@ -1,11 +1,8 @@
 module Toad.Page.Concepts.All (render) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Maybe (Maybe(..))
 import Halogen.HTML.CSS (style)
-import Halogen.HTML.Events as H
-import Halogen.HTML.Properties as HP
 import Toad.Concept as C
 import Toad.Css as Css
 import Toad.Html as HH

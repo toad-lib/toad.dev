@@ -1,16 +1,13 @@
 module Main where
 
-import Prelude
+import Toad.Prelude
 
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap, rmap)
-import Data.Either (Either, blush, note)
-import Data.Foldable (find)
+import Data.Either (blush, note)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
-import Data.Traversable (sequence, traverse)
-import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff)
 import Effect.Aff.Fetch.Browser (windowFetch)
@@ -26,10 +23,8 @@ import Toad.Action as Toad.Action
 import Toad.App as Toad
 import Toad.Concept as Concept
 import Toad.Concept.Fetch as Concept.Fetch
-import Toad.Css as Toad.Css
 import Toad.Error as Toad.Error
 import Toad.Markdown as Md
-import Toad.Navigate (navigate)
 import Toad.Page.Concepts as Toad.Page.Concepts
 import Toad.Query as Toad.Query
 import Toad.Route as Toad.Route
@@ -48,9 +43,11 @@ main =
     HA.runHalogenAff do
       body <- HA.awaitBody
       io <- runUI (H.hoist Toad.runM component) unit body
-      H.liftEffect <<< void <<< Routing.Hash.matchesWith
-        (Routing.Duplex.parse $ Routing.Duplex.optional Toad.Route.codec) $
-        tellAppRouteChanged io
+      H.liftEffect <<< void
+        <<< Routing.Hash.matchesWith
+          (Routing.Duplex.parse $ Routing.Duplex.optional Toad.Route.codec)
+        $
+          tellAppRouteChanged io
 
 component :: ∀ i o. H.Component Toad.Query.Query i o Toad.M
 component =
@@ -123,13 +120,13 @@ handleAction =
                 <<< (flip runParser) Md.documentP
             )
 
-      bind H.get $
-        (flip bind)
-          ( Toad.handleError
-              <<< rmap (Toad.put <<< (flip $ Map.insert ident) Map.empty)
-              <<< tryParseConcept
-          )
-          <<< traverse fetchConcept
-          <<< lmap Toad.Error.lookingUpRouteConcept
-          <<< note ("concept " <> show ident <> " not found")
-          <<< Toad.State.lookupDecl ident
+      bind H.get
+        $ (flip bind)
+            ( Toad.handleError
+                <<< rmap (Toad.put <<< (flip $ Map.insert ident) Map.empty)
+                <<< tryParseConcept
+            )
+        <<< traverse fetchConcept
+        <<< lmap Toad.Error.lookingUpRouteConcept
+        <<< note ("concept " <> show ident <> " not found")
+        <<< Toad.State.lookupDecl ident

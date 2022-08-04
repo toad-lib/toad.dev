@@ -14,6 +14,7 @@ appWrap = do
   top $ px 0.0
   left $ px 0.0
   Grid.appGrid AppLayoutDesktop
+  backgroundColor <<< oklab <<< colorBg $ grey
 
 navbarWrap :: CSS
 navbarWrap = do

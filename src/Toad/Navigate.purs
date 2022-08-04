@@ -1,6 +1,6 @@
 module Toad.Navigate where
 
-import Prelude
+import Toad.Prelude
 
 import Halogen (HalogenM)
 import Halogen as H

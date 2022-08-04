@@ -1,6 +1,6 @@
 module Toad.Icon (Icon(..), render) where
 
-import Prelude
+import Toad.Prelude
 
 import Halogen.HTML.Properties as HP
 import Toad.Css as Css

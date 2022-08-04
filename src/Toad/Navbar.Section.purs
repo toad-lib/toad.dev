@@ -1,9 +1,6 @@
 module Toad.Navbar.Section (Section(..)) where
 
-import Prelude
-
-import Data.Generic.Rep (class Generic)
-import Data.Show.Generic (genericShow)
+import Toad.Prelude
 
 data Section = Home | Book | Concepts
 

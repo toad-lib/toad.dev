@@ -1,12 +1,10 @@
 module Toad.Navbar.Button (render, State(..)) where
 
-import Prelude
+import Toad.Prelude
 
 import Data.Array (catMaybes)
 import Data.Filterable (filter)
-import Data.Foldable (foldl)
 import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties as HP
 import Toad.Css as Css
 import Toad.Html as HH
 import Toad.Navbar.Button.Style as Style

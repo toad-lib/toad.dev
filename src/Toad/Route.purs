@@ -9,23 +9,18 @@ module Toad.Route
   , maybeOne
   ) where
 
+import Toad.Prelude hiding ((/))
+
 import Data.Array (null)
-import Data.BooleanAlgebra (not)
-import Data.Either (Either)
 import Data.Filterable (filter)
-import Data.Generic.Rep (class Generic)
 import Data.Hashable (class Hashable, hash)
-import Data.Maybe (Maybe(..), maybe)
 import Data.Profunctor (dimap)
-import Data.Show.Generic (genericShow)
 import Data.String (joinWith, split)
 import Data.String.Pattern (Pattern(..))
-import Prelude (class Eq, class Show, map, ($), (<<<), (>>>))
-import Routing.Duplex (RouteDuplex', optional, rest, root)
+import Routing.Duplex (RouteDuplex', rest, root)
 import Routing.Duplex as Routing.Duplex
 import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
-import Routing.Duplex.Parser (RouteError)
 import Toad.Concept as Concept
 import Toad.Navbar.Section as Navbar
 

@@ -1,12 +1,9 @@
 module Toad.Page.Concepts (concepts, Input(..), Output(..)) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Maybe (Maybe(..), maybe)
 import Data.String (joinWith)
-import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
-import Effect.Console as Console
 import Halogen as H
 import Toad.Concept (Ident, Manifest)
 import Toad.Css as Css

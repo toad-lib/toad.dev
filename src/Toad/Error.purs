@@ -6,9 +6,7 @@ module Toad.Error
   , parsingConcept
   ) where
 
-import Prelude
-
-import Data.Tuple (Tuple(..))
+import Toad.Prelude
 
 newtype ErrorMessage = ErrorMessage String
 

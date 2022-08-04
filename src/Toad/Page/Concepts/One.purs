@@ -1,8 +1,7 @@
 module Toad.Page.Concepts.One (render) where
 
-import Prelude
+import Toad.Prelude
 
-import Data.Maybe (Maybe(..))
 import Halogen.HTML.CSS (style)
 import Toad.Css as Css
 import Toad.Html as HH
