@@ -51,7 +51,7 @@ appGridDesktop =
     pct = Css.pct >>> Css.anySize
   in
     grid
-      (fist2 (GridCol (rem 16.0)) (GridCol Css.Common.auto))
+      (fist2 (GridCol (rem 32.0)) (GridCol Css.Common.auto))
       [ GridRow (pct 100.0) (fist2 AppGridNavbar AppGridContent)
       ]
       appGridLabel

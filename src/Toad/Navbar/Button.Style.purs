@@ -67,10 +67,10 @@ selectedRules :: CSS
 selectedRules = do
   containerHoverRules
   select (Sel.star `Sel.with` Sel.byClass textClass) do
-    headingStyle $ font' <> fontSize FontSizeH2 <> fontFamily InterExtraBold
+    headingStyle $ font' <> fontSize FontSizeH2
 
 font' :: Font
-font' = mempty <> fontFamily InterBold <> fontSize FontSizeH3
+font' = mempty <> fontSize FontSizeH3
 
 containerRules :: CSS
 containerRules = do

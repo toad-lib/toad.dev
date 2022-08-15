@@ -1,20 +1,13 @@
-module Toad.Atom.Logo.Style
-  ( kwapMaskUrl
-  , logoContainer
-  ) where
+module Toad.Atom.Logo.Style where
 
-import Prelude hiding (top)
-import Toad.Css
+import Toad.Prelude hiding (top)
 
 import CSS.Common as Css.Common
-import CSS.Size as Css.Size
-import Data.Maybe (Maybe(..), maybe)
+import Toad.Css (CSS, display, flex, justifyContent)
 
-foreign import kwapMaskUrl :: String
+foreign import toadLogoUrl :: String
 
 logoContainer :: CSS
 logoContainer = do
-  position relative
-  Css.Size.sym padding $ rem 2.0
   display flex
   justifyContent Css.Common.center

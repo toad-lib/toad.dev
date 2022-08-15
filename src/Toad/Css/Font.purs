@@ -34,64 +34,36 @@ data FontSize
 
 data FontFamily
   = FontFamilyDefault
-  | StokeMedium
-  | StokeBold
-  | InterMedium
-  | InterLight
-  | InterSemibold
-  | InterBold
-  | InterExtraBold
-  | AbrilFatface
   | AtkinsonBold
   | AtkinsonMedium
-  | LibreBaskervilleItalic
-  | LibreBaskervilleBold
+  | QuicksandBold
 
 data Font = Font FontFamily FontSize
 
 weight :: FontFamily -> FontWeight
 weight = case _ of
   FontFamilyDefault -> Medium
-  InterLight -> Light
-  InterMedium -> Medium
-  InterSemibold -> Semibold
-  InterBold -> Bold
-  InterExtraBold -> ExtraBold
-  StokeMedium -> Light
-  StokeBold -> Semibold
-  AbrilFatface -> Medium
   AtkinsonMedium -> Medium
   AtkinsonBold -> Bold
-  LibreBaskervilleBold -> Bold
-  LibreBaskervilleItalic -> Medium
+  QuicksandBold -> Bold
 
 cssFontFamily :: FontFamily -> Css.CSS
 cssFontFamily =
   let
     fallback = pure >>> NEA.toNonEmpty
 
-    inter = Css.fontFamily (pure "Inter var") (fallback Css.Font.sansSerif)
-    stoke = Css.fontFamily (pure "Stoke") (fallback Css.Font.serif)
-    abril = Css.fontFamily (pure "Abril Fatface") (fallback Css.Font.serif)
-    atkinson = Css.fontFamily (pure "Atkinson Hyperlegible")
+    atkinson = Css.fontFamily
+      (pure "Atkinson Hyperlegible")
       (fallback Css.Font.sansSerif)
-    libreBaskerville = Css.fontFamily (pure "Libre Baskerville")
-      (fallback Css.Font.serif)
+    quicksand = Css.fontFamily
+      (pure "Quicksand")
+      (fallback Css.Font.sansSerif)
   in
     case _ of
       FontFamilyDefault -> cssFontFamily AtkinsonMedium
-      InterLight -> inter
-      InterMedium -> inter
-      InterSemibold -> inter
-      InterBold -> inter
-      InterExtraBold -> inter
-      StokeMedium -> stoke
-      StokeBold -> stoke
-      AbrilFatface -> abril
       AtkinsonBold -> atkinson
       AtkinsonMedium -> atkinson
-      LibreBaskervilleItalic -> libreBaskerville
-      LibreBaskervilleBold -> libreBaskerville
+      QuicksandBold -> quicksand
 
 cssFontWeight :: FontWeight -> Css.CSS
 cssFontWeight = case _ of

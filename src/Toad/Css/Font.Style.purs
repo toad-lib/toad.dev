@@ -25,3 +25,4 @@ typeRules :: CSS
 typeRules = do
   definedIn "Toad.Css.Font.Style"
   color <<< oklab <<< colorFg $ grey
+  sym margin $ px 0.0

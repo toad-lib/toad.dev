@@ -77,7 +77,7 @@ render state =
         ]
         [ HH.div
             [ Css.style Style.navbarWrap ]
-            [ Navbar.render ]
+            [ Navbar.render Navbar.dummyExpanded Navbar.dummyItems ]
         , case State.route state of
             Route.Home -> HH.div_ []
             Route.Concepts oa ->

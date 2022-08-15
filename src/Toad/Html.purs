@@ -299,19 +299,19 @@ a_ :: forall w i. Route.Route -> Array (HTML w i) -> HTML w i
 a_ r t = HH.a [ HP.href <<< append "#" $ Route.print r ] t
 
 h1Font :: Font
-h1Font = fontSize FontSizeH1 <> fontFamily AbrilFatface
+h1Font = fontSize FontSizeH1 <> fontFamily QuicksandBold
 
 h2Font :: Font
-h2Font = fontSize FontSizeH2 <> fontFamily LibreBaskervilleBold
+h2Font = fontSize FontSizeH2 <> fontFamily QuicksandBold
 
 h3Font :: Font
-h3Font = fontSize FontSizeH3 <> fontFamily LibreBaskervilleBold
+h3Font = fontSize FontSizeH3 <> fontFamily AtkinsonBold
 
 h4Font :: Font
-h4Font = fontSize FontSizeH4 <> fontFamily LibreBaskervilleItalic
+h4Font = fontSize FontSizeH4 <> fontFamily AtkinsonBold
 
 h5Font :: Font
-h5Font = fontSize FontSizeH5 <> fontFamily LibreBaskervilleItalic
+h5Font = fontSize FontSizeH5 <> fontFamily AtkinsonBold
 
 h6Font :: Font
 h6Font = fontSize FontSizeH6 <> fontFamily AtkinsonBold
