@@ -1,4 +1,4 @@
-module Toad.Prelude (module X) where
+module Toad.Prelude (module X, (∘), id) where
 
 import Data.Coord.Polar (Degrees(..), Radians(..)) as X
 import Data.Either (Either(..)) as X
@@ -6,6 +6,7 @@ import Data.Eq.Generic (genericEq) as X
 import Data.Foldable (class Foldable, fold, foldl, foldr) as X
 import Data.Generic.Rep (class Generic) as X
 import Data.Maybe (Maybe(..), maybe) as X
+import Data.Newtype (class Newtype) as X
 import Data.Number (pi) as X
 import Data.Show.Generic (genericShow) as X
 import Data.Traversable (class Traversable, sequence, traverse) as X
@@ -120,3 +121,8 @@ import Prelude
   , (>>>)
   , (||)
   ) as X
+
+infixr 5 X.compose as ∘
+
+id :: forall a. a -> a
+id = X.identity

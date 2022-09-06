@@ -5,6 +5,7 @@ import Toad.Prelude
 import Control.Monad.Rec.Class (forever)
 import Data.Bifunctor (lmap, rmap)
 import Data.Either (blush, note)
+import Data.Expanded as Expanded
 import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Time.Duration (Milliseconds(..))
@@ -25,6 +26,7 @@ import Toad.Concept as Concept
 import Toad.Concept.Fetch as Concept.Fetch
 import Toad.Error as Toad.Error
 import Toad.Markdown as Md
+import Toad.Navigate (navigate)
 import Toad.Page.Concepts as Toad.Page.Concepts
 import Toad.Query as Toad.Query
 import Toad.Route as Toad.Route
@@ -37,15 +39,18 @@ main :: Effect Unit
 main =
   let
     tellAppRouteChanged _ (Just prev) new | prev == new = pure unit
-    tellAppRouteChanged io _ route = void <<< Aff.launchAff $
-      Toad.Query.sendNavigate (fromMaybe Toad.Route.Home route) io
+    tellAppRouteChanged io _ route =
+      void
+        ∘ Aff.launchAff
+        ∘ Toad.Query.sendNavigate (fromMaybe Toad.Route.Home route)
+        $ io
   in
     HA.runHalogenAff do
       body <- HA.awaitBody
       io <- runUI (H.hoist Toad.runM component) unit body
-      H.liftEffect <<< void
-        <<< Routing.Hash.matchesWith
-          (Routing.Duplex.parse $ Routing.Duplex.optional Toad.Route.codec)
+      H.liftEffect ∘ void
+        ∘ Routing.Hash.matchesWith
+            (Routing.Duplex.parse ∘ Routing.Duplex.optional $ Toad.Route.codec)
         $
           tellAppRouteChanged io
 
@@ -64,7 +69,7 @@ component =
 timer :: ∀ m a. MonadAff m => Milliseconds -> a -> m (HS.Emitter a)
 timer ms val = do
   { emitter, listener } <- H.liftEffect HS.create
-  _ <- H.liftAff <<< Aff.forkAff <<< forever $ do
+  _ <- H.liftAff ∘ Aff.forkAff ∘ forever $ do
     Aff.delay ms
     H.liftEffect $ HS.notify listener val
   pure emitter
@@ -90,17 +95,19 @@ handleAction =
       conceptManifest <- H.liftAff $ Concept.Fetch.manifest windowFetch
 
       fromMaybe (pure unit)
-        <<< map H.liftEffect
-        <<< map Console.error
-        <<< left
+        ∘ map H.liftEffect
+        ∘ map Console.error
+        ∘ left
         $ conceptManifest
 
       Toad.handleError
-        <<< lmap Toad.Error.fetchingManifest
-        <<< rmap Toad.put
+        ∘ lmap Toad.Error.fetchingManifest
+        ∘ rmap Toad.put
         $ conceptManifest
 
     Toad.Action.NavbarSectionPicked -> mempty -- navigate (Toad.Route.ofNavbarSection n)
+
+    Toad.Action.Navigate r -> navigate r
 
     Toad.Action.Tick -> mempty
 
@@ -108,25 +115,42 @@ handleAction =
 
     Toad.Action.Nop -> mempty
 
+    Toad.Action.NavAccordionExpandBook -> flip bind Toad.put
+      ∘ map Toad.State.navAccordionsToggleBook
+      ∘ map Toad.State.navAccordions
+      $ H.get
+
+    Toad.Action.NavAccordionExpandConcepts -> flip bind Toad.put
+      ∘ map Toad.State.navAccordionsToggleConcepts
+      ∘ map Toad.State.navAccordions
+      $ H.get
+
     Toad.Action.ConceptsPageOutput (Toad.Page.Concepts.FetchConcept ident) -> do
       let
-        fetchConcept = H.liftAff <<< Concept.Fetch.one windowFetch <<<
-          Concept.path
+        fetchConcept =
+          H.liftAff ∘ Concept.Fetch.one windowFetch ∘ Concept.path
+
       let
         tryParseConcept =
-          (flip bind)
-            ( lmap Toad.Error.parsingConcept
-                <<< lmap show
-                <<< (flip runParser) Md.documentP
-            )
+          flip bind
+            $ lmap Toad.Error.parsingConcept
+            ∘ lmap show
+            ∘ (flip runParser) Md.documentP
+
+      let storeDoc s d = Map.insert ident d ∘ Toad.State.concepts $ s
+
+      let
+        parseDocAndPut mdM = do
+          state <- H.get
+          md <- mdM
+          Toad.handleError
+            ∘ rmap (Toad.put ∘ storeDoc state)
+            ∘ tryParseConcept
+            $ md
 
       bind H.get
-        $ (flip bind)
-            ( Toad.handleError
-                <<< rmap (Toad.put <<< (flip $ Map.insert ident) Map.empty)
-                <<< tryParseConcept
-            )
-        <<< traverse fetchConcept
-        <<< lmap Toad.Error.lookingUpRouteConcept
-        <<< note ("concept " <> show ident <> " not found")
-        <<< Toad.State.lookupDecl ident
+        $ parseDocAndPut
+        ∘ traverse fetchConcept
+        ∘ lmap Toad.Error.lookingUpRouteConcept
+        ∘ note ("concept " <> show ident <> " not found")
+        ∘ Toad.State.lookupDecl ident

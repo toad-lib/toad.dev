@@ -11,8 +11,8 @@ import Data.Newtype (class Newtype, unwrap)
 import Toad.App.Navbar.Internal
   ( Active(..)
   , ChildIs(..)
-  , SiblingIs(..)
   , Expanded(..)
+  , SiblingIs(..)
   , Visible(..)
   )
 import Toad.App.Navbar.Style as Style
@@ -94,9 +94,10 @@ renderItemRows
   :: ∀ w i. Route -> ExpandedItems -> Array FlatItem -> Array (HH.HTML w i)
 renderItemRows r x is =
   let
-    siblingIsActive (FlatItem _ _ (Route r')) = case Array.init <<< unwrap $ r, Array.init r' of
-      Just ir, Just ir' | ir == ir' -> SiblingIs Active
-      _, _ -> SiblingIs Inactive
+    siblingIsActive (FlatItem _ _ (Route r')) =
+      case Array.init <<< unwrap $ r, Array.init r' of
+        Just ir, Just ir' | ir == ir' -> SiblingIs Active
+        _, _ -> SiblingIs Inactive
 
     childIsExpanded r' =
       Array.any (_ `routeStartsWith` r')
@@ -120,7 +121,9 @@ renderItemRows r x is =
       | siblingIsActive i == SiblingIs Active = Visible
       | otherwise = Hidden
 
-    renderItem' i = renderItem (siblingIsActive i) (childIsActive i) (active i) (vis i) i
+    renderItem' i = renderItem (siblingIsActive i) (childIsActive i) (active i)
+      (vis i)
+      i
   in
     renderItem' <$> is
 
@@ -138,7 +141,7 @@ renderItem sa ca a e (FlatItem d t _) =
     [ HH.div [ Css.style $ Style.itemRibbon sa ca ] []
     , HH.div
         [ Css.style $ Style.itemWrapper d e a ]
-        [ HH.div [Css.style Style.itemUnderline] []
+        [ HH.div [ Css.style Style.itemUnderline ] []
         , HH.h4 [ Css.style $ Style.itemText a ] [ HH.text <<< unwrap $ t ]
         ]
     ]

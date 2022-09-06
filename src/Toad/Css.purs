@@ -46,7 +46,7 @@ oklab :: OkLab.Lab -> Css.Color
 oklab = OkLab.css
 
 definedIn :: String -> Css.CSS
-definedIn = Css.key (Css.Key <<< Css.Plain $ "--defined-in")
+definedIn = Css.key (Css.Key ∘ Css.Plain $ "--defined-in")
 
 kwapEasing :: Css.Transition.TimingFunction
 kwapEasing = Css.Transition.cubicBezier 0.25 1.0 0.5 1.0
@@ -64,12 +64,12 @@ anySize = Css.Size.sizeToString >>> Css.value >>> Css.Size.BasicSize
 style :: ∀ i r. Css.CSS -> HP.IProp (style :: String | r) i
 style =
   HP.attr (HC.AttrName "style")
-    <<< toString
-    <<< rules
-    <<< Css.runS
+    ∘ toString
+    ∘ rules
+    ∘ Css.runS
   where
   toString :: Array (Tuple String String) -> String
-  toString = String.joinWith "; " <<< map
+  toString = String.joinWith "; " ∘ map
     (\(Tuple key val) -> key <> ": " <> val)
 
   rules :: Array Css.Rule -> Array (Tuple String String)
@@ -94,7 +94,7 @@ instance valueMaskComposite :: Css.Val MaskComposite where
     MaskExclude -> Css.fromString "exclude"
 
 webkitMaskComposite :: MaskComposite -> Css.Value
-webkitMaskComposite = Css.fromString <<< case _ of
+webkitMaskComposite = Css.fromString ∘ case _ of
   MaskAdd -> Css.fromString "source-over"
   MaskSubtract -> Css.fromString "source-out"
   MaskIntersect -> Css.fromString "source-in"

@@ -12,13 +12,17 @@ import Halogen as H
 import Routing.Hash (setHash)
 import Toad.Action (Action(..))
 import Toad.App.Navbar as Navbar
+import Toad.Atom.Accordion as Accordion
+import Toad.Concept as Concept
 import Toad.Css as Css
+import CSS.Overflow (overflow, overflowAuto)
 import Toad.Css.Grid as Grid
 import Toad.Error (Error)
-import Toad.Html as HH
+import Toad.Html as Html
 import Toad.Navigate (class Navigate)
 import Toad.Page.Concepts as Page.Concepts
 import Toad.Route as Route
+import Toad.State (State)
 import Toad.State as State
 import Toad.Style as Style
 import Toad.Style.Global as Style.Global
@@ -38,25 +42,28 @@ derive newtype instance monadEffectM :: MonadEffect M
 derive newtype instance monadAffM :: MonadAff M
 
 instance navigateM :: Navigate M where
-  navigate = liftEffect <<< setHash <<< Route.print
+  navigate = liftEffect ∘ setHash ∘ Route.print
 
 put
   :: ∀ a s o m sp
    . State.LiftState sp
   => Monad m
   => sp
-  -> H.HalogenM State.State a s o m Unit
-put = (flip bind $ H.put) <<< H.modify <<< append <<< State.liftState
+  -> H.HalogenM State a s o m Unit
+put = (flip bind $ H.put)
+      ∘ H.modify
+      ∘ append
+      ∘ State.liftState
 
 handleError
   :: ∀ a s o m
    . Monad m
   => MonadEffect m
-  => Either Error (HalogenM State.State a s o m Unit)
-  -> HalogenM State.State a s o m Unit
+  => Either Error (HalogenM State a s o m Unit)
+  -> HalogenM State a s o m Unit
 handleError (Right a) = a
 handleError (Left (Tuple i u)) = do
-  liftEffect <<< Console.error $ i
+  liftEffect ∘ Console.error $ i
   put u
   pure unit
 
@@ -67,21 +74,72 @@ _concepts = Proxy :: Proxy "concepts"
 render
   :: ∀ m
    . MonadEffect m
-  => State.State
-  -> HH.HTML (H.ComponentSlot Slots m Action) Action
+  => State
+  -> Html.HTML (H.ComponentSlot Slots m Action) Action
 render state =
-  HH.div_
+  Html.div_
     [ Style.Global.stylesheet
-    , HH.div
+    , Html.div
         [ Css.style Style.appWrap
         ]
-        [ HH.div
+        [ Html.div
             [ Css.style Style.navbarWrap ]
-            [ Navbar.render Navbar.dummyExpanded Navbar.dummyItems ]
+            [ Html.div
+                [ Css.style do
+                    Css.width ∘ Css.pct $ 100.0
+                    Css.height ∘ Css.pct $ 100.0
+                    Css.display Css.flex
+                    Css.flexDirection Css.column
+                    Css.sym Css.padding $ Css.rem 1.0
+                    overflow overflowAuto
+                ]
+                [ Accordion.render
+                    Nothing
+                    { expanded: State.navAccordionsBookExpanded
+                        ∘ State.navAccordions
+                        $ state
+                    , header: Accordion.HeaderItem (Accordion.Title "Book")
+                    , active: Just unit
+                    , items: []
+                    , actionToggleExpanded: NavAccordionExpandBook
+                    , actionClickItem: const Nop
+                    , actionNoop: Nop
+                    }
+                , Accordion.render
+                    Nothing
+                    { expanded: State.navAccordionsConceptsExpanded
+                        ∘ State.navAccordions
+                        $ state
+                    , header: Accordion.HeaderItem (Accordion.Title "Concepts")
+                    , active: Just $ State.route state
+                    , items:
+                        map
+                          ( \d -> Accordion.Item
+                              ( Accordion.Title
+                                  ∘ Concept.titleString
+                                  ∘ Concept.title
+                                  $ d
+                              )
+                              ( Route.Concepts
+                                  ∘ Route.One
+                                  ∘ Concept.ident
+                                  $ d
+                              )
+                          )
+                          ∘ maybe [] id
+                          ∘ map Concept.decls
+                          ∘ State.conceptManifest
+                          $ state
+                    , actionToggleExpanded: NavAccordionExpandConcepts
+                    , actionClickItem: Navigate
+                    , actionNoop: Nop
+                    }
+                ]
+            ]
         , case State.route state of
-            Route.Home -> HH.div_ []
+            Route.Home -> Html.div_ []
             Route.Concepts oa ->
-              HH.slot
+              Html.slot
                 _concepts
                 0
                 Page.Concepts.concepts
@@ -93,11 +151,13 @@ render state =
                         ] <*> [ state ]
                     , route: oa
                     , manifest: State.conceptManifest state
-                    , style: Grid.inAppContent
+                    , style: do
+                               Grid.inAppContent
+                               Css.sym Css.padding $ Css.rem 1.0
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )
                 ConceptsPageOutput
-            Route.Book -> HH.div_ []
+            Route.Book -> Html.div_ []
         ]
     ]

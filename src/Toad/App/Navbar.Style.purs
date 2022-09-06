@@ -7,8 +7,42 @@ import CSS.Common (hidden)
 import CSS.Display (displayNone)
 import Data.Int as Int
 import Data.Newtype (class Newtype, unwrap)
-import Toad.App.Navbar.Internal (Active(..), ChildIs(..), SiblingIs(..), Visible(..))
-import Toad.Css (StyleM, absolute, backgroundColor, borderBox, bottom, boxSizing, color, colorBg, colorFg, colorPrimary, colorPrimary2, display, flexGrow, green, grey, height, left, oklab, padding, paddingBottom, paddingTop, pct, position, relative, rem, sym, visibility, width)
+import Toad.App.Navbar.Internal
+  ( Active(..)
+  , ChildIs(..)
+  , SiblingIs(..)
+  , Visible(..)
+  )
+import Toad.Css
+  ( StyleM
+  , absolute
+  , backgroundColor
+  , borderBox
+  , bottom
+  , boxSizing
+  , color
+  , colorBg
+  , colorFg
+  , colorPrimary
+  , colorPrimary2
+  , display
+  , flexGrow
+  , green
+  , grey
+  , height
+  , left
+  , oklab
+  , padding
+  , paddingBottom
+  , paddingTop
+  , pct
+  , position
+  , relative
+  , rem
+  , sym
+  , visibility
+  , width
+  )
 
 navbar :: StyleM Unit
 navbar = do

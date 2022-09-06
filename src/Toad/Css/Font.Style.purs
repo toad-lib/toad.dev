@@ -1,25 +1,42 @@
 module Toad.Css.Font.Style (global) where
 
-import Toad.Css
 import Toad.Prelude
 
-import CSS.Selector as Sel
+import CSS.Selector as Select
 import Data.Foldable (traverse_)
+import Toad.Css
+  ( CSS
+  , Selector
+  , color
+  , colorFg
+  , definedIn
+  , grey
+  , margin
+  , oklab
+  , px
+  , select
+  , sym
+  )
+
+applyStyle :: CSS -> Selector -> CSS
+applyStyle = flip select
 
 global :: CSS
 global =
   traverse_
-    (flip select typeRules <<< Sel.element)
-    [ "p"
-    , "span"
-    , "h1"
-    , "h2"
-    , "h3"
-    , "h4"
-    , "h5"
-    , "h6"
-    , "a"
-    ]
+    (applyStyle typeRules)
+    <<< map Select.element
+    $
+      [ "p"
+      , "span"
+      , "h1"
+      , "h2"
+      , "h3"
+      , "h4"
+      , "h5"
+      , "h6"
+      , "a"
+      ]
 
 typeRules :: CSS
 typeRules = do
