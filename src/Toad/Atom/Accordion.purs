@@ -18,6 +18,7 @@ import Data.String (joinWith)
 import Halogen.HTML.Events (onClick)
 import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
+import Toad.Css.Font as Font
 import Toad.Css
   ( CSS
   , absolute
@@ -146,6 +147,7 @@ renderRow
           [ Html.h4
               [ style do
                   color ∘ oklab ∘ colorBg $ grey
+                  Font.font Html.h4Font
               ]
               [ Html.text text ]
           ]

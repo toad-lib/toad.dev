@@ -305,10 +305,10 @@ h2Font :: Font
 h2Font = fontSize FontSizeH2 <> fontFamily QuicksandBold
 
 h3Font :: Font
-h3Font = fontSize FontSizeH3 <> fontFamily AtkinsonBold
+h3Font = fontSize FontSizeH3 <> fontFamily QuicksandBold
 
 h4Font :: Font
-h4Font = fontSize FontSizeH4 <> fontFamily AtkinsonBold
+h4Font = fontSize FontSizeH4 <> fontFamily QuicksandBold
 
 h5Font :: Font
 h5Font = fontSize FontSizeH5 <> fontFamily AtkinsonBold

@@ -36,6 +36,7 @@ data FontFamily
   = FontFamilyDefault
   | AtkinsonBold
   | AtkinsonMedium
+  | QuicksandMedium
   | QuicksandBold
 
 data Font = Font FontFamily FontSize
@@ -45,6 +46,7 @@ weight = case _ of
   FontFamilyDefault -> Medium
   AtkinsonMedium -> Medium
   AtkinsonBold -> Bold
+  QuicksandMedium -> Medium
   QuicksandBold -> Bold
 
 cssFontFamily :: FontFamily -> Css.CSS
@@ -63,6 +65,7 @@ cssFontFamily =
       FontFamilyDefault -> cssFontFamily AtkinsonMedium
       AtkinsonBold -> atkinson
       AtkinsonMedium -> atkinson
+      QuicksandMedium -> quicksand
       QuicksandBold -> quicksand
 
 cssFontWeight :: FontWeight -> Css.CSS
