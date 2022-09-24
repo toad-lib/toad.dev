@@ -5,6 +5,7 @@ module Toad.Css.Font
   , font
   , fontSize
   , fontFamily
+  , fontSizePt
   ) where
 
 import Toad.Prelude
@@ -36,8 +37,8 @@ data FontFamily
   = FontFamilyDefault
   | AtkinsonBold
   | AtkinsonMedium
-  | QuicksandMedium
-  | QuicksandBold
+  | LibreBaskervilleBold
+  | WorkSansSemibold
 
 data Font = Font FontFamily FontSize
 
@@ -46,27 +47,30 @@ weight = case _ of
   FontFamilyDefault -> Medium
   AtkinsonMedium -> Medium
   AtkinsonBold -> Bold
-  QuicksandMedium -> Medium
-  QuicksandBold -> Bold
+  LibreBaskervilleBold -> Bold
+  WorkSansSemibold -> Semibold
 
 cssFontFamily :: FontFamily -> Css.CSS
 cssFontFamily =
   let
-    fallback = pure >>> NEA.toNonEmpty
+    fallback = NEA.toNonEmpty ∘ pure
 
-    atkinson = Css.fontFamily
+    atk = Css.fontFamily
       (pure "Atkinson Hyperlegible")
       (fallback Css.Font.sansSerif)
-    quicksand = Css.fontFamily
-      (pure "Quicksand")
+    bsk = Css.fontFamily
+      (pure "Libre Baskerville")
+      (fallback Css.Font.serif)
+    wrk = Css.fontFamily
+      (pure "Work Sans")
       (fallback Css.Font.sansSerif)
   in
     case _ of
       FontFamilyDefault -> cssFontFamily AtkinsonMedium
-      AtkinsonBold -> atkinson
-      AtkinsonMedium -> atkinson
-      QuicksandMedium -> quicksand
-      QuicksandBold -> quicksand
+      AtkinsonBold -> atk
+      AtkinsonMedium -> atk
+      WorkSansSemibold -> wrk
+      LibreBaskervilleBold -> bsk
 
 cssFontWeight :: FontWeight -> Css.CSS
 cssFontWeight = case _ of
@@ -76,8 +80,8 @@ cssFontWeight = case _ of
   Medium -> Css.fontWeight (Css.weight 500.0)
   Light -> Css.fontWeight (Css.weight 300.0)
 
-cssFontSize :: FontSize -> Css.CSS
-cssFontSize =
+fontSizePt :: FontSize -> Css.Size Css.LengthUnit
+fontSizePt =
   let
     pt = case _ of
       FontSizeDefault -> pt FontSizeBody
@@ -90,7 +94,7 @@ cssFontSize =
       FontSizeH2 -> 32.0
       FontSizeH1 -> 48.0
   in
-    pt >>> Css.pt >>> Css.fontSize
+    pt >>> Css.pt
 
 fontFamily :: FontFamily -> Font
 fontFamily family = Font family mempty
@@ -101,7 +105,7 @@ fontSize = Font mempty
 font :: Font -> Css.CSS
 font (Font family size) = do
   cssFontFamily family
-  cssFontSize size
+  Css.fontSize $ fontSizePt size
   cssFontWeight $ weight family
 
 instance fontSizeSemigroup :: Semigroup FontSize where

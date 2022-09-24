@@ -18,7 +18,6 @@ import Data.String (joinWith)
 import Halogen.HTML.Events (onClick)
 import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
-import Toad.Css.Font as Font
 import Toad.Css
   ( CSS
   , absolute
@@ -60,6 +59,7 @@ import Toad.Css
   , transition
   , width
   )
+import Toad.Css.Font as Font
 import Toad.Html as Html
 
 newtype Title = Title String
@@ -143,7 +143,10 @@ renderRow
               height $ rem 2.0
               paddingLeft $ rem 0.5
           )
-          (maybe (if isHeader then actionExpand else actionNoop) actionPickValue value)
+          ( maybe (if isHeader then actionExpand else actionNoop)
+              actionPickValue
+              value
+          )
           [ Html.h4
               [ style do
                   color ∘ oklab ∘ colorBg $ grey

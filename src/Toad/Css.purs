@@ -40,6 +40,7 @@ import Toad.Css.Font
   , font
   , fontFamily
   , fontSize
+  , fontSizePt
   ) as X
 
 oklab :: OkLab.Lab -> Css.Color

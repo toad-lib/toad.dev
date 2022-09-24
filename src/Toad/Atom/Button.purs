@@ -8,7 +8,31 @@ import CSS.Time as Time
 import Data.Active (Active(..))
 import Data.Color.OkLab (Lightness(..))
 import Halogen.HTML.Events (onClick)
-import Toad.Css (CSS, backgroundColor, black, border, colorFg, colorPrimary, colorPrimary2, colorPrimary3, colorPrimary4, colorPrimary5, cursor, definedIn, green, kwapEasing, oklab, padding, pseudo, px, select, solid, style, sym, transition)
+import Toad.Css
+  ( CSS
+  , backgroundColor
+  , black
+  , border
+  , colorFg
+  , colorPrimary
+  , colorPrimary2
+  , colorPrimary3
+  , colorPrimary4
+  , colorPrimary5
+  , cursor
+  , definedIn
+  , green
+  , kwapEasing
+  , oklab
+  , padding
+  , pseudo
+  , px
+  , select
+  , solid
+  , style
+  , sym
+  , transition
+  )
 import Toad.Html as Html
 
 className :: String

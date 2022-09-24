@@ -23,11 +23,11 @@ module Toad.State
 import Toad.Prelude
 
 import Control.Alt ((<|>))
+import Data.Array as Array
 import Data.Expanded (Expanded(..))
 import Data.Expanded as Expanded
 import Data.Foldable (find)
 import Data.Hashable (hash)
-import Data.Array as Array
 import Data.List (List)
 import Data.Map (Map, SemigroupMap, keys)
 import Data.Maybe (fromMaybe)
@@ -47,8 +47,10 @@ instance showNavAccordions :: Show NavAccordions where
   show = genericShow
 
 navAccordionsInit :: Maybe Route.Route -> NavAccordions
-navAccordionsInit (Just Route.Book) = NavAccordions { book: Expanded, concepts: Collapsed }
-navAccordionsInit (Just (Route.Concepts _)) = NavAccordions { book: Collapsed, concepts: Expanded }
+navAccordionsInit (Just Route.Book) = NavAccordions
+  { book: Expanded, concepts: Collapsed }
+navAccordionsInit (Just (Route.Concepts _)) = NavAccordions
+  { book: Collapsed, concepts: Expanded }
 navAccordionsInit _ = NavAccordions { book: Collapsed, concepts: Collapsed }
 
 navAccordionsBookExpanded :: NavAccordions -> Expanded
@@ -136,10 +138,15 @@ instance errorMessageAppState :: LiftState ErrorMessage where
   liftState e = State (Just e) Nothing Nothing mempty Nothing
 
 instance conceptManifestAppState :: LiftState Concept.Manifest where
-  liftState (Concept.Manifest ds) = State Nothing (Just ∘ Concept.Manifest ∘ Array.sortWith Concept.title $ ds) Nothing mempty Nothing
+  liftState (Concept.Manifest ds) = State Nothing
+    (Just ∘ Concept.Manifest ∘ Array.sortWith Concept.title $ ds)
+    Nothing
+    mempty
+    Nothing
 
 instance routeAppState :: LiftState Route.Route where
-  liftState r = State Nothing Nothing (Just r) mempty (Just $ navAccordionsInit $ Just r)
+  liftState r = State Nothing Nothing (Just r) mempty
+    (Just $ navAccordionsInit $ Just r)
 
 instance conceptsAppState :: LiftState (Map Concept.Ident Md.Document) where
   liftState ds = State Nothing Nothing Nothing (wrap ds) Nothing

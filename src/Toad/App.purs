@@ -2,6 +2,7 @@ module Toad.App (M, runM, put, render, handleError) where
 
 import Toad.Prelude
 
+import CSS.Overflow (overflow, overflowAuto)
 import Data.Map as Map
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
@@ -15,7 +16,6 @@ import Toad.App.Navbar as Navbar
 import Toad.Atom.Accordion as Accordion
 import Toad.Concept as Concept
 import Toad.Css as Css
-import CSS.Overflow (overflow, overflowAuto)
 import Toad.Css.Grid as Grid
 import Toad.Error (Error)
 import Toad.Html as Html
@@ -51,9 +51,9 @@ put
   => sp
   -> H.HalogenM State a s o m Unit
 put = (flip bind $ H.put)
-      ∘ H.modify
-      ∘ append
-      ∘ State.liftState
+  ∘ H.modify
+  ∘ append
+  ∘ State.liftState
 
 handleError
   :: ∀ a s o m
@@ -152,8 +152,8 @@ render state =
                     , route: oa
                     , manifest: State.conceptManifest state
                     , style: do
-                               Grid.inAppContent
-                               Css.sym Css.padding $ Css.rem 1.0
+                        Grid.inAppContent
+                        Css.sym Css.padding $ Css.rem 1.0
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )

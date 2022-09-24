@@ -24,8 +24,10 @@ module Toad.Html
 
 import Toad.Prelude
 
+import CSS as CSS
 import DOM.HTML.Indexed as I
 import Data.Array as Array
+import Data.Color.OkLab as OkLab
 import Halogen (ClassName(..))
 import Halogen.HTML
   ( class IsProp
@@ -255,20 +257,36 @@ import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
 import Toad.Css
   ( CSS
-  , Font
+  , Font(..)
   , FontFamily(..)
   , FontSize(..)
+  , absolute
+  , backgroundColor
+  , bottom
+  , display
   , font
   , fontFamily
   , fontSize
+  , fontSizePt
+  , height
+  , inline
+  , left
+  , lineHeight
   , margin
   , nil
+  , oklab
+  , pct
+  , position
+  , relative
+  , rem
+  , width
+  , zIndex
   )
 import Toad.Route as Route
 
 type ClassProp i r = HP.IProp (class :: String | r) i
 
-classNames :: forall i r. Array String -> ClassProp i r
+classNames :: ∀ i r. Array String -> ClassProp i r
 classNames = (map ClassName) >>> HP.classes
 
 withText :: ∀ a w i. (Array (HTML w i) -> a) -> String -> a
@@ -277,62 +295,60 @@ withText ctor =
     >>> Array.singleton
     >>> ctor
 
-headingStyleProp :: forall i r. Font -> IProp (style :: String | r) i
-headingStyleProp = headingStyle >>> style
-
-headingStyle :: forall i r. Font -> CSS
+headingStyle :: ∀ i r. Font -> CSS
 headingStyle font' = do
   font font'
+  case font' of Font _ size -> lineHeight ∘ fontSizePt $ size
   margin nil nil nil nil
 
 a
-  :: forall r w i
+  :: ∀ r w i
    . Array (IProp I.HTMLa i)
   -> Route.Route
   -> Array (HTML w i)
   -> HTML w i
 a ps r t = HH.a
-  (ps <> [ HP.href <<< append "#" $ Route.print r ])
+  (ps <> [ HP.href ∘ append "#" $ Route.print r ])
   t
 
-a_ :: forall w i. Route.Route -> Array (HTML w i) -> HTML w i
-a_ r t = HH.a [ HP.href <<< append "#" $ Route.print r ] t
+a_ :: ∀ w i. Route.Route -> Array (HTML w i) -> HTML w i
+a_ r t = HH.a [ HP.href ∘ append "#" $ Route.print r ] t
 
 h1Font :: Font
-h1Font = fontSize FontSizeH1 <> fontFamily QuicksandBold
+h1Font = fontSize FontSizeH1 <> fontFamily LibreBaskervilleBold
 
 h2Font :: Font
-h2Font = fontSize FontSizeH2 <> fontFamily QuicksandBold
+h2Font = fontSize FontSizeH2 <> fontFamily LibreBaskervilleBold
 
 h3Font :: Font
-h3Font = fontSize FontSizeH3 <> fontFamily QuicksandBold
+h3Font = fontSize FontSizeH3 <> fontFamily WorkSansSemibold
 
 h4Font :: Font
-h4Font = fontSize FontSizeH4 <> fontFamily QuicksandBold
+h4Font = fontSize FontSizeH4 <> fontFamily WorkSansSemibold
 
 h5Font :: Font
-h5Font = fontSize FontSizeH5 <> fontFamily AtkinsonBold
+h5Font = fontSize FontSizeH5 <> fontFamily WorkSansSemibold
 
 h6Font :: Font
-h6Font = fontSize FontSizeH6 <> fontFamily AtkinsonBold
+h6Font = fontSize FontSizeH6 <> fontFamily WorkSansSemibold
 
 h1_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h1_ = HH.h1 [ headingStyleProp h1Font ]
+h1_ = HH.h1 [ style $ headingStyle h1Font ]
 
 h2_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h2_ = HH.h2 [ headingStyleProp h2Font ]
+h2_ = HH.h2 [ style $ headingStyle h2Font ]
 
 h3_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h3_ = HH.h3 [ headingStyleProp h3Font ]
+h3_ = HH.h3 [ style $ headingStyle h3Font ]
 
 h4_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h4_ = HH.h4 [ headingStyleProp h4Font ]
+h4_ = HH.h4 [ style $ headingStyle h4Font ]
 
 h5_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h5_ = HH.h5 [ headingStyleProp h5Font ]
+h5_ = HH.h5 [ style $ headingStyle h5Font ]
 
 h6_ :: ∀ w i. Array (HTML w i) -> HTML w i
-h6_ = HH.h6 [ headingStyleProp h6Font ]
+h6_ = HH.h6 [ style $ headingStyle h6Font ]
 
 p_ :: ∀ w i. Array (HTML w i) -> HTML w i
 p_ =
