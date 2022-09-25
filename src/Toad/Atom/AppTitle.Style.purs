@@ -10,6 +10,7 @@ import Toad.Css
   , alignItems
   , backgroundColor
   , color
+  , definedIn
   , display
   , flex
   , green
@@ -24,6 +25,7 @@ import Toad.Html as Html
 
 global :: CSS
 global = do
+  definedIn "Toad.Atom.AppTitle.Style"
   select
     ( Select.element "h1"
         `Select.with` Select.byClass h1ClassString
