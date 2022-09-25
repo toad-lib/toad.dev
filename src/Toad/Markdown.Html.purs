@@ -75,17 +75,6 @@ renderHeading x =
       H5 s -> Html.h5 [ style' Html.h5Font ] [ span' s ]
       H6 s -> Html.h6 [ style' Html.h6Font ] [ span' s ]
 
-renderHeader :: ∀ w i. Span -> Html.HTML w i
-renderHeader s =
-  Html.div
-    [ style Style.headerContainer
-    ]
-    [ Html.h1
-        [ Style.headerClass ]
-        [ renderSpan mempty s ]
-    ]
-renderHeader _ = Html.text "first element was not <h1>"
-
 shouldSkip :: Element -> Boolean
 shouldSkip (ElementComment _) = true
 shouldSkip (ElementCodeFence _) = true
@@ -96,10 +85,23 @@ isComment :: Element -> Boolean
 isComment (ElementComment _) = true
 isComment _ = false
 
-render :: ∀ w i. Document -> Html.HTML w i
-render d =
+renderHeaderSpan :: Document -> Maybe (Array Html.PlainHTML)
+renderHeaderSpan =
   let
-    -- Element at index 0 will always be an h1.
+    render' [ ElementHeading (H1 span) ] = Just [ renderSpan Nothing span ]
+    -- this should be unreachable
+    -- TODO(orion): change the interface of Document to include
+    -- a type-safe H1 (e.g. Document {heading :: Heading, body :: Array Element})
+    render' _ = Nothing
+  in
+    render'
+      ∘ take 1
+      ∘ filter (not isComment)
+      ∘ elements
+
+renderBody :: ∀ w i. Maybe CSS -> Document -> Html.HTML w i
+renderBody x d =
+  let
     style' 0 = Style.elementFirst
     style' _ = Style.element
 
@@ -123,17 +125,14 @@ render d =
         s
   in
     Html.div
-      [ style Style.document ]
-      [ case take 1 ∘ filter (not isComment) ∘ elements $ d of
-          [ ElementHeading (H1 s) ] -> renderHeader s
-          _ -> HH.text "unreachable"
-      , Html.div
-          [ style Style.documentBody ]
-          ( mapWithIndex render'
-              ∘ filter (not shouldSkip)
-              ∘ drop 1
-              ∘ filter (not isComment)
-              ∘ elements
-              $ d
-          )
+      [ style do
+          Style.documentBody
+          maybe (pure unit) id x
       ]
+      ( mapWithIndex render'
+          ∘ filter (not shouldSkip)
+          ∘ drop 1
+          ∘ filter (not isComment)
+          ∘ elements
+          $ d
+      )

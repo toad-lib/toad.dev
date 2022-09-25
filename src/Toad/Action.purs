@@ -2,12 +2,14 @@ module Toad.Action where
 
 import Toad.Prelude
 
+import Toad.Atom.AppTitle (AppTitle)
 import Toad.Page.Concepts as Page.Concepts
 import Toad.Route as Route
 
 data Action
   = Nop
   | Init
+  | AppTitleChanged AppTitle
   | NavbarSectionPicked
   | Navigate Route.Route
   | Tick

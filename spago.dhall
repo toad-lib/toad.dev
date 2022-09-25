@@ -40,6 +40,8 @@
   , "transformers"
   , "tuples"
   , "unordered-collections"
+  , "unsafe-coerce"
+  , "unsafe-reference"
   , "web-events"
   , "yoga-fetch"
   ]

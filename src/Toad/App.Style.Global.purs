@@ -4,10 +4,10 @@ import Prelude
 
 import Halogen.HTML (HTML)
 import Halogen.HTML.CSS as HalogenCss
+import Toad.Atom.AppTitle.Style as AppTitle
 import Toad.Atom.Button as Button
 import Toad.Css.BoxSizing as BoxSizing
 import Toad.Css.Font.Style as Font.Style
-import Toad.Markdown.Html.Style as Md
 import Toad.Navbar.Button.Style as Navbar.Button.Style
 
 -- Here lie global styles
@@ -29,4 +29,4 @@ stylesheet = HalogenCss.stylesheet do
   BoxSizing.global
   Font.Style.global
   Navbar.Button.Style.global
-  Md.global
+  AppTitle.global

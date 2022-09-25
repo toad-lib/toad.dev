@@ -1,5 +1,8 @@
 module Toad.State
-  ( State(..)
+  ( State
+  , Record
+  , state
+  , record
   , init
   , concepts
   , conceptsHash
@@ -29,13 +32,15 @@ import Data.Expanded as Expanded
 import Data.Foldable (find)
 import Data.Hashable (hash)
 import Data.List (List)
-import Data.Map (Map, SemigroupMap, keys)
+import Data.Map (Map, SemigroupMap(..))
+import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Newtype (unwrap, wrap)
 import Data.Set (Set)
 import Data.Set as Set
+import Toad.Atom.AppTitle (AppTitle(..))
 import Toad.Concept as Concept
-import Toad.Error (ErrorMessage(..))
+import Toad.Error (ErrorMessage(..), errorMessageString)
 import Toad.Markdown as Md
 import Toad.Route as Route
 
@@ -67,12 +72,16 @@ navAccordionsToggleConcepts :: NavAccordions -> NavAccordions
 navAccordionsToggleConcepts (NavAccordions { book, concepts: c }) =
   NavAccordions { book, concepts: Expanded.toggle c }
 
-data State = State
-  (Maybe ErrorMessage)
-  (Maybe Concept.Manifest)
-  (Maybe Route.Route)
-  (SemigroupMap Concept.Ident Md.Document)
-  (Maybe NavAccordions)
+type Record =
+  { error :: Maybe ErrorMessage
+  , manifest :: Maybe Concept.Manifest
+  , route :: Maybe Route.Route
+  , parsedConcepts :: SemigroupMap Concept.Ident Md.Document
+  , navAccordions :: Maybe NavAccordions
+  , appTitle :: Maybe AppTitle
+  }
+
+data State = State Record
 
 derive instance eqState :: Eq State
 derive instance genericState :: Generic State _
@@ -81,35 +90,79 @@ instance showState :: Show State where
 
 --| Old state should always be on the right
 instance semiState :: Semigroup State where
-  append (State eA cdA rA dsA nA) (State eB cdB rB dsB nB) =
+  append
+    ( State
+        { error: eA
+        , manifest: mA
+        , route: rA
+        , parsedConcepts: pcA
+        , navAccordions: nA
+        , appTitle: atA
+        }
+    )
+    ( State
+        { error: eB
+        , manifest: mB
+        , route: rB
+        , parsedConcepts: pcB
+        , navAccordions: nB
+        , appTitle: atB
+        }
+    ) =
     let
-      err = eA <|> eB
-      concepts_ = cdA <|> cdB
+      error_ = eA <|> eB
+      manifest_ = mA <|> mB
       route_ = rA <|> rB
-      docs = dsA <|> dsB
-      n = nA <|> nB
+      parsedConcepts_ = pcA <|> pcB
+      navAccordions_ = nA <|> nB
+      appTitle_ = atA <|> atB
     in
-      State err concepts_ route_ docs n
+      State
+        { error: error_
+        , manifest: manifest_
+        , route: route_
+        , parsedConcepts: parsedConcepts_
+        , navAccordions: navAccordions_
+        , appTitle: appTitle_
+        }
 
 instance monoidState :: Monoid State where
-  mempty = State Nothing Nothing Nothing mempty Nothing
+  mempty = State
+    { error: Nothing
+    , manifest: Nothing
+    , route: Nothing
+    , parsedConcepts: SemigroupMap $ Map.empty
+    , navAccordions: Nothing
+    , appTitle: Nothing
+    }
 
 init :: State
 init = mempty
 
+initWith :: (Record -> Record) -> State
+initWith f = state ∘ f ∘ record $ init
+
+record :: State -> Record
+record (State r) = r
+
+state :: Record -> State
+state = State
+
 dismissError :: State -> State
-dismissError (State _ a b c d) = State Nothing a b c d
+dismissError = state ∘ (_ { error = Nothing }) ∘ record
 
 error :: State -> Maybe String
-error (State (Just (ErrorMessage e)) _ _ _ _) = Just e
-error (State (Nothing) _ _ _ _) = Nothing
+error = map errorMessageString ∘ (_.error) ∘ record
 
 conceptManifest :: State -> Maybe Concept.Manifest
-conceptManifest (State _ m _ _ _) = m
+conceptManifest = _.manifest ∘ record
 
 conceptManifestHash :: State -> Int
-conceptManifestHash (State _ m _ _ _) =
-  hash ∘ map Concept.ident ∘ maybe [] Concept.decls $ m
+conceptManifestHash =
+  hash
+    ∘ map Concept.ident
+    ∘ maybe [] Concept.decls
+    ∘ conceptManifest
 
 lookupDecl :: Concept.Ident -> State -> Maybe Concept.Decl
 lookupDecl ident s = do
@@ -117,39 +170,46 @@ lookupDecl ident s = do
   find (eq ident ∘ Concept.ident) ds
 
 route :: State -> Route.Route
-route (State _ _ r _ _) = fromMaybe Route.init r
+route = fromMaybe Route.init ∘ (_.route) ∘ record
 
 routeHash :: State -> Int
 routeHash = hash ∘ route
 
 concepts :: State -> Map Concept.Ident Md.Document
-concepts (State _ _ _ m _) = unwrap m
+concepts = unwrap ∘ (_.parsedConcepts) ∘ record
 
 conceptsHash :: State -> Int
-conceptsHash = hash ∘ (Set.toUnfoldable :: Set _ -> List _) ∘ keys ∘ concepts
+conceptsHash = hash ∘ (Set.toUnfoldable :: Set _ -> List _) ∘ Map.keys ∘
+  concepts
 
 navAccordions :: State -> NavAccordions
-navAccordions (State _ _ _ _ n) = maybe (navAccordionsInit Nothing) id n
+navAccordions = maybe (navAccordionsInit Nothing) id ∘ (_.navAccordions) ∘
+  record
 
 class LiftState a where
   liftState :: a -> State
 
 instance errorMessageAppState :: LiftState ErrorMessage where
-  liftState e = State (Just e) Nothing Nothing mempty Nothing
+  liftState e = initWith (_ { error = Just e })
 
 instance conceptManifestAppState :: LiftState Concept.Manifest where
-  liftState (Concept.Manifest ds) = State Nothing
-    (Just ∘ Concept.Manifest ∘ Array.sortWith Concept.title $ ds)
-    Nothing
-    mempty
-    Nothing
+  liftState (Concept.Manifest ds) =
+    initWith
+      ( _
+          { manifest =
+              (Just ∘ Concept.Manifest ∘ Array.sortWith Concept.title $ ds)
+          }
+      )
 
 instance routeAppState :: LiftState Route.Route where
-  liftState r = State Nothing Nothing (Just r) mempty
-    (Just $ navAccordionsInit $ Just r)
+  liftState r = initWith
+    (_ { route = Just r, navAccordions = Just (navAccordionsInit $ Just r) })
 
 instance conceptsAppState :: LiftState (Map Concept.Ident Md.Document) where
-  liftState ds = State Nothing Nothing Nothing (wrap ds) Nothing
+  liftState ds = initWith (_ { parsedConcepts = wrap ds })
 
 instance navAccordionsAppState :: LiftState NavAccordions where
-  liftState n = State Nothing Nothing Nothing mempty (Just n)
+  liftState n = initWith (_ { navAccordions = Just n })
+
+instance appTitleLiftState :: LiftState AppTitle where
+  liftState at = initWith (_ { appTitle = Just at })

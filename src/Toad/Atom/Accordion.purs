@@ -18,6 +18,10 @@ import Data.String (joinWith)
 import Halogen.HTML.Events (onClick)
 import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
+import CSS.Text.Whitespace (textWhitespace, whitespaceNoWrap)
+import CSS.Overflow (overflow, hidden)
+import CSS.Text.Overflow (ellipsis, textOverflow)
+import CSS.TextAlign (textAlign, leftTextAlign)
 import Toad.Css
   ( CSS
   , absolute
@@ -33,7 +37,7 @@ import Toad.Css
   , colorPrimary5
   , display
   , flex
-  , flexGrow
+  , flexShrink
   , flexStart
   , green
   , grey
@@ -125,9 +129,12 @@ renderRow
   active =
   let
     squareStyle = do
-      height $ rem 2.0
-      width $ rem 2.0
-      marginRight $ rem 0.25
+      height $ rem 3.0
+      width $ rem 3.0
+      display flex
+      alignItems center
+      justifyContent center
+      flexShrink 0.0
   in
     Html.div
       [ style do
@@ -139,9 +146,10 @@ renderRow
           ( Just do
               display flex
               alignItems center
-              flexGrow 1.0
-              height $ rem 2.0
+              width $ pct 100.0
+              height $ rem 3.0
               paddingLeft $ rem 0.5
+              overflow hidden
           )
           ( maybe (if isHeader then actionExpand else actionNoop)
               actionPickValue
@@ -150,7 +158,12 @@ renderRow
           [ Html.h4
               [ style do
                   color ∘ oklab ∘ colorBg $ grey
-                  Font.font Html.h4Font
+                  Font.font Html.h3Font
+                  width $ pct 100.0
+                  textWhitespace whitespaceNoWrap
+                  textOverflow ellipsis
+                  overflow hidden
+                  textAlign leftTextAlign
               ]
               [ Html.text text ]
           ]
@@ -255,7 +268,7 @@ render
           fromMaybe (pure unit) x
       ]
       [ Html.div
-          [ style ∘ flexGrow $ 1.0 ]
+          [ style ∘ width $ pct 100.0 ]
           $
             [ headerRow
             ]

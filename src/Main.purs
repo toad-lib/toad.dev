@@ -22,6 +22,7 @@ import Routing.Duplex as Routing.Duplex
 import Routing.Hash as Routing.Hash
 import Toad.Action as Toad.Action
 import Toad.App as Toad
+import Toad.Atom.AppTitle (AppTitle(..))
 import Toad.Concept as Concept
 import Toad.Concept.Fetch as Concept.Fetch
 import Toad.Error as Toad.Error
@@ -54,7 +55,7 @@ main =
         $
           tellAppRouteChanged io
 
-component :: ∀ i o. H.Component Toad.Query.Query i o Toad.M
+component :: ∀ i. H.Component Toad.Query.Query i Unit Toad.M
 component =
   H.mkComponent
     { initialState: const Toad.State.init
@@ -75,9 +76,10 @@ timer ms val = do
   pure emitter
 
 handleQuery
-  :: ∀ a s o
+  :: ∀ a
    . Toad.Query.Query a
-  -> H.HalogenM Toad.State.State Toad.Action.Action s o Toad.M (Maybe a)
+  -> H.HalogenM Toad.State.State Toad.Action.Action Toad.Slots Unit Toad.M
+       (Maybe a)
 handleQuery = case _ of
   Toad.Query.Navigate route _ -> do
     Toad.put route
@@ -90,7 +92,7 @@ handleAction
 handleAction =
   case _ of
     Toad.Action.Init -> do
-      _ <- H.subscribe =<< timer (Milliseconds 100.0) Toad.Action.Tick
+      -- _ <- H.subscribe =<< timer (Milliseconds 100.0) Toad.Action.Tick
 
       conceptManifest <- H.liftAff $ Concept.Fetch.manifest windowFetch
 
@@ -105,7 +107,9 @@ handleAction =
         ∘ rmap Toad.put
         $ conceptManifest
 
-    Toad.Action.NavbarSectionPicked -> mempty -- navigate (Toad.Route.ofNavbarSection n)
+    Toad.Action.NavbarSectionPicked -> mempty
+
+    Toad.Action.AppTitleChanged at -> Toad.put at
 
     Toad.Action.Navigate r -> navigate r
 
@@ -124,6 +128,9 @@ handleAction =
       ∘ map Toad.State.navAccordionsToggleConcepts
       ∘ map Toad.State.navAccordions
       $ H.get
+
+    Toad.Action.ConceptsPageOutput (Toad.Page.Concepts.TitleChanged at) ->
+      handleAction (Toad.Action.AppTitleChanged $ AppTitle at)
 
     Toad.Action.ConceptsPageOutput (Toad.Page.Concepts.FetchConcept ident) -> do
       let

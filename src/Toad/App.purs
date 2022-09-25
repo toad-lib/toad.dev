@@ -1,4 +1,4 @@
-module Toad.App (M, runM, put, render, handleError) where
+module Toad.App (M, Slots, runM, put, render, handleError) where
 
 import Toad.Prelude
 
@@ -14,6 +14,7 @@ import Routing.Hash (setHash)
 import Toad.Action (Action(..))
 import Toad.App.Navbar as Navbar
 import Toad.Atom.Accordion as Accordion
+import Toad.Atom.AppTitle as AppTitle
 import Toad.Concept as Concept
 import Toad.Css as Css
 import Toad.Css.Grid as Grid
@@ -67,9 +68,13 @@ handleError (Left (Tuple i u)) = do
   put u
   pure unit
 
-type Slots = (concepts :: ∀ q. H.Slot q Page.Concepts.Output Int)
+type Slots = (concepts :: forall q. H.Slot q Page.Concepts.Output Int)
 
+_concepts :: Proxy "concepts"
 _concepts = Proxy :: Proxy "concepts"
+
+conceptsPageSlot :: Int
+conceptsPageSlot = 0
 
 render
   :: ∀ m
@@ -90,7 +95,6 @@ render state =
                     Css.height ∘ Css.pct $ 100.0
                     Css.display Css.flex
                     Css.flexDirection Css.column
-                    Css.sym Css.padding $ Css.rem 1.0
                     overflow overflowAuto
                 ]
                 [ Accordion.render
@@ -136,12 +140,15 @@ render state =
                     }
                 ]
             ]
+        , maybe (Html.div [ Css.style Grid.inAppContentTitle ] [])
+            (AppTitle.render Grid.inAppContentTitle) ∘ _.appTitle ∘ State.record
+            $ state
         , case State.route state of
             Route.Home -> Html.div_ []
             Route.Concepts oa ->
               Html.slot
                 _concepts
-                0
+                conceptsPageSlot
                 Page.Concepts.concepts
                 ( Page.Concepts.Input
                     { hash:
@@ -151,9 +158,8 @@ render state =
                         ] <*> [ state ]
                     , route: oa
                     , manifest: State.conceptManifest state
-                    , style: do
-                        Grid.inAppContent
-                        Css.sym Css.padding $ Css.rem 1.0
+                    , titleStyle: Grid.inAppContentTitle
+                    , bodyStyle: Grid.inAppContent
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )

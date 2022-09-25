@@ -1,6 +1,7 @@
 module Toad.Error
   ( Error
   , ErrorMessage(..)
+  , errorMessageString
   , fetchingManifest
   , lookingUpRouteConcept
   , parsingConcept
@@ -12,6 +13,9 @@ newtype ErrorMessage = ErrorMessage String
 
 derive newtype instance showErrorMessage :: Show ErrorMessage
 derive newtype instance eqErrorMessage :: Eq ErrorMessage
+
+errorMessageString :: ErrorMessage -> String
+errorMessageString (ErrorMessage s) = s
 
 type Error = Tuple String ErrorMessage
 
