@@ -10,10 +10,8 @@ import Toad.Css as Css
 import Toad.Html as Html
 import Toad.Markdown as Md
 import Toad.Markdown.Html as Md.Html
-import Toad.Page.Concepts.All as Self.All
 import Toad.Page.Concepts.One as Self.One
 import Toad.Route as Route
-import Unsafe.Coerce (unsafeCoerce)
 
 newtype Input = Input
   { hash :: Array Int
@@ -54,11 +52,11 @@ manifest (Input { manifest: m }) = m
 lookupDocument :: Input -> Ident -> Maybe Md.Document
 lookupDocument (Input { lookupDocument: l }) = l
 
-data Output = FetchConcept Ident | TitleChanged (Array Html.PlainHTML)
+data Output = FetchConcept Ident | TitleChanged ({elems :: Array Html.PlainHTML, hash :: Int})
 
 data Action = Init | InputChanged Input
 
-title :: Input -> Maybe (Array Html.PlainHTML)
+title :: Input -> Maybe ({elems :: Array Html.PlainHTML, hash :: Int})
 title i@(Input { route: Route.One id }) = join ∘ map Md.Html.renderHeaderSpan
   ∘ lookupDocument i
   $ id
@@ -79,9 +77,11 @@ render
   :: ∀ w
    . Input
   -> Html.HTML w Action
-render i@(Input { route: Route.One id, bodyStyle }) = Self.One.render bodyStyle
-  (lookupDocument i id)
-render i = Html.text "TODO: may be unnecessary"
+render i@(Input { route: Route.One id }) =
+  Self.One.render
+    (bodyStyle i)
+    (lookupDocument i id)
+render _ = Html.text "TODO: may be unnecessary"
 
 handleAction
   :: forall m

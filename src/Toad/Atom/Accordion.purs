@@ -9,6 +9,10 @@ module Toad.Atom.Accordion
 import Toad.Prelude hiding (top)
 
 import CSS.Common (center)
+import CSS.Overflow (hidden, overflow)
+import CSS.Text.Overflow (ellipsis, textOverflow)
+import CSS.Text.Whitespace (textWhitespace, whitespaceNoWrap)
+import CSS.TextAlign (leftTextAlign, textAlign)
 import Data.Active (Active(..))
 import Data.Array.Mve as Mve
 import Data.Color.OkLab (Lab(..), Lightness(..))
@@ -18,10 +22,6 @@ import Data.String (joinWith)
 import Halogen.HTML.Events (onClick)
 import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
-import CSS.Text.Whitespace (textWhitespace, whitespaceNoWrap)
-import CSS.Overflow (overflow, hidden)
-import CSS.Text.Overflow (ellipsis, textOverflow)
-import CSS.TextAlign (textAlign, leftTextAlign)
 import Toad.Css
   ( CSS
   , absolute

@@ -2,8 +2,8 @@ module Toad.Atom.AppTitle.Style (global, container, h1Class) where
 
 import Toad.Prelude
 
-import CSS.Selector as Select
 import CSS.Common (center)
+import CSS.Selector as Select
 import Data.Color.OkLab (Lightness(..))
 import Toad.Css
   ( CSS

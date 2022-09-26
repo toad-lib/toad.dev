@@ -3,6 +3,7 @@ module Toad.App (M, Slots, runM, put, render, handleError) where
 import Toad.Prelude
 
 import CSS.Overflow (overflow, overflowAuto)
+import Data.Hashable (hash)
 import Data.Map as Map
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
@@ -45,6 +46,10 @@ derive newtype instance monadAffM :: MonadAff M
 instance navigateM :: Navigate M where
   navigate = liftEffect ∘ setHash ∘ Route.print
 
+--| Given something that is a part of Toad.App.State,
+--| replace the existing part with the new part.
+--|
+--| The rest of the state is unchanged.
 put
   :: ∀ a s o m sp
    . State.LiftState sp
@@ -88,60 +93,61 @@ render state =
         [ Css.style Style.appWrap
         ]
         [ Html.div
-            [ Css.style Style.navbarWrap ]
-            [ Html.div
-                [ Css.style do
-                    Css.width ∘ Css.pct $ 100.0
-                    Css.height ∘ Css.pct $ 100.0
-                    Css.display Css.flex
-                    Css.flexDirection Css.column
-                    overflow overflowAuto
-                ]
-                [ Accordion.render
-                    Nothing
-                    { expanded: State.navAccordionsBookExpanded
-                        ∘ State.navAccordions
-                        $ state
-                    , header: Accordion.HeaderItem (Accordion.Title "Book")
-                    , active: Just unit
-                    , items: []
-                    , actionToggleExpanded: NavAccordionExpandBook
-                    , actionClickItem: const Nop
-                    , actionNoop: Nop
-                    }
-                , Accordion.render
-                    Nothing
-                    { expanded: State.navAccordionsConceptsExpanded
-                        ∘ State.navAccordions
-                        $ state
-                    , header: Accordion.HeaderItem (Accordion.Title "Concepts")
-                    , active: Just $ State.route state
-                    , items:
-                        map
-                          ( \d -> Accordion.Item
-                              ( Accordion.Title
-                                  ∘ Concept.titleString
-                                  ∘ Concept.title
-                                  $ d
-                              )
-                              ( Route.Concepts
-                                  ∘ Route.One
-                                  ∘ Concept.ident
-                                  $ d
-                              )
-                          )
-                          ∘ maybe [] id
-                          ∘ map Concept.decls
-                          ∘ State.conceptManifest
-                          $ state
-                    , actionToggleExpanded: NavAccordionExpandConcepts
-                    , actionClickItem: Navigate
-                    , actionNoop: Nop
-                    }
-                ]
+            [ Css.style do
+                Css.width ∘ Css.pct $ 100.0
+                Css.height ∘ Css.pct $ 100.0
+                Css.display Css.flex
+                Css.flexDirection Css.column
+                overflow overflowAuto
+                Style.navbarWrap
             ]
-        , maybe (Html.div [ Css.style Grid.inAppContentTitle ] [])
-            (AppTitle.render Grid.inAppContentTitle) ∘ _.appTitle ∘ State.record
+            [ Accordion.render
+                Nothing
+                { expanded: State.navAccordionsBookExpanded
+                    ∘ State.navAccordions
+                    $ state
+                , header: Accordion.HeaderItem (Accordion.Title "Book")
+                , active: Just unit
+                , items: []
+                , actionToggleExpanded: NavAccordionExpandBook
+                , actionClickItem: const Nop
+                , actionNoop: Nop
+                }
+            , Accordion.render
+                Nothing
+                { expanded: State.navAccordionsConceptsExpanded
+                    ∘ State.navAccordions
+                    $ state
+                , header: Accordion.HeaderItem (Accordion.Title "Concepts")
+                , active: Just $ State.route state
+                , items:
+                    map
+                      ( \d -> Accordion.Item
+                          ( Accordion.Title
+                              ∘ Concept.titleString
+                              ∘ Concept.title
+                              $ d
+                          )
+                          ( Route.Concepts
+                              ∘ Route.One
+                              ∘ Concept.ident
+                              $ d
+                          )
+                      )
+                      ∘ maybe [] id
+                      ∘ map Concept.decls
+                      ∘ State.conceptManifest
+                      $ state
+                , actionToggleExpanded: NavAccordionExpandConcepts
+                , actionClickItem: Navigate
+                , actionNoop: Nop
+                }
+            ]
+        , maybe
+            (Html.div [] [])
+            (AppTitle.render Grid.inAppContentTitle)
+            ∘ _.appTitle
+            ∘ State.record
             $ state
         , case State.route state of
             Route.Home -> Html.div_ []
@@ -155,11 +161,16 @@ render state =
                         [ State.routeHash
                         , State.conceptManifestHash
                         , State.conceptsHash
-                        ] <*> [ state ]
+                        , hash ∘ _.appTitle ∘ State.record
+                        ]
+                        <*> [ state ]
                     , route: oa
                     , manifest: State.conceptManifest state
                     , titleStyle: Grid.inAppContentTitle
-                    , bodyStyle: Grid.inAppContent
+                    , bodyStyle: maybe
+                          Grid.inAppContentAndTitle
+                          (const Grid.inAppContent)
+                          (_.appTitle ∘ State.record $ state)
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )

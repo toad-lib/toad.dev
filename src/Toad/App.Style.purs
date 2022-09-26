@@ -2,8 +2,8 @@ module Toad.Style (appWrap, navbarWrap) where
 
 import Prelude hiding (top)
 import Toad.Css
-import CSS.Overflow (overflow, overflowAuto)
 
+import CSS.Overflow (overflow, overflowAuto)
 import Toad.Css.Grid as Grid
 import Toad.Layout (AppLayout(..))
 

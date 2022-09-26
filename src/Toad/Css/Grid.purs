@@ -1,6 +1,7 @@
 module Toad.Css.Grid
   ( appGrid
   , inAppContent
+  , inAppContentAndTitle
   , inAppContentTitle
   , inAppNavbar
   , inAppLogo
@@ -9,7 +10,7 @@ module Toad.Css.Grid
 import Toad.Prelude
 
 import CSS.Common as Css.Common
-import Css.Grid (GridCol(..), GridRow(..), grid, gridArea)
+import Css.Grid (GridCol(..), GridRow(..), grid, gridArea, gridRowStart)
 import Data.Fist (fist1, fist2)
 import Toad.Css as Css
 import Toad.Layout (AppLayout(..))
@@ -33,6 +34,11 @@ inAppNavbar = gridArea appGridLabel AppGridNavbar
 inAppContent :: Css.CSS
 inAppContent = gridArea appGridLabel AppGridContent
 
+inAppContentAndTitle :: Css.CSS
+inAppContentAndTitle = do
+  gridArea appGridLabel AppGridContent
+  gridRowStart appGridLabel AppGridContentTitle
+
 inAppContentTitle :: Css.CSS
 inAppContentTitle = gridArea appGridLabel AppGridContentTitle
 
@@ -46,8 +52,8 @@ appGrid AppLayoutMobile = appGridMobile
 appGridMobile :: Css.CSS
 appGridMobile =
   let
-    rem = Css.rem >>> Css.anySize
-    pct = Css.pct >>> Css.anySize
+    rem = Css.anySize ∘ Css.pct
+    pct = Css.anySize ∘ Css.rem
   in
     grid
       (fist1 $ GridCol (pct 100.0))
@@ -59,8 +65,7 @@ appGridMobile =
 appGridDesktop :: Css.CSS
 appGridDesktop =
   let
-    rem = Css.rem >>> Css.anySize
-    pct = Css.pct >>> Css.anySize
+    rem = Css.anySize ∘ Css.rem
   in
     do
       grid

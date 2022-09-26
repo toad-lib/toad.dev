@@ -22,9 +22,14 @@ import Toad.Markdown
   , Text(..)
   , Token(..)
   , elements
+  , spanString
   )
 import Toad.Markdown.Html.Style as Style
 import Toad.Route as Route
+import Data.Hashable (hash)
+
+hashSpan :: Span -> Int
+hashSpan s = hash ∘ spanString $ s
 
 renderText :: ∀ w i. Text -> Html.HTML w i
 renderText (Unstyled s) = Html.text s
@@ -85,19 +90,17 @@ isComment :: Element -> Boolean
 isComment (ElementComment _) = true
 isComment _ = false
 
-renderHeaderSpan :: Document -> Maybe (Array Html.PlainHTML)
-renderHeaderSpan =
-  let
-    render' [ ElementHeading (H1 span) ] = Just [ renderSpan Nothing span ]
+renderHeaderSpan :: Document -> Maybe ({elems :: Array Html.PlainHTML, hash :: Int})
+renderHeaderSpan doc =
+  case take 1 ∘ filter (not isComment) ∘ elements $ doc of
+    [ElementHeading (H1 span)] ->
+      Just { elems: [ renderSpan Nothing span]
+           , hash: hashSpan span
+           }
     -- this should be unreachable
     -- TODO(orion): change the interface of Document to include
     -- a type-safe H1 (e.g. Document {heading :: Heading, body :: Array Element})
-    render' _ = Nothing
-  in
-    render'
-      ∘ take 1
-      ∘ filter (not isComment)
-      ∘ elements
+    _ -> Nothing
 
 renderBody :: ∀ w i. Maybe CSS -> Document -> Html.HTML w i
 renderBody x d =

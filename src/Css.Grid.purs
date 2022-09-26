@@ -2,6 +2,7 @@ module Css.Grid
   ( GridCol(..)
   , GridRow(..)
   , grid
+  , gridRowStart
   , gridArea
   ) where
 
@@ -29,6 +30,9 @@ rowSize (GridRow s _) = s
 
 gridArea :: ∀ a. (a -> String) -> a -> Css.CSS
 gridArea f = Css.key (Css.fromString "grid-area") <<< f
+
+gridRowStart :: ∀ a. (a -> String) -> a -> Css.CSS
+gridRowStart f = Css.key (Css.fromString "grid-row-start") <<< f
 
 grid
   :: ∀ t f a s
