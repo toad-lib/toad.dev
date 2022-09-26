@@ -52,11 +52,13 @@ manifest (Input { manifest: m }) = m
 lookupDocument :: Input -> Ident -> Maybe Md.Document
 lookupDocument (Input { lookupDocument: l }) = l
 
-data Output = FetchConcept Ident | TitleChanged ({elems :: Array Html.PlainHTML, hash :: Int})
+data Output
+  = FetchConcept Ident
+  | TitleChanged ({ elems :: Array Html.PlainHTML, hash :: Int })
 
 data Action = Init | InputChanged Input
 
-title :: Input -> Maybe ({elems :: Array Html.PlainHTML, hash :: Int})
+title :: Input -> Maybe ({ elems :: Array Html.PlainHTML, hash :: Int })
 title i@(Input { route: Route.One id }) = join ∘ map Md.Html.renderHeaderSpan
   ∘ lookupDocument i
   $ id

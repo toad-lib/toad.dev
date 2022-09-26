@@ -6,6 +6,7 @@ import Data.Array (concat, drop, take)
 import Data.Array.NonEmpty as NEArray
 import Data.Filterable (filter, filterMap)
 import Data.FunctorWithIndex (mapWithIndex)
+import Data.Hashable (hash)
 import Data.Maybe (fromMaybe)
 import Halogen.HTML as HH
 import Halogen.HTML.CSS (style)
@@ -26,7 +27,6 @@ import Toad.Markdown
   )
 import Toad.Markdown.Html.Style as Style
 import Toad.Route as Route
-import Data.Hashable (hash)
 
 hashSpan :: Span -> Int
 hashSpan s = hash ∘ spanString $ s
@@ -90,13 +90,15 @@ isComment :: Element -> Boolean
 isComment (ElementComment _) = true
 isComment _ = false
 
-renderHeaderSpan :: Document -> Maybe ({elems :: Array Html.PlainHTML, hash :: Int})
+renderHeaderSpan
+  :: Document -> Maybe ({ elems :: Array Html.PlainHTML, hash :: Int })
 renderHeaderSpan doc =
   case take 1 ∘ filter (not isComment) ∘ elements $ doc of
-    [ElementHeading (H1 span)] ->
-      Just { elems: [ renderSpan Nothing span]
-           , hash: hashSpan span
-           }
+    [ ElementHeading (H1 span) ] ->
+      Just
+        { elems: [ renderSpan Nothing span ]
+        , hash: hashSpan span
+        }
     -- this should be unreachable
     -- TODO(orion): change the interface of Document to include
     -- a type-safe H1 (e.g. Document {heading :: Heading, body :: Array Element})

@@ -163,14 +163,14 @@ render state =
                         , State.conceptsHash
                         , hash ∘ _.appTitle ∘ State.record
                         ]
-                        <*> [ state ]
+                          <*> [ state ]
                     , route: oa
                     , manifest: State.conceptManifest state
                     , titleStyle: Grid.inAppContentTitle
                     , bodyStyle: maybe
-                          Grid.inAppContentAndTitle
-                          (const Grid.inAppContent)
-                          (_.appTitle ∘ State.record $ state)
+                        Grid.inAppContentAndTitle
+                        (const Grid.inAppContent)
+                        (_.appTitle ∘ State.record $ state)
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )
