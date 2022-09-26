@@ -18,7 +18,7 @@ instance showAppTitle :: Show AppTitle where
       , show $ length elems
       , " elements>, hash: "
       , show hash
-      , ")"
+      , "})"
       ]
 
 instance eqAppTitle :: Eq AppTitle where
