@@ -5,18 +5,22 @@ import Prelude
 import Data.Either (Either)
 import Effect (Effect)
 import Effect.Exception (Error)
-import HighlightJs.Highlighter (RawHtml, make, registerLanguage)
-import HighlightJs.Highlighter as H
-import HighlightJs.Language (Language, defaultAlias, requireLanguage)
-
 import HighlightJs.Highlighter (RawHtml(..)) as X
+import HighlightJs.Highlighter as Highlighter
 import HighlightJs.Language (Language(..)) as X
+import HighlightJs.Language as Lang
 
-highlight :: Language -> RawHtml -> Effect (Either Error RawHtml)
-highlight lang html = let
+highlight
+  :: Lang.Language
+  -> Highlighter.RawHtml
+  -> Effect (Either Error Highlighter.RawHtml)
+highlight lang html =
+  let
     hljs = do
-      hljs' <- make
-      registerLanguage (defaultAlias lang) (requireLanguage lang) hljs'
+      hljs' <- Highlighter.make
+      Highlighter.registerLanguage (Lang.defaultAlias lang)
+        (Lang.requireLanguage lang)
+        hljs'
       pure hljs'
   in
-    H.highlight (defaultAlias lang) html =<< hljs
+    Highlighter.highlight (Lang.defaultAlias lang) html =<< hljs
