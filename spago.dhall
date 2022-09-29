@@ -42,6 +42,7 @@
   , "unordered-collections"
   , "unsafe-coerce"
   , "unsafe-reference"
+  , "web-dom"
   , "web-events"
   , "yoga-fetch"
   ]

@@ -1,6 +1,6 @@
-const { HLJS: makeHljs } = require("highlight.js/lib/core");
+const makeHljs = require("highlight.js/lib/core");
 
-export const make = makeHljs({});
+export const make = () => makeHljs({});
 
 export const registerLanguage_ =
   ({ languageAliasString }) =>
@@ -19,8 +19,8 @@ export const highlight_ =
   () => {
     try {
       const result = hljs.highlight(
-        languageAliasString(alias),
-        rawHtmlString(html)
+        rawHtmlString(html),
+        {language: languageAliasString(alias)},
       );
 
       if (result.errorRaised) {

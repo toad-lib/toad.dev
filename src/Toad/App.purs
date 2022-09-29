@@ -167,10 +167,7 @@ render state =
                     , route: oa
                     , manifest: State.conceptManifest state
                     , titleStyle: Grid.inAppContentTitle
-                    , bodyStyle: maybe
-                        Grid.inAppContentAndTitle
-                        (const Grid.inAppContent)
-                        (_.appTitle ∘ State.record $ state)
+                    , bodyStyle: if Nothing == (_.appTitle ∘ State.record $ state) then Grid.inAppContentAndTitle else Grid.inAppContent
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )

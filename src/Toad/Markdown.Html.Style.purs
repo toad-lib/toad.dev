@@ -15,7 +15,7 @@ import Toad.Html as Html
 
 documentBody :: CSS
 documentBody = do
-  sym padding $ rem 1.0
+  sym padding $ rem 2.0
   backgroundColor ∘ oklab ∘ green $ Lightness 0.96
 
 element :: CSS
