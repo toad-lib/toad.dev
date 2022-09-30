@@ -26,6 +26,7 @@ data FontSize
   = FontSizeDefault
   | FontSizeSmall
   | FontSizeBody
+  | FontSizeHuge
   | FontSizeH1
   | FontSizeH2
   | FontSizeH3
@@ -39,6 +40,7 @@ data FontFamily
   | AtkinsonMedium
   | LibreBaskervilleBold
   | WorkSansSemibold
+  | WorkSansBold
 
 data Font = Font FontFamily FontSize
 
@@ -49,6 +51,7 @@ weight = case _ of
   AtkinsonBold -> Bold
   LibreBaskervilleBold -> Bold
   WorkSansSemibold -> Semibold
+  WorkSansBold -> Bold
 
 cssFontFamily :: FontFamily -> Css.CSS
 cssFontFamily =
@@ -70,6 +73,7 @@ cssFontFamily =
       AtkinsonBold -> atk
       AtkinsonMedium -> atk
       WorkSansSemibold -> wrk
+      WorkSansBold -> wrk
       LibreBaskervilleBold -> bsk
 
 cssFontWeight :: FontWeight -> Css.CSS
@@ -93,6 +97,7 @@ fontSizePt =
       FontSizeH3 -> 24.0
       FontSizeH2 -> 32.0
       FontSizeH1 -> 48.0
+      FontSizeHuge -> 72.0
   in
     pt >>> Css.pt
 

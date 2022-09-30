@@ -5,12 +5,12 @@ import Toad.Prelude
 import CSS as Css.Core
 import Data.Array (drop, take)
 import Data.Array.NonEmpty as NEArray
-import Data.String.NonEmpty as NEString
 import Data.Either (either, hush)
 import Data.Filterable (filter)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.Hashable (hash)
 import Data.Newtype (unwrap)
+import Data.String.NonEmpty as NEString
 import Halogen.HTML as HH
 import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
@@ -18,7 +18,19 @@ import Halogen.HTML.Raw (unsafeRawInnerHtml)
 import HighlightJs as Highlight
 import Toad.Css (CSS, pt)
 import Toad.Html as Html
-import Toad.Markdown (Anchor(..), CodeFence(..), CodeFenceFileType(..), Document, Element(..), Heading(..), Span(..), Text(..), Token(..), elements, spanString)
+import Toad.Markdown
+  ( Anchor(..)
+  , CodeFence(..)
+  , CodeFenceFileType(..)
+  , Document
+  , Element(..)
+  , Heading(..)
+  , Span(..)
+  , Text(..)
+  , Token(..)
+  , elements
+  , spanString
+  )
 import Toad.Markdown.Html.Style as Style
 import Toad.Route as Route
 
@@ -77,10 +89,11 @@ renderHeading x =
 
 renderCodeFence :: CSS -> CodeFence -> Effect Html.PlainHTML
 renderCodeFence css (CodeFence lang code) = do
-  let lang' = case (\(CodeFenceFileType s) -> NEString.toString s) <$> lang of
-                Just "javascript" -> Highlight.Javascript
-                Just "rust" -> Highlight.Rust
-                _ -> Highlight.Plaintext
+  let
+    lang' = case (\(CodeFenceFileType s) -> NEString.toString s) <$> lang of
+      Just "javascript" -> Highlight.Javascript
+      Just "rust" -> Highlight.Rust
+      _ -> Highlight.Plaintext
 
   result <- Highlight.highlight lang' (Highlight.RawHtml code)
   let rawHtml = either (const "failed") (\(Highlight.RawHtml r) -> r) result
@@ -90,7 +103,8 @@ renderCodeFence css (CodeFence lang code) = do
             css
             Css.Core.fontSize $ pt 16.0
         ]
-        [ HH.code [ Html.classNames ["hljs"], unsafeRawInnerHtml rawHtml ] [] ]
+        [ HH.code [ Html.classNames [ "hljs" ], unsafeRawInnerHtml rawHtml ] []
+        ]
 
 shouldSkip :: Element -> Boolean
 shouldSkip (ElementComment _) = true

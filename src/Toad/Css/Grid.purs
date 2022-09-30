@@ -43,7 +43,7 @@ inAppContentTitle :: Css.CSS
 inAppContentTitle = gridArea appGridLabel AppGridContentTitle
 
 inAppLogo :: Css.CSS
-inAppLogo = gridArea appGridLabel AppGridContentTitle
+inAppLogo = gridArea appGridLabel AppGridLogo
 
 appGrid :: AppLayout -> Css.CSS
 appGrid AppLayoutDesktop = appGridDesktop
@@ -70,7 +70,7 @@ appGridDesktop =
     do
       grid
         (fist2 (GridCol (rem 32.0)) (GridCol Css.Common.auto))
-        [ GridRow (rem 8.0) (fist2 AppGridLogo AppGridContentTitle)
+        [ GridRow (rem 12.0) (fist2 AppGridLogo AppGridContentTitle)
         , GridRow Css.Common.auto (fist2 AppGridNavbar AppGridContent)
         ]
         appGridLabel

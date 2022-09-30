@@ -8,15 +8,11 @@ import Toad.Atom.Logo.Style (logoContainer, toadLogoUrl)
 import Toad.Css as Css
 import Toad.Html as HH
 
-render :: ∀ w i. Maybe Css.CSS -> HH.HTML w i
-render extra = HH.div
-  [ Css.style do
-      logoContainer
-      fromMaybe (pure unit) extra
-  ]
-  [ HH.img
-      [ Css.style do
-          Css.height $ Css.pct 100.0
-      , HP.src toadLogoUrl
-      ]
-  ]
+render :: ∀ w i. Css.CSS -> HH.HTML w i
+render extra =
+  HH.img
+    [ Css.style do
+        Css.height $ Css.pct 100.0
+        extra
+    , HP.src toadLogoUrl
+    ]

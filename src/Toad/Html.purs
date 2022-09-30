@@ -315,10 +315,10 @@ a_ :: ∀ w i. Route.Route -> Array (HTML w i) -> HTML w i
 a_ r t = HH.a [ HP.href ∘ append "#" $ Route.print r ] t
 
 h1Font :: Font
-h1Font = fontSize FontSizeH1 <> fontFamily LibreBaskervilleBold
+h1Font = fontSize FontSizeH1 <> fontFamily WorkSansBold
 
 h2Font :: Font
-h2Font = fontSize FontSizeH2 <> fontFamily LibreBaskervilleBold
+h2Font = fontSize FontSizeH2 <> fontFamily WorkSansBold
 
 h3Font :: Font
 h3Font = fontSize FontSizeH3 <> fontFamily WorkSansSemibold

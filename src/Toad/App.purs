@@ -2,7 +2,10 @@ module Toad.App (M, Slots, runM, put, render, handleError) where
 
 import Toad.Prelude
 
+import CSS.Common as Css.Common
+import CSS.TextAlign (textAlign, rightTextAlign)
 import CSS.Overflow (overflow, overflowAuto)
+import Data.Color.OkLab (Lightness(..))
 import Data.Hashable (hash)
 import Data.Map as Map
 import Effect.Aff (Aff)
@@ -11,11 +14,13 @@ import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Console as Console
 import Halogen (HalogenM)
 import Halogen as H
+import Halogen.HTML.Properties as Prop
 import Routing.Hash (setHash)
 import Toad.Action (Action(..))
 import Toad.App.Navbar as Navbar
 import Toad.Atom.Accordion as Accordion
 import Toad.Atom.AppTitle as AppTitle
+import Toad.Atom.Logo as Logo
 import Toad.Concept as Concept
 import Toad.Css as Css
 import Toad.Css.Grid as Grid
@@ -143,6 +148,38 @@ render state =
                 , actionNoop: Nop
                 }
             ]
+        , Html.div
+            [ Css.style do
+                Grid.inAppLogo
+                Css.backgroundColor ∘ Css.oklab ∘ Css.green $ Lightness 0.95
+                Css.display Css.flex
+                Css.alignItems Css.Common.center
+                Css.justifyContent Css.spaceBetween
+                Css.sym Css.padding $ Css.rem 2.0
+            ]
+            [ Logo.render do
+                  Css.marginRight $ Css.rem 1.0
+            , Html.div
+                [Css.style do
+                    Css.display Css.flex
+                    Css.flexDirection Css.column
+                    textAlign rightTextAlign
+                ] [Html.h1
+                [ Css.style do
+                    Html.headingStyle
+                       $ Html.h1Font
+                      <> Css.fontSize Css.FontSizeHuge
+                      <> Css.fontFamily Css.WorkSansSemibold
+                ]
+                [ Html.text "toad" ]
+                , Html.h4
+                  [ Css.style do
+                      Html.headingStyle Html.h4Font
+                      Css.color∘Css.oklab∘Css.grey$Lightness 0.40
+                  ]
+                  [ Html.text "CoAP - HTTP without the bloat" ]
+                ]
+            ]
         , maybe
             (Html.div [] [])
             (AppTitle.render Grid.inAppContentTitle)
@@ -167,7 +204,10 @@ render state =
                     , route: oa
                     , manifest: State.conceptManifest state
                     , titleStyle: Grid.inAppContentTitle
-                    , bodyStyle: if Nothing == (_.appTitle ∘ State.record $ state) then Grid.inAppContentAndTitle else Grid.inAppContent
+                    , bodyStyle:
+                        if Nothing == (_.appTitle ∘ State.record $ state) then
+                          Grid.inAppContentAndTitle
+                        else Grid.inAppContent
                     , lookupDocument: (flip Map.lookup) $ State.concepts state
                     }
                 )
