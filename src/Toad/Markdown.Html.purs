@@ -25,6 +25,8 @@ import Toad.Markdown
   , Document
   , Element(..)
   , Heading(..)
+  , List(..)
+  , ListToken(..)
   , Span(..)
   , Text(..)
   , Token(..)
@@ -106,10 +108,33 @@ renderCodeFence css (CodeFence lang code) = do
         [ HH.code [ Html.classNames [ "hljs" ], unsafeRawInnerHtml rawHtml ] []
         ]
 
-shouldSkip :: Element -> Boolean
-shouldSkip (ElementComment _) = true
-shouldSkip (ElementList _) = true
-shouldSkip _ = false
+renderListToken :: ListToken -> Html.PlainHTML
+renderListToken (ListTokenSpan s) =
+  Html.li
+    [ style Style.span ]
+    [ renderSpan (pure unit) s ]
+renderListToken (ListTokenSpanSublist s l) =
+  Html.li
+    [ style Style.span ]
+    [ Html.div
+        []
+        [ renderSpan (pure unit) s
+        , renderList (pure unit) l
+        ]
+    ]
+
+renderListUsing
+  :: (Array Html.PlainHTML -> Html.PlainHTML)
+  -> NEArray.NonEmptyArray ListToken
+  -> Html.PlainHTML
+renderListUsing parent tokens = parent ∘ NEArray.toArray ∘ map renderListToken $
+  tokens
+
+renderList :: CSS -> List -> Html.PlainHTML
+renderList css (OrderedList tokens) = renderListUsing (Html.ol [ style css ])
+  tokens
+renderList css (UnorderedList tokens) = renderListUsing (Html.ul [ style css ])
+  tokens
 
 isComment :: Element -> Boolean
 isComment (ElementComment _) = true
@@ -144,7 +169,13 @@ renderBody x d =
             style' i
         )
         cf
-    render' _ (ElementList _) = pure $ HH.div_ []
+    render' i (ElementList l) =
+      pure $ renderList
+        ( do
+            Style.topLevel
+            style' i
+        )
+        l
     render' i (ElementHeading h) =
       pure $ renderHeading
         ( do
@@ -164,7 +195,6 @@ renderBody x d =
     do
       xs <- sequence
         ∘ mapWithIndex render'
-        ∘ filter (not shouldSkip)
         ∘ drop 1
         ∘ filter (not isComment)
         ∘ elements

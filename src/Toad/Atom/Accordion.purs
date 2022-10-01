@@ -15,26 +15,17 @@ import CSS.Text.Whitespace (textWhitespace, whitespaceNoWrap)
 import CSS.TextAlign (leftTextAlign, textAlign)
 import Data.Active (Active(..))
 import Data.Array.Mve as Mve
-import Data.Color.OkLab (Lab(..), Lightness(..))
+import Data.Color.OkLab (Lab, Lightness)
 import Data.Expanded (Expanded(..))
 import Data.Maybe (fromMaybe, isJust)
-import Data.String (joinWith)
-import Halogen.HTML.Events (onClick)
+import Halogen.HTML.Properties as Prop
 import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
 import Toad.Css
   ( CSS
-  , absolute
   , alignItems
-  , backgroundColor
-  , borderRadius
   , color
   , colorBg
-  , colorFg
-  , colorPrimary3
-  , colorPrimary3_5
-  , colorPrimary4
-  , colorPrimary5
   , display
   , flex
   , flexShrink
@@ -43,12 +34,7 @@ import Toad.Css
   , grey
   , height
   , justifyContent
-  , kwapEasing
-  , left
   , marginBottom
-  , marginLeft
-  , marginRight
-  , ms
   , oklab
   , padding
   , paddingLeft
@@ -56,11 +42,8 @@ import Toad.Css
   , position
   , relative
   , rem
-  , spaceBetween
   , style
   , sym
-  , top
-  , transition
   , width
   )
 import Toad.Css.Font as Font
@@ -164,6 +147,7 @@ renderRow
                   textOverflow ellipsis
                   overflow hidden
                   textAlign leftTextAlign
+              , Prop.title text
               ]
               [ Html.text text ]
           ]
