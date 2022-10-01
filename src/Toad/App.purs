@@ -3,8 +3,8 @@ module Toad.App (M, Slots, runM, put, render, handleError) where
 import Toad.Prelude
 
 import CSS.Common as Css.Common
-import CSS.TextAlign (textAlign, rightTextAlign)
 import CSS.Overflow (overflow, overflowAuto)
+import CSS.TextAlign (rightTextAlign, textAlign)
 import Data.Color.OkLab (Lightness(..))
 import Data.Hashable (hash)
 import Data.Map as Map
@@ -158,26 +158,27 @@ render state =
                 Css.sym Css.padding $ Css.rem 2.0
             ]
             [ Logo.render do
-                  Css.marginRight $ Css.rem 1.0
+                Css.marginRight $ Css.rem 1.0
             , Html.div
-                [Css.style do
+                [ Css.style do
                     Css.display Css.flex
                     Css.flexDirection Css.column
                     textAlign rightTextAlign
-                ] [Html.h1
-                [ Css.style do
-                    Html.headingStyle
-                       $ Html.h1Font
-                      <> Css.fontSize Css.FontSizeHuge
-                      <> Css.fontFamily Css.WorkSansSemibold
                 ]
-                [ Html.text "toad" ]
+                [ Html.h1
+                    [ Css.style do
+                        Html.headingStyle
+                          $ Html.h1Font
+                          <> Css.fontSize Css.FontSizeHuge
+                          <> Css.fontFamily Css.WorkSansSemibold
+                    ]
+                    [ Html.text "toad" ]
                 , Html.h4
-                  [ Css.style do
-                      Html.headingStyle Html.h4Font
-                      Css.color∘Css.oklab∘Css.grey$Lightness 0.40
-                  ]
-                  [ Html.text "CoAP - HTTP without the bloat" ]
+                    [ Css.style do
+                        Html.headingStyle Html.h4Font
+                        Css.color ∘ Css.oklab ∘ Css.grey $ Lightness 0.40
+                    ]
+                    [ Html.text "CoAP - fast, simple, and universal" ]
                 ]
             ]
         , maybe

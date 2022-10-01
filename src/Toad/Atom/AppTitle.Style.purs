@@ -6,7 +6,22 @@ import CSS (flexEnd, justifyContent, paddingRight)
 import CSS.Common (center)
 import CSS.Selector as Select
 import Data.Color.OkLab (Lightness(..))
-import Toad.Css (CSS, alignItems, backgroundColor, color, definedIn, display, flex, green, oklab, padding, paddingLeft, rem, select, sym)
+import Toad.Css
+  ( CSS
+  , alignItems
+  , backgroundColor
+  , color
+  , definedIn
+  , display
+  , flex
+  , green
+  , oklab
+  , padding
+  , paddingLeft
+  , rem
+  , select
+  , sym
+  )
 import Toad.Html as Html
 
 global :: CSS
