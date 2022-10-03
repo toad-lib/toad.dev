@@ -1,31 +1,26 @@
 module Toad.Markdown.Html.Style
   ( anchorSpan
   , documentBody
-  , element
-  , elementFirst
   , span
   , topLevel
+  , topLevelFirst
+  , topLevelSpan
   ) where
 
 import Toad.Css
 import Toad.Prelude
+
+import CSS.Overflow (overflow, overflowAuto)
 
 import Data.Color.OkLab (Lightness(..))
 import Toad.Html as Html
 
 documentBody :: CSS
 documentBody = do
+  height $ pct 100.0
+  overflow overflowAuto
   sym padding $ rem 2.0
   backgroundColor ∘ oklab ∘ green $ Lightness 0.96
-
-element :: CSS
-element = do
-  marginTop $ rem 1.0
-
-elementFirst :: CSS
-elementFirst = do
-  element
-  marginTop nil
 
 span :: CSS
 span = do
@@ -33,7 +28,20 @@ span = do
   color ∘ oklab ∘ green $ Lightness 0.10
 
 topLevel :: CSS
-topLevel = display block
+topLevel = do
+  display block
+  marginTop $ rem 2.0
+
+topLevelFirst :: CSS
+topLevelFirst = do
+  topLevel
+  marginTop nil
+
+topLevelSpan :: CSS
+topLevelSpan = do
+  span
+  display block
+  marginTop $ rem 1.0
 
 anchorSpan :: CSS
 anchorSpan = do

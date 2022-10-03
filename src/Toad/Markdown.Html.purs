@@ -16,7 +16,7 @@ import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
 import Halogen.HTML.Raw (unsafeRawInnerHtml)
 import HighlightJs as Highlight
-import Toad.Css (CSS, pt)
+import Toad.Css (CSS, pt, marginBottom, nil)
 import Toad.Html as Html
 import Toad.Markdown
   ( Anchor(..)
@@ -77,8 +77,8 @@ renderHeading :: CSS -> Heading -> Html.PlainHTML
 renderHeading x =
   let
     style' f = style do
-      x
       Html.headingStyle f
+      x
     span' = renderSpan $ pure unit
   in
     case _ of
@@ -89,8 +89,8 @@ renderHeading x =
       H5 s -> Html.h5 [ style' Html.h5Font ] [ span' s ]
       H6 s -> Html.h6 [ style' Html.h6Font ] [ span' s ]
 
-renderCodeFence :: CSS -> CodeFence -> Effect Html.PlainHTML
-renderCodeFence css (CodeFence lang code) = do
+renderCode :: CSS -> CodeFence -> Effect Html.PlainHTML
+renderCode css (CodeFence lang code) = do
   let
     lang' = case (\(CodeFenceFileType s) -> NEString.toString s) <$> lang of
       Just "javascript" -> Highlight.Javascript
@@ -104,6 +104,7 @@ renderCodeFence css (CodeFence lang code) = do
         [ style do
             css
             Css.Core.fontSize $ pt 16.0
+            marginBottom nil
         ]
         [ HH.code [ Html.classNames [ "hljs" ], unsafeRawInnerHtml rawHtml ] []
         ]
@@ -157,40 +158,25 @@ renderHeaderSpan doc =
 renderBody :: CSS -> Document -> Effect Html.PlainHTML
 renderBody x d =
   let
-    style' 0 = Style.elementFirst
-    style' _ = Style.element
+    firstOr 0 _ = Style.topLevelFirst
+    firstOr _ css = css
 
     render' :: Int -> Element -> Effect Html.PlainHTML
-    render' _ (ElementComment _) = pure $ HH.div_ []
-    render' i (ElementCodeFence cf) =
-      renderCodeFence
-        ( do
-            Style.topLevel
-            style' i
-        )
-        cf
-    render' i (ElementList l) =
-      pure $ renderList
-        ( do
-            Style.topLevel
-            style' i
-        )
-        l
+    render' i (ElementList l) = pure $ renderList (firstOr i Style.topLevel) l
+    render' i (ElementCodeFence cf) = renderCode (firstOr i Style.topLevel) cf
     render' i (ElementHeading h) =
-      pure $ renderHeading
+      pure
+      $ renderHeading (firstOr i Style.topLevel) h
+    render' 0 (ElementSpan s) =
+      pure
+      $ renderSpan
         ( do
-            Style.topLevel
-            style' i
-        )
-        h
-    render' i (ElementSpan s) =
-      pure $ renderSpan
-        ( do
-            Style.span
-            Style.topLevel
-            style' i
+            Style.topLevelSpan
+            Style.topLevelFirst
         )
         s
+    render' _ (ElementSpan s) = pure $ renderSpan Style.topLevelSpan s
+    render' _ _ = pure $ HH.div_ []
   in
     do
       xs <- sequence
