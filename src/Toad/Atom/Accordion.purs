@@ -30,6 +30,7 @@ import Toad.Css
   , flex
   , flexShrink
   , flexStart
+  , fontSize
   , green
   , grey
   , height
@@ -45,6 +46,7 @@ import Toad.Css
   , style
   , sym
   , width
+  , FontSize(..)
   )
 import Toad.Css.Font as Font
 import Toad.Html as Html
@@ -141,7 +143,7 @@ renderRow
           [ Html.h4
               [ style do
                   color ∘ oklab ∘ colorBg $ grey
-                  Font.font Html.h3Font
+                  Font.font $ Html.h3Font <> Font.fontSize (if isHeader then FontSizeH3 else FontSizeH4)
                   width $ pct 100.0
                   textWhitespace whitespaceNoWrap
                   textOverflow ellipsis
