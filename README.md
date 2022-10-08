@@ -1,9 +1,4 @@
-# kwap.rs
-
-## Questions the toad.dev site should answer
- - What is CoAP?
- - What is ToAD?
- - When would I use ToAD instead of HTTP?
+# toad.dev
 
 ## Documentation philosophy
 The ToAD project follows the [divio documentation system](https://documentation.divio.com/) philosophy,
