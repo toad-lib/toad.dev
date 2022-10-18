@@ -5,7 +5,6 @@ import Prelude
 import Halogen.HTML (HTML)
 import Halogen.HTML.CSS as HalogenCss
 import Toad.Atom.AppTitle.Style as AppTitle
-import Toad.Atom.Button as Button
 import Toad.Css.BoxSizing as BoxSizing
 import Toad.Navbar.Button.Style as Navbar.Button.Style
 
@@ -24,7 +23,6 @@ import Toad.Navbar.Button.Style as Navbar.Button.Style
 
 stylesheet :: forall w i. HTML w i
 stylesheet = HalogenCss.stylesheet do
-  Button.globalStyles
   BoxSizing.global
   Navbar.Button.Style.global
   AppTitle.global

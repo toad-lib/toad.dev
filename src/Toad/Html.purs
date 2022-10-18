@@ -4,6 +4,7 @@ module Toad.Html
   , withText
   , classNames
   , ClassProp
+  , a'
   , a
   , a_
   , h1_
@@ -25,6 +26,7 @@ module Toad.Html
 import Toad.Prelude
 
 import CSS as CSS
+import DOM.HTML.Indexed (HTMLa)
 import DOM.HTML.Indexed as I
 import Data.Array as Array
 import Data.Color.OkLab as OkLab
@@ -251,7 +253,7 @@ import Halogen.HTML
   , withKeys
   , withKeys_
   ) as X
-import Halogen.HTML (HTML, IProp)
+import Halogen.HTML (HTML, IProp, Node)
 import Halogen.HTML as HH
 import Halogen.HTML.CSS (style)
 import Halogen.HTML.Properties as HP
@@ -301,8 +303,11 @@ headingStyle font' = do
   case font' of Font _ size -> lineHeight ∘ fontSizePt $ size
   margin nil nil nil nil
 
+a' :: forall r w i. Node HTMLa w i
+a' = HH.a
+
 a
-  :: ∀ r w i
+  :: ∀ w i
    . Array (IProp I.HTMLa i)
   -> Route.Route
   -> Array (HTML w i)

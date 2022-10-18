@@ -23,6 +23,7 @@ import Toad.Atom.Button as Button
 import Toad.Atom.Icon as Icon
 import Toad.Css
   ( CSS
+  , FontSize(..)
   , alignItems
   , color
   , colorBg
@@ -35,7 +36,9 @@ import Toad.Css
   , grey
   , height
   , justifyContent
+  , margin
   , marginBottom
+  , nil
   , oklab
   , padding
   , paddingLeft
@@ -46,7 +49,6 @@ import Toad.Css
   , style
   , sym
   , width
-  , FontSize(..)
   )
 import Toad.Css.Font as Font
 import Toad.Html as Html
@@ -127,32 +129,38 @@ renderRow
           alignItems center
           marginBottom $ rem 0.25
       ]
-      [ Button.render active
-          ( Just do
-              display flex
-              alignItems center
-              width $ pct 100.0
-              height $ rem 3.0
-              paddingLeft $ rem 0.5
-              overflow hidden
-          )
-          ( maybe (if isHeader then actionExpand else actionNoop)
+      [ Button.render
+          { active
+          , children:
+              [ Html.h4
+                  [ style do
+                      color ∘ oklab ∘ colorBg $ grey
+                      Font.font $ Html.h3Font <> Font.fontSize
+                        (if isHeader then FontSizeH3 else FontSizeH4)
+                      width $ pct 100.0
+                      textWhitespace whitespaceNoWrap
+                      textOverflow ellipsis
+                      overflow hidden
+                      textAlign leftTextAlign
+                      sym margin nil
+                  , Prop.title text
+                  ]
+                  [ Html.text text ]
+              ]
+          , onClick: maybe
+              (if isHeader then actionExpand else actionNoop)
               actionPickValue
               value
-          )
-          [ Html.h4
-              [ style do
-                  color ∘ oklab ∘ colorBg $ grey
-                  Font.font $ Html.h3Font <> Font.fontSize (if isHeader then FontSizeH3 else FontSizeH4)
-                  width $ pct 100.0
-                  textWhitespace whitespaceNoWrap
-                  textOverflow ellipsis
-                  overflow hidden
-                  textAlign leftTextAlign
-              , Prop.title text
-              ]
-              [ Html.text text ]
-          ]
+          , styleButton: do
+              display flex
+              alignItems center
+              paddingLeft $ rem 0.5
+              overflow hidden
+          , styleContainer: do
+              width $ pct 100.0
+              height $ rem 3.0
+          , theme: Button.primary green
+          }
       , if not isHeader then
           Html.div
             [ style do
@@ -161,16 +169,20 @@ renderRow
             ]
             []
         else
-          Button.render Active
-            ( Just do
+          Button.render
+            { active: Active
+            , children:
+                [ Icon.render case expanded of
+                    Expanded -> Icon.ChevronUp
+                    Collapsed -> Icon.ChevronDown
+                ]
+            , onClick: actionExpand
+            , styleButton: do
                 squareStyle
                 sym padding $ rem 0.25
-            )
-            actionExpand
-            [ Icon.render case expanded of
-                Expanded -> Icon.ChevronUp
-                Collapsed -> Icon.ChevronDown
-            ]
+            , styleContainer: pure unit
+            , theme: Button.primary green
+            }
       ]
 
 itemsWithActive

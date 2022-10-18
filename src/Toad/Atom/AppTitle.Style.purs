@@ -1,8 +1,13 @@
-module Toad.Atom.AppTitle.Style (global, container, h1Class) where
+module Toad.Atom.AppTitle.Style
+  ( global
+  , backgroundLightness
+  , container
+  , h1Class
+  ) where
 
 import Toad.Prelude
 
-import CSS (flexEnd, justifyContent, paddingRight)
+import CSS (justifyContent, paddingRight)
 import CSS.Common (center)
 import CSS.Selector as Select
 import Data.Color.OkLab (Lightness(..))
@@ -16,13 +21,15 @@ import Toad.Css
   , flex
   , green
   , oklab
-  , padding
   , paddingLeft
   , rem
   , select
-  , sym
+  , spaceBetween
   )
 import Toad.Html as Html
+
+backgroundLightness :: Lightness
+backgroundLightness = Lightness 0.75
 
 global :: CSS
 global = do
@@ -43,10 +50,12 @@ global = do
 
 container :: CSS
 container = do
-  backgroundColor ∘ oklab ∘ green $ Lightness 0.75
+  backgroundColor ∘ oklab ∘ green $ backgroundLightness
   paddingLeft $ rem 4.0
+  paddingRight $ rem 4.0
   display flex
   alignItems center
+  justifyContent spaceBetween
 
 h1ClassString :: String
 h1ClassString = "app-title"

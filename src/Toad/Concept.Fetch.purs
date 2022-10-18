@@ -1,4 +1,4 @@
-module Toad.Concept.Fetch (manifest, one) where
+module Toad.Concept.Fetch (manifest, one, humanUrl) where
 
 import Toad.Prelude
 
@@ -13,13 +13,15 @@ import Effect.Class (liftEffect)
 import Effect.Now (nowDateTime)
 import Toad.Concept (Manifest, Path, decodeManifest, pathString)
 
-baseUrl :: String
-baseUrl =
-  "https://raw.githubusercontent.com/clov-coffee/kwap-docs/main/"
+rawContentBaseUrl :: String
+rawContentBaseUrl =
+  "https://raw.githubusercontent.com/clov-coffee/toad.dev-docs/main/"
+
+humanBaseUrl :: String
+humanBaseUrl = "https://github.com/clov-coffee/toad.dev-docs/tree/main/"
 
 manifestUrl :: String
-manifestUrl =
-  baseUrl <> "concepts.json"
+manifestUrl = rawContentBaseUrl <> "concepts.json"
 
 maybeEpoch :: Maybe DateTime
 maybeEpoch = flip DateTime bottom <$>
@@ -29,11 +31,14 @@ unixTime :: DateTime -> Seconds
 unixTime = maybe (const $ Seconds 0.0) (flip diff) maybeEpoch
 
 cacheBust :: DateTime -> HTTP.URL -> HTTP.URL
-cacheBust dt (HTTP.URL u) =
-  HTTP.URL
-    $ u
-    <> "?cache-bust="
-    <> (show <<< floor <<< unwrap <<< unixTime $ dt)
+cacheBust dt (HTTP.URL u) = HTTP.URL $ u <> "?cache-bust=" <>
+  (show ∘ floor ∘ unwrap ∘ unixTime $ dt)
+
+rawContentUrl :: Path -> HTTP.URL
+rawContentUrl p = HTTP.URL $ rawContentBaseUrl <> "concepts/" <> pathString p
+
+humanUrl :: Path -> HTTP.URL
+humanUrl p = HTTP.URL $ humanBaseUrl <> "concepts/" <> pathString p
 
 manifest :: HTTP.FetchImpl -> Aff (Either String Manifest)
 manifest impl =
@@ -47,10 +52,7 @@ manifest impl =
 
 one :: HTTP.FetchImpl -> Path -> Aff String
 one impl p =
-  let
-    url = HTTP.URL $ baseUrl <> "concepts/" <> pathString p
-  in
-    do
-      url' <- pure cacheBust <*> liftEffect nowDateTime <*> pure url
-      res <- HTTP.fetch impl url' HTTP.Get mempty
-      HTTP.text res
+  do
+    url' <- pure cacheBust <*> liftEffect nowDateTime <*> pure (rawContentUrl p)
+    res <- HTTP.fetch impl url' HTTP.Get mempty
+    HTTP.text res

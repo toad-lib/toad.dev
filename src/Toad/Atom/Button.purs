@@ -1,101 +1,63 @@
-module Toad.Atom.Button where
+module Toad.Atom.Button (module X, render, renderPlain) where
 
 import Toad.Prelude
 
-import CSS.Cursor (pointer)
-import CSS.Selector as Select
-import CSS.Time as Time
 import Data.Active (Active(..))
-import Data.Color.OkLab (Lightness(..))
+import Halogen.HTML.CSS (stylesheet)
 import Halogen.HTML.Events (onClick)
-import Toad.Css
-  ( CSS
-  , backgroundColor
-  , black
-  , border
-  , colorFg
-  , colorPrimary
-  , colorPrimary2
-  , colorPrimary3
-  , colorPrimary4
-  , colorPrimary5
-  , cursor
-  , definedIn
-  , green
-  , kwapEasing
-  , oklab
-  , padding
-  , pseudo
-  , px
-  , select
-  , solid
-  , style
-  , sym
-  , transition
-  )
+import Halogen.HTML.Shadow (shadow)
+import Toad.Atom.Button.Style (Theme(..), primary) as X
+import Toad.Atom.Button.Style as Style
+import Toad.Css (CSS, style)
 import Toad.Html as Html
-
-className :: String
-className = "toad-button"
-
-activeClassName :: String
-activeClassName = "toad-button-active"
-
-globalStyles :: CSS
-globalStyles = do
-  select
-    ( Select.element "button"
-        `Select.with` Select.byClass className
-    )
-    do
-      border solid (px 0.0) black
-      sym padding $ px 0.0
-      cursor pointer
-      backgroundColor ∘ oklab ∘ green $ Lightness 0.96
-      transition "background-color" (Time.ms 75.0) kwapEasing (Time.ms 0.0)
-
-  select
-    ( Select.element "button"
-        `Select.with` Select.byClass className
-        `Select.with` pseudo "hover"
-    )
-    do
-      definedIn "Toad.Atom.Button"
-      backgroundColor ∘ oklab ∘ green $ Lightness 0.8
-
-  let
-    active = do
-      definedIn "Toad.Atom.Button"
-      backgroundColor ∘ oklab ∘ green $ Lightness 0.75
-
-  select
-    ( Select.element "button"
-        `Select.with` Select.byClass className
-        `Select.with` pseudo "active"
-    )
-    active
-
-  select
-    ( Select.element "button"
-        `Select.with` Select.byClass activeClassName
-    )
-    active
 
 render
   :: forall w i
-   . Active
-  -> Maybe CSS
-  -> i
-  -> Array (Html.HTML w i)
+   . { active :: Active
+     , children :: Array (Html.HTML w i)
+     , onClick :: i
+     , styleContainer :: CSS
+     , styleButton :: CSS
+     , theme :: Style.Theme
+     }
   -> Html.HTML w i
-render a x i c = Html.button
-  [ Html.classNames
-      $ [ className ]
-      <> case a of
-        Active -> [ activeClassName ]
-        Inactive -> []
-  , style do
-      maybe (pure unit) id x
-  , onClick $ const i
-  ]
-  c
+render
+  { active
+  , children
+  , onClick: onClickAction
+  , styleButton
+  , styleContainer
+  , theme
+  } =
+  Html.div
+    [ shadow, style styleContainer ]
+    [ stylesheet (Style.button theme)
+    , Html.button
+        [ Html.classNames
+            $ [ Style.className ]
+            <> case active of
+              Active -> [ Style.activeClassName ]
+              Inactive -> []
+        , onClick $ const onClickAction
+        , style styleButton
+        ]
+        children
+    ]
+
+renderPlain
+  :: { children :: Array Html.PlainHTML
+     , styleContainer :: CSS
+     , styleButton :: CSS
+     , theme :: Style.Theme
+     }
+  -> Html.PlainHTML
+renderPlain { styleContainer, styleButton, children, theme } =
+  Html.div
+    [ shadow, style styleContainer ]
+    [ stylesheet (Style.button theme)
+    , Html.button
+        [ Html.classNames [ Style.className ]
+        , style styleButton
+        ]
+        children
+    ]

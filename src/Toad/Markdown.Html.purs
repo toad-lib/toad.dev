@@ -3,6 +3,7 @@ module Toad.Markdown.Html where
 import Toad.Prelude
 
 import CSS as Css.Core
+import Data.Active (Active(..))
 import Data.Array (drop, take)
 import Data.Array.NonEmpty as NEArray
 import Data.Either (either, hush)
@@ -13,10 +14,16 @@ import Data.Newtype (unwrap)
 import Data.String.NonEmpty as NEString
 import Halogen.HTML as HH
 import Halogen.HTML.CSS (style)
+import Halogen.HTML.Properties (href, rel, target)
 import Halogen.HTML.Properties as HP
 import Halogen.HTML.Raw (unsafeRawInnerHtml)
 import HighlightJs as Highlight
-import Toad.Css (CSS, pt, marginBottom, nil)
+import Toad.Atom.AppTitle (AppTitle(..))
+import Toad.Atom.Button as Button
+import Toad.Atom.Icon as Icon
+import Toad.Concept (Path(..))
+import Toad.Concept.Fetch as Concept.Remote
+import Toad.Css (CSS, green, marginBottom, nil, pt)
 import Toad.Html as Html
 import Toad.Markdown
   ( Anchor(..)
@@ -35,6 +42,7 @@ import Toad.Markdown
   )
 import Toad.Markdown.Html.Style as Style
 import Toad.Route as Route
+import Unsafe.Coerce (unsafeCoerce)
 
 hashSpan :: Span -> Int
 hashSpan s = hash ∘ spanString $ s
@@ -141,13 +149,31 @@ isComment :: Element -> Boolean
 isComment (ElementComment _) = true
 isComment _ = false
 
-renderHeaderSpan
-  :: Document -> Maybe ({ elems :: Array Html.PlainHTML, hash :: Int })
-renderHeaderSpan doc =
+renderAppTitle
+  :: Path -> Document -> Maybe AppTitle
+renderAppTitle path doc =
   case take 1 ∘ filter (not isComment) ∘ elements $ doc of
     [ ElementHeading (H1 span) ] ->
-      Just
-        { elems: [ renderSpan (pure unit) span ]
+      Just ∘ AppTitle $
+        { h1: [ renderSpan (pure unit) span ]
+        , accessory:
+            [ Button.renderPlain
+                { children:
+                    [ Html.a'
+                        [ href ∘ unwrap ∘ Concept.Remote.humanUrl $ path
+                        , target "_blank"
+                        , rel "noopener noreferrer"
+                        ]
+                        [ Html.div
+                            [ style Style.githubButton ]
+                            [ Icon.render Icon.Github ]
+                        ]
+                    ]
+                , styleButton: pure unit
+                , styleContainer: pure unit
+                , theme: Style.githubButtonTheme
+                }
+            ]
         , hash: hashSpan span
         }
     -- this should be unreachable
@@ -158,38 +184,31 @@ renderHeaderSpan doc =
 renderBody :: CSS -> Document -> Effect Html.PlainHTML
 renderBody x d =
   let
-    firstOr 0 _ = Style.topLevelFirst
-    firstOr _ css = css
+    topLevelStyle 0 = Style.topLevelFirst
+    topLevelStyle _ = Style.topLevel
 
     render' :: Int -> Element -> Effect Html.PlainHTML
-    render' i (ElementList l) = pure $ renderList (firstOr i Style.topLevel) l
-    render' i (ElementCodeFence cf) = renderCode (firstOr i Style.topLevel) cf
-    render' i (ElementHeading h) =
-      pure
-      $ renderHeading (firstOr i Style.topLevel) h
+    render' i (ElementList l) = pure $ renderList (topLevelStyle i) l
+    render' i (ElementCodeFence cf) = renderCode (topLevelStyle i) cf
+    render' i (ElementHeading h) = pure $ renderHeading (topLevelStyle i) h
     render' 0 (ElementSpan s) =
       pure
-      $ renderSpan
-        ( do
-            Style.topLevelSpan
-            Style.topLevelFirst
-        )
-        s
+        $ renderSpan
+            ( do
+                Style.topLevelSpan
+                Style.topLevelFirst
+            )
+            s
     render' _ (ElementSpan s) = pure $ renderSpan Style.topLevelSpan s
     render' _ _ = pure $ HH.div_ []
+
+    body = drop 1 ∘ filter (not isComment)
   in
     do
       xs <- sequence
         ∘ mapWithIndex render'
-        ∘ drop 1
-        ∘ filter (not isComment)
+        ∘ body
         ∘ elements
         $ d
 
-      pure $
-        Html.div
-          [ style do
-              Style.documentBody
-              x
-          ]
-          xs
+      pure $ Html.div [ style (Style.documentBody >>= const x) ] xs

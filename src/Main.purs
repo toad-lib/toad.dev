@@ -130,7 +130,7 @@ handleAction =
       $ H.get
 
     Toad.Action.ConceptsPageOutput (Toad.Page.Concepts.TitleChanged at) ->
-      handleAction (Toad.Action.AppTitleChanged $ AppTitle at)
+      handleAction (Toad.Action.AppTitleChanged at)
 
     Toad.Action.ConceptsPageOutput (Toad.Page.Concepts.FetchConcept ident) -> do
       let

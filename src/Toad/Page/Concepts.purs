@@ -2,12 +2,14 @@ module Toad.Page.Concepts (concepts, Input(..), Output(..)) where
 
 import Toad.Prelude
 
+import Data.Foldable (find)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.String (joinWith)
 import Effect.Class (class MonadEffect)
 import Halogen as H
-import Toad.Concept (Ident, Manifest)
+import Toad.Atom.AppTitle (AppTitle(..))
+import Toad.Concept (Decl(..), Ident, Manifest, Path(..), decls, path)
 import Toad.Css as Css
 import Toad.Html as Html
 import Toad.Markdown as Md
@@ -45,7 +47,7 @@ instance showInput :: Show Input where
 
 data Output
   = FetchConcept Ident
-  | TitleChanged ({ elems :: Array Html.PlainHTML, hash :: Int })
+  | TitleChanged AppTitle
 
 data Action = Init | InputChanged Input
 
@@ -61,17 +63,27 @@ bodyStyle (State { input: Input { bodyStyle: s } }) = s
 manifest :: State -> Maybe Manifest
 manifest (State { input: Input { manifest: m } }) = m
 
+lookupPath :: State -> Ident -> Maybe Path
+lookupPath s id =
+  let
+    byIdent (Decl { ident }) = ident == id
+  in
+    pure ∘ path
+      =<< find byIdent
+      ∘ decls
+      =<< manifest s
+
 lookupDocument :: State -> Ident -> Maybe Md.Document
 lookupDocument (State { input: Input { lookupDocument: l } }) = l
 
 lookupRendered :: State -> Ident -> Maybe Html.PlainHTML
 lookupRendered (State { renderedMarkdown }) = flip Map.lookup renderedMarkdown
 
-title :: State -> Maybe ({ elems :: Array Html.PlainHTML, hash :: Int })
-title s@(State { input: Input { route: Route.One id } }) =
-  flip bind Md.Html.renderHeaderSpan
-    ∘ lookupDocument s
-    $ id
+title :: State -> Maybe AppTitle
+title s@(State { input: Input { route: Route.One id } }) = do
+  path <- lookupPath s id
+  doc <- lookupDocument s id
+  Md.Html.renderAppTitle path doc
 title _ = Nothing
 
 concepts :: forall q m. MonadEffect m => H.Component q Input Output m

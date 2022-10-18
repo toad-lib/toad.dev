@@ -9,8 +9,9 @@ import Toad.Html as HH
 foreign import _x :: String
 foreign import _chevronUp :: String
 foreign import _chevronDown :: String
+foreign import _github :: String
 
-data Icon = X | ChevronDown | ChevronUp
+data Icon = X | ChevronDown | ChevronUp | Github
 
 render :: ∀ w i. Icon -> HH.HTML w i
 render i = HH.img
@@ -24,3 +25,4 @@ url :: Icon -> String
 url X = _x
 url ChevronDown = _chevronDown
 url ChevronUp = _chevronUp
+url Github = _github
